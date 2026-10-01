@@ -156,6 +156,37 @@
         "audio stats: voices [1-9]\\d*/\\d+ glitches \\d+ peak 0\\.\\d*[1-9]"
       ],
       "screenshots": []
+    },
+    {
+      "name": "thule_academy_tweaks",
+      "route": "thule_academy",
+      "extra_input": "40000:lup:5000",
+      "seconds": 55,
+      "env": {
+        "CW_AUDIO": "0"
+      },
+      "mods": [
+        "academy_tweaks"
+      ],
+      "watch": {
+        "screen": "38f7a8",
+        "academy_level": "41b87c"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ],
+        "academy_level": [
+          ">=",
+          1
+        ]
+      },
+      "log_regex": [
+        "academy_tweaks: player health 700 -> 1400",
+        "academy_tweaks: wave 1 \\(groups 6, level 1"
+      ],
+      "screenshots": []
     }
   ]
 }

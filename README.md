@@ -119,6 +119,15 @@ Use `native_port/runtime/game/GameSymbols.h` for addresses and typed globals. Re
 
 `CW_DISABLE_HOOKS=name,...` turns off individual runtime or plugin hooks when you are tracking down a problem, and `CW_HOOK_SELFTEST=<address>` installs a logging mid hook.
 
+## Academy mode
+
+Thule Moon Academy is run by a mode script (`ThuleAcademyScript`, created for world `multi5` and stored in `g_missionScript`). It plays 26 waves from tables built for the number of players (`g_mpPlayerCount`, 1..4), then repeats them with a higher Academy level. Each wave is a list of groups; a group spawns `(unit ODF, spawn point)` pairs after a delay, can wait until every enemy is dead, and can play a voice cue or a bonus-path effect. Each finished wave raises `g_academyLevel`, which scales enemy health (x1.5 for every 20 levels). A `GLADIATOR` entry starts the player-vs-player elimination round.
+
+- `docs/academy_waves.md` / `.json`: every wave for 1-4 players (regenerate with `python tools/re/academy_waves.py --markdown docs/academy_waves.md --json docs/academy_waves.json`).
+- `native_port/runtime/game/GameObjects.h`: typed views for plugins, `GameObject` (player object, position, orientation, team, health) and `ThuleAcademyScript` (current wave and group, wave tables, live enemies, loop count).
+- `symbols/manual.csv`: the Battlezone II-style script API the mode uses (`Script_BuildObjectAt`, `Script_Goto`, `Script_GetMaxHealth`, `Script_SetMaxHealth`, `Script_GetTime`, ...).
+- `mods/academy_tweaks`: example plugin that doubles the player's health and logs wave progress.
+
 ## Tests
 
 ```powershell
@@ -135,7 +144,7 @@ These environment variables affect `clone_wars.exe`:
 - `CW_SCREENSHOT_FRAMES=600,1200`: saves `screenshot_<frame>.bmp` files. `CW_SCREENSHOT_EVERY=120` saves one every 120 frames.
 - `CW_INPUT_SCRIPT=10000:start,11400:a,15000:lup:3000`: presses a button at a millisecond offset for 150 ms, or for the optional hold time. Buttons are `start`, `back`, `a`, `b`, `x`, `y`, `black`, `white`, `lt`, `rt`, `up`, `down`, `left`, `right` (d-pad) and `lup`, `ldown`, `lleft`, `lright` (left stick).
   - Thule Moon Academy: `10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start`
-- `CW_WATCH=41b884:f,41b888,5a2448:s`: logs memory values every `CW_WATCH_MS` (default 1000) ms. Types are `i` (int32, default), `f` (float), `b` (byte), `h` (int16) and `s` (string).
+- `CW_WATCH=41b884:f,41b888,5a2448:s,3a2f0c*14*0*70:f`: logs memory values every `CW_WATCH_MS` (default 1000) ms. `a*o1*o2` follows pointers (read the pointer at `a`, add `o1`, read, add `o2`). Types are `i` (int32, default), `f` (float), `b` (byte), `h` (int16), `s` (string), `x` (hex) and `d` (8 hex dwords).
 - `CW_TRACE=2d551a,...`: logs registers at the given addresses.
 - `CW_WATCHDOG_MS=5000`: periodically dumps thread stacks.
 - `CW_AUDIO=0` mutes audio; `CW_AUDIO_VOLUME=0.5` scales it; `CW_AUDIO_MIN_DISTANCE=15` sets where 3D sounds start to fade; `CW_AUDIO_STATS=2000` logs active voices and output levels.

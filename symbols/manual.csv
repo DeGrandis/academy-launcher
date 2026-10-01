@@ -48,3 +48,50 @@ global,00608880,g_zwpFile,void*,FILE* for D:\data.zwp
 global,00608885,g_zwpOpen,uint8_t,
 global,003FAABC,g_batchEnabled,uint8_t,config.ini doBatch
 global,003FAABD,g_batchReset,uint8_t,config.ini doReset
+function,00014340,Object_FromHandle,void* __cdecl(int handle),game object for a handle (null when gone)
+function,0006C970,Script_IsAlive,bool __cdecl(int handle),
+function,0006C690,Script_GetPhysicsObject,void* __cdecl(int handle),object when it has a Physics component
+function,0006CA10,Script_GetMaxHealth,float __cdecl(int handle),health component (hash 0xFBCD164A) +0x18
+function,0006CA60,Script_SetMaxHealth,void __cdecl(int handle; float value),clamps current health
+function,0006CAD0,Script_GetMaxAmmo,float __cdecl(int handle),health component +0x20 (probably ammo)
+function,0006DE50,Script_SetCurHealth,void __cdecl(int handle; float value),
+function,0006DF00,Script_SetCurAmmo,void __cdecl(int handle; float value),probably
+function,0006DF50,Script_SetMaxAmmo,void __cdecl(int handle; float value),probably
+function,000700F0,Script_BuildObjectAt,int __cdecl(const char* odf; const char* spawnPoint; const char* label; int team; int a; int b),builds an object at a named spawn point/path start; returns its handle
+function,0006FE10,Script_BuildObject,,builds an object from position/orientation vectors
+function,00071590,Script_Goto,void __cdecl(int handle; const char* path; int priority),
+function,00071850,Script_FollowPath,,patrol/follow a path (handle; path; speed; flag)
+function,0006B300,Script_GetTime,float __cdecl(),game time ([g_world]+0x28)
+function,0006B450,Script_PlayMusic,void __cdecl(const char* name; int loop),
+function,0006D200,Script_PlaySound,,plays a named sound
+function,0006BC80,Script_AddRuleText,void __cdecl(const char* key),adds a line to the mode's rule/objective text
+function,0006BC00,Mp_GetPlayerCount,int __cdecl(),returns g_mpPlayerCount
+function,00073E90,Academy_GetLevel,int __cdecl(),returns g_academyLevel
+function,00073EA0,Academy_SetLevel,void __cdecl(int level),
+function,00073560,Mp_IsGladiatorRound,bool __cdecl(),
+function,00073570,Mp_StartGladiatorRound,void __cdecl(),GLADIATOR marker: players get separate teams (elimination)
+function,000734D0,Mp_IsRunning,bool __cdecl(),
+function,00174EE0,MissionScript_CreateByName,int __cdecl(const char* name; bool flag),creates g_missionScript from "<world>script"
+function,00180C63,ThuleAcademyScript_Create,,operator new(0x4D8) + constructor (multi5script)
+function,00180C11,ThuleAcademyScript_ThuleAcademyScript,void* __fastcall(void* self),vtable 0x360220
+function,001808CE,ThuleAcademyScript_Update,void __fastcall(void* self),wave state machine
+function,0017E6BE,ThuleAcademyScript_Reset,void __fastcall(void* self),
+function,0017E72D,ThuleAcademyScript_SetupWaves1,void __fastcall(void* self),wave tables for 1 player
+function,0017EED6,ThuleAcademyScript_SetupWaves2,void __fastcall(void* self),
+function,0017F67B,ThuleAcademyScript_SetupWaves3,void __fastcall(void* self),
+function,0017FE20,ThuleAcademyScript_SetupWaves4,void __fastcall(void* self),
+function,001805C5,ThuleAcademyScript_SpawnGroup,void __thiscall(void* self; int wave; int group),
+function,00177426,AcademyScript_StartGroupEffects,void __thiscall(void* self; int wave; int group),
+function,001774A8,AcademyScript_StopGroupEffects,void __thiscall(void* self; int wave; int group),
+function,0018082B,ThuleAcademyScript_ShowPathEffect,void __thiscall(void* self; int wave; int group),
+function,0017E67D,ThuleAcademyScript_AllEnemiesDead,bool __fastcall(void* self),clears dead handles at +0x410
+function,0017751B,AcademyScript_SpawnGroupAc1,void __thiscall(void* self; int wave; int group),Geonosis Academy (ac1) variant
+global,003A2F0C,g_world,void*,+0x14 player object array (8); +0x28 game time
+global,006066B8,g_missionScript,void*,active mission/mode script object
+global,005EC72C,g_mpPlayerCount,int32_t,selects the Academy wave set (1..4)
+global,0041B87C,g_academyLevel,int32_t,raised after each wave; enemy health x(1 + 0.5*floor((level-1)/20))
+global,0041B890,g_mpGladiatorRound,uint8_t,
+global,003968F8,g_thuleAcademyUnits,const char*,13 unit ODF names (index 0 = end of group)
+global,00396938,g_thuleAcademySpawnPoints,const char*,33 spawn point names (enemyspawn1a..4h + BigGuyspawn)
+global,003969C0,g_thuleAcademyGotoPaths,const char*,
+global,00396A60,g_thuleAcademyEffectPaths,const char*,BonusPath/EndPath names
