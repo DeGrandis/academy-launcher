@@ -1,0 +1,37 @@
+{
+  "_comment": "Each case boots the game with scripted input (CW_INPUT_SCRIPT), runs for seconds, and checks the last CW_WATCH sample. Expectations: name -> [op, value] with op in ==, !=, <, <=, >, >=. Watch names map to addresses in 'watch'.",
+  "routes": {
+    "main_menu": "10000:start,13000:a",
+    "thule_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start"
+  },
+  "cases": [
+    {
+      "name": "boot_to_main_menu",
+      "route": "main_menu",
+      "seconds": 20,
+      "watch": {"screen": "38f7a8"},
+      "expect": {"screen": ["==", 15]},
+      "screenshots": [1100]
+    },
+    {
+      "name": "thule_academy_starts",
+      "route": "thule_academy",
+      "extra_input": "40000:lup:3000,43500:rt:2000,46000:lleft:1500",
+      "seconds": 55,
+      "watch": {
+        "screen": "38f7a8",
+        "xlive_error_pending": "5a2860:b",
+        "pregame_timer": "41b884:f",
+        "game_type": "5ec010:b",
+        "slot0_state": "5ec32c"
+      },
+      "expect": {
+        "screen": ["==", 4],
+        "xlive_error_pending": ["==", 0],
+        "pregame_timer": [">", 5],
+        "game_type": ["==", 3]
+      },
+      "screenshots": [2000, 2520, 2900]
+    }
+  ]
+}

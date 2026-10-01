@@ -117,7 +117,8 @@ LONG WINAPI logUnhandled(EXCEPTION_POINTERS* info) {
 
 extern "C" __declspec(dllexport) void __cdecl CwRun() {
     const std::filesystem::path exeDirectory = executableDirectory();
-    cw::logInit((exeDirectory / "cw_runtime.log").c_str());
+    const char* logPath = std::getenv("CW_LOG_PATH");
+    cw::logInit(logPath != nullptr ? std::filesystem::path(logPath).c_str() : (exeDirectory / "cw_runtime.log").c_str());
 
     const std::filesystem::path gameRoot = findGameRoot(exeDirectory);
     if (!std::filesystem::exists(gameRoot / "default.xbe")) {
@@ -143,11 +144,21 @@ extern "C" __declspec(dllexport) void __cdecl CwRun() {
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     cw::threads::initializeProcess();
     cw::threads::attachCurrentThread(0x1000, 0);
-    cw::kernel::initialize(gameRoot, exeDirectory / "hdd");
+    const char* hddRoot = std::getenv("CW_HDD_ROOT");
+    cw::kernel::initialize(gameRoot, hddRoot != nullptr ? std::filesystem::path(hddRoot) : exeDirectory / "hdd");
     cw::kernel::installThunks(reinterpret_cast<std::uint32_t*>(static_cast<std::uintptr_t>(thunkTable)));
     cw::threads::patchSegmentAccesses();
     cw::hle::installHooks();
     cw::trace::installFromEnvironment();
+    if (const char* exitAfter = std::getenv("CW_EXIT_MS")) {
+        // Automated runs: end the process after a fixed time.
+        const DWORD milliseconds = static_cast<DWORD>(std::strtoul(exitAfter, nullptr, 10));
+        CreateThread(nullptr, 0, [](LPVOID parameter) -> DWORD {
+            Sleep(static_cast<DWORD>(reinterpret_cast<std::uintptr_t>(parameter)));
+            cw::logf("CW_EXIT_MS reached; exiting");
+            ExitProcess(0);
+        }, reinterpret_cast<LPVOID>(static_cast<std::uintptr_t>(milliseconds)), 0, nullptr);
+    }
     if (const char* watchdog = std::getenv("CW_WATCHDOG_MS")) {
         cw::threads::startWatchdog(static_cast<DWORD>(std::strtoul(watchdog, nullptr, 10)));
     }

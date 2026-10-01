@@ -48,6 +48,15 @@ The original menus have no pointer support, so a mouse click acts as A on the hi
 - Online and system link are disabled.
 - Xbox vertex shaders (NV2A microcode) and pixel shaders (register combiners) are translated to HLSL at runtime; a few rare texture modes are approximated.
 
+## Tests
+
+```powershell
+python tests/run_tests.py                       # all cases
+python tests/run_tests.py thule_academy_starts  # one case
+```
+
+Each case in `tests/cases.json` boots the game with scripted input against a fresh copy of `tests/fixtures/hdd`, then checks memory values sampled with `CW_WATCH` and fails on any hardware exception. Logs and screenshots go to `tests/results/<case>/`.
+
 ## Debugging
 
 These environment variables affect `clone_wars.exe`:
@@ -58,6 +67,8 @@ These environment variables affect `clone_wars.exe`:
 - `CW_WATCH=41b884:f,41b888,5a2448:s`: logs memory values every `CW_WATCH_MS` (default 1000) ms. Types are `i` (int32, default), `f` (float), `b` (byte), `h` (int16) and `s` (string).
 - `CW_TRACE=2d551a,...`: logs registers at the given addresses.
 - `CW_WATCHDOG_MS=5000`: periodically dumps thread stacks.
+- `CW_EXIT_MS=60000`: exits after the given time. `CW_LOG_PATH` and `CW_HDD_ROOT` move the log file and the hard disk folder.
+- `CW_DISABLE_HOOKS=XOnlineReadCachedRecord,...`: skips the named hooks, to compare against the original game code.
 - `CW_WIDESCREEN=0`: use the original 4:3 mode (widescreen 16:9 is the default, using the game's own widescreen support).
 - `CW_FPS=n`: software frame cap instead of vsync (`CW_FPS=0` = unlimited, for fast automated tests).
 - `CW_SHADERLOG=1`: writes translated shaders to `vs_<n>.hlsl` / `ps_<n>.hlsl`.
