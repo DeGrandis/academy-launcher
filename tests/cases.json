@@ -132,6 +132,30 @@
         "academy_quick_start: skipping GET READY",
         "academy_quick_start: first multiplayer HUD draw"
       ]
+    },
+    {
+      "name": "thule_academy_audio",
+      "route": "thule_academy",
+      "seconds": 50,
+      "env": {
+        "CW_AUDIO_STATS": "2000"
+      },
+      "watch": {
+        "screen": "38f7a8"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ]
+      },
+      "log_contains": [
+        "audio: XAudio2 output"
+      ],
+      "log_regex": [
+        "audio stats: voices [1-9]\\d*/\\d+ glitches \\d+ peak 0\\.\\d*[1-9]"
+      ],
+      "screenshots": []
     }
   ]
 }

@@ -64,6 +64,7 @@ def run_case(case, routes):
         "CW_EXIT_MS": str(case["seconds"] * 1000),
         "CW_WATCH": watch_spec,
         "CW_WATCH_MS": "1000",
+        **case.get("env", {}),
         "CW_SCREENSHOT_FRAMES": ",".join(str(frame) for frame in case.get("screenshots", [])),
     })
     started = time.time()
@@ -82,6 +83,9 @@ def run_case(case, routes):
         actual = last.get(key)
         if actual is None or not OPERATORS[op](actual, expected):
             failures.append(f"{key} = {actual} (expected {op} {expected})")
+    for pattern in case.get("log_regex", []):
+        if not any(re.search(pattern, line) for line in log):
+            failures.append(f"log has no line matching /{pattern}/")
     for text in case.get("log_contains", []):
         if not any(text in line for line in log):
             failures.append(f"log has no line containing '{text}'")

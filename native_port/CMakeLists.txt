@@ -33,6 +33,7 @@ FetchContent_MakeAvailable(minhook)
 target_compile_options(minhook PRIVATE /W0)
 
 add_library(cw_runtime SHARED
+    runtime/audio/XboxAdpcm.cpp
     runtime/d3d/Device.cpp
     runtime/d3d/Textures.cpp
     runtime/d3d/PixelShader.cpp
@@ -55,7 +56,7 @@ add_library(cw_runtime SHARED
     runtime/Trace.cpp
 )
 target_include_directories(cw_runtime PRIVATE runtime "${minhook_SOURCE_DIR}/src")
-target_link_libraries(cw_runtime PRIVATE ntdll d3d9 d3dcompiler Xinput9_1_0 winmm minhook)
+target_link_libraries(cw_runtime PRIVATE ntdll d3d9 d3dcompiler Xinput9_1_0 winmm xaudio2 ole32 minhook)
 target_link_options(cw_runtime PRIVATE /SAFESEH:NO)
 
 set(CW_GAME_EXE "${CW_OUTPUT_DIR}/clone_wars.exe")

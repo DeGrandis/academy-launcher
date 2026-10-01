@@ -11,7 +11,7 @@ The game's original x86 code runs natively on Windows; nothing is emulated.
   - **Xbox kernel:** a high-level emulation of the kernel exports (files, threads, sync, memory, crypto).
   - **Graphics:** Direct3D 8 (Xbox) functions replaced with Direct3D 9, including NV2A texture unswizzling.
   - **Input:** XInput gamepads plus keyboard and mouse.
-  - **Audio:** a silent DirectSound replacement.
+  - **Audio:** Xbox DirectSound (buffers, streams, Xbox ADPCM, volume/pitch/loops, simple 3D panning) on XAudio2.
   - **Setup:** patches for the Xbox `fs:` thread-block accesses, plus small game-specific hooks (`runtime/HleXapi.cpp`).
 
 The real title screen, mission select, difficulty menu and the first level (Geonosis) run using the original assets.
@@ -43,7 +43,6 @@ The original menus have no pointer support, so a mouse click acts as A on the hi
 
 ## Known limitations
 
-- Audio is silent.
 - FMV movies (XMV) are skipped.
 - Online and system link are disabled.
 - Xbox vertex shaders (NV2A microcode) and pixel shaders (register combiners) are translated to HLSL at runtime; a few rare texture modes are approximated.
@@ -139,6 +138,7 @@ These environment variables affect `clone_wars.exe`:
 - `CW_WATCH=41b884:f,41b888,5a2448:s`: logs memory values every `CW_WATCH_MS` (default 1000) ms. Types are `i` (int32, default), `f` (float), `b` (byte), `h` (int16) and `s` (string).
 - `CW_TRACE=2d551a,...`: logs registers at the given addresses.
 - `CW_WATCHDOG_MS=5000`: periodically dumps thread stacks.
+- `CW_AUDIO=0` mutes audio; `CW_AUDIO_VOLUME=0.5` scales it; `CW_AUDIO_MIN_DISTANCE=15` sets where 3D sounds start to fade; `CW_AUDIO_STATS=2000` logs active voices and output levels.
 - `CW_EXIT_MS=60000`: exits after the given time. `CW_LOG_PATH` and `CW_HDD_ROOT` move the log file and the hard disk folder.
 - `CW_DISABLE_HOOKS=XOnlineReadCachedRecord,...`: skips the named hooks, to compare against the original game code.
 - `CW_WIDESCREEN=0`: use the original 4:3 mode (widescreen 16:9 is the default, using the game's own widescreen support).
