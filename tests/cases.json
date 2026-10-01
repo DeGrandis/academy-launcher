@@ -247,6 +247,59 @@
       "screenshots": [
         2300
       ]
+    },
+    {
+      "name": "thule_academy_1080p",
+      "route": "thule_academy",
+      "seconds": 45,
+      "env": {
+        "CW_AUDIO": "0",
+        "CW_RESOLUTION": "1920x1080",
+        "CW_ANISOTROPY": "8"
+      },
+      "watch": {
+        "screen": "38f7a8"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ]
+      },
+      "log_contains": [
+        "rendering 1920x1080"
+      ],
+      "screenshots": [
+        2300
+      ]
+    },
+    {
+      "name": "thule_academy_live_resize",
+      "route": "thule_academy",
+      "seconds": 50,
+      "env": {
+        "CW_AUDIO": "0",
+        "CW_RENDER_SCALE": "1",
+        "CW_HOTKEY_SCRIPT": "36000:f9,38000:f9,40000:f9,42000:f9,44000:f11,46000:f11"
+      },
+      "watch": {
+        "screen": "38f7a8"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ]
+      },
+      "log_regex": [
+        "rendering 1706x960 \\(2x\\)",
+        "rendering 2560x1440 \\(3x\\)",
+        "rendering 3412x1920 \\(4x\\)",
+        "\\(window size\\)"
+      ],
+      "screenshots": [
+        2400
+      ]
     }
   ]
 }

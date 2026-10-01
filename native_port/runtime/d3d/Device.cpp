@@ -115,6 +115,18 @@ IDirect3DSurface9* g_hostBackBuffer = nullptr;
 IDirect3DSurface9* g_hostDepth = nullptr;
 UINT g_width = 640;
 UINT g_height = 480;
+// Output resolution. The game always works in g_width x g_height (640x480); the host back buffer is
+// g_hostWidth x g_hostHeight and render targets are scaled to match, so geometry renders at full resolution.
+UINT g_hostWidth = 640;
+UINT g_hostHeight = 480;
+D3DPRESENT_PARAMETERS g_present{};
+bool g_widescreen = true;
+bool g_resetPending = false;
+bool g_borderless = false;
+RECT g_windowedRect{};
+// Host pixels per game pixel for the current render target.
+float g_targetScaleX = 1.0f;
+float g_targetScaleY = 1.0f;
 std::uint8_t g_fakeDevice[0x2000] = {};
 XSurface g_backBuffer{};
 XSurface g_depthBuffer{};
@@ -134,6 +146,7 @@ D3DMATRIX g_transforms[10] = {};
 D3DVIEWPORT9 g_viewport{0, 0, 640, 480, 0.0f, 1.0f};
 std::map<std::pair<const XPixelContainer*, UINT>, XSurface*> g_surfaceLevels;
 std::map<const XPixelContainer*, IDirect3DTexture9*> g_hostRenderTargets;
+std::map<const XPixelContainer*, std::pair<float, float>> g_renderTargetScales;
 DWORD g_frame = 0;
 DWORD g_drawsThisFrame = 0;
 DWORD g_skippedShaderDraws = 0;
@@ -281,12 +294,160 @@ D3DTRANSFORMSTATETYPE convertTransform(DWORD state) {
     return D3DTS_WORLDMATRIX(state - 6);
 }
 
+// ---------------------------------------------------------------- output resolution
+
+// CW_RESOLUTION=<width>x<height> renders at a fixed size; CW_RESOLUTION=window follows the window's client area;
+// CW_RENDER_SCALE=<n> renders at n x 480 lines (16:9 or 4:3 by CW_WIDESCREEN). Without either, the game's own
+// 640x480. F9 cycles 1x-4x and window size, F11 / Alt+Enter toggles borderless fullscreen.
+struct Resolution {
+    enum class Kind { Native, Scale, Fixed, Window } kind = Kind::Native;
+    float scale = 1.0f;
+    UINT width = 0;
+    UINT height = 0;
+};
+Resolution g_resolution;
+
+Resolution resolutionFromEnvironment() {
+    Resolution result;
+    if (const char* value = std::getenv("CW_RESOLUTION")) {
+        unsigned width = 0;
+        unsigned height = 0;
+        if (_stricmp(value, "window") == 0) {
+            result.kind = Resolution::Kind::Window;
+        } else if (std::sscanf(value, "%ux%u", &width, &height) == 2 && width >= 320 && height >= 240) {
+            result.kind = Resolution::Kind::Fixed;
+            result.width = width;
+            result.height = height;
+        } else {
+            logf("d3d: ignoring CW_RESOLUTION='%s' (use <width>x<height> or window)", value);
+        }
+    } else if (const char* scaleSetting = std::getenv("CW_RENDER_SCALE")) {
+        const float scale = static_cast<float>(std::atof(scaleSetting));
+        if (scale >= 0.5f && scale <= 8.0f) {
+            result.kind = Resolution::Kind::Scale;
+            result.scale = scale;
+        }
+    }
+    return result;
+}
+
+void clientSize(UINT& width, UINT& height) {
+    RECT client{};
+    GetClientRect(g_window, &client);
+    width = std::max<UINT>(320, static_cast<UINT>(client.right - client.left));
+    height = std::max<UINT>(240, static_cast<UINT>(client.bottom - client.top));
+}
+
+void hostSizeFor(const Resolution& resolution, UINT& width, UINT& height) {
+    switch (resolution.kind) {
+    case Resolution::Kind::Native:
+        width = g_width;
+        height = g_height;
+        break;
+    case Resolution::Kind::Scale:
+        height = static_cast<UINT>(std::lround(g_height * resolution.scale));
+        width = g_widescreen ? static_cast<UINT>(std::lround(height * 16.0 / 9.0)) : static_cast<UINT>(std::lround(g_width * resolution.scale));
+        break;
+    case Resolution::Kind::Fixed:
+        width = resolution.width;
+        height = resolution.height;
+        break;
+    case Resolution::Kind::Window:
+        clientSize(width, height);
+        break;
+    }
+    width = std::clamp<UINT>(width & ~1u, 320, 8192);
+    height = std::clamp<UINT>(height & ~1u, 240, 8192);
+}
+
+const char* describeResolution(const Resolution& resolution) {
+    static char text[48];
+    switch (resolution.kind) {
+    case Resolution::Kind::Native: return "native 640x480";
+    case Resolution::Kind::Scale: snprintf(text, sizeof(text), "%gx", resolution.scale); return text;
+    case Resolution::Kind::Fixed: snprintf(text, sizeof(text), "%ux%u", resolution.width, resolution.height); return text;
+    case Resolution::Kind::Window: return "window size";
+    }
+    return "";
+}
+
+// F9: 1x, 2x, 3x, 4x, window size, then back to 1x.
+void cycleResolution() {
+    if (g_resolution.kind == Resolution::Kind::Scale && g_resolution.scale < 4.0f) {
+        g_resolution.scale = std::floor(g_resolution.scale) + 1.0f;
+    } else if (g_resolution.kind == Resolution::Kind::Scale) {
+        g_resolution.kind = Resolution::Kind::Window;
+    } else {
+        g_resolution.kind = Resolution::Kind::Scale;
+        g_resolution.scale = 1.0f;
+    }
+    g_resetPending = true;
+    logf("d3d: resolution -> %s", describeResolution(g_resolution));
+}
+
+void toggleBorderless() {
+    if (!g_borderless) {
+        GetWindowRect(g_window, &g_windowedRect);
+        MONITORINFO monitor{sizeof(monitor)};
+        GetMonitorInfoW(MonitorFromWindow(g_window, MONITOR_DEFAULTTONEAREST), &monitor);
+        SetWindowLongW(g_window, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+        SetWindowPos(g_window, HWND_TOP, monitor.rcMonitor.left, monitor.rcMonitor.top, monitor.rcMonitor.right - monitor.rcMonitor.left,
+            monitor.rcMonitor.bottom - monitor.rcMonitor.top, SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+    } else {
+        SetWindowLongW(g_window, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+        SetWindowPos(g_window, HWND_NOTOPMOST, g_windowedRect.left, g_windowedRect.top, g_windowedRect.right - g_windowedRect.left,
+            g_windowedRect.bottom - g_windowedRect.top, SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+    }
+    g_borderless = !g_borderless;
+    if (g_resolution.kind == Resolution::Kind::Window) {
+        g_resetPending = true;
+    }
+}
+
+void resizeHost();
+
+// CW_HOTKEY_SCRIPT="ms:f9,ms:f11" presses window hotkeys at time offsets (for automated tests of live switching).
+void postScriptedHotkeys() {
+    static const std::string script = [] {
+        const char* value = std::getenv("CW_HOTKEY_SCRIPT");
+        return value == nullptr ? std::string() : std::string(value) + ",";
+    }();
+    static const ULONGLONG start = GetTickCount64();
+    static std::size_t next = 0;
+    while (next < script.size()) {
+        const std::size_t end = script.find(',', next);
+        const std::string item = script.substr(next, end - next);
+        const std::size_t colon = item.find(':');
+        if (colon == std::string::npos || GetTickCount64() - start < std::strtoull(item.c_str(), nullptr, 10)) {
+            if (colon == std::string::npos) {
+                next = end + 1;
+                continue;
+            }
+            return;
+        }
+        const std::string key = item.substr(colon + 1);
+        PostMessageW(g_window, WM_KEYDOWN, key == "f11" ? VK_F11 : VK_F9, 0);
+        next = end + 1;
+    }
+}
+
 // ---------------------------------------------------------------- window and device
 
 LRESULT CALLBACK windowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_CLOSE) {
         logf("window closed; exiting");
         ExitProcess(0);
+    }
+    if (message == WM_KEYDOWN && wParam == VK_F9) {
+        cycleResolution();
+        return 0;
+    }
+    if ((message == WM_KEYDOWN && wParam == VK_F11) || (message == WM_SYSKEYDOWN && wParam == VK_RETURN && (lParam & (1 << 29)))) {
+        toggleBorderless();
+        return 0;
+    }
+    if (message == WM_SIZE && wParam != SIZE_MINIMIZED && g_resolution.kind == Resolution::Kind::Window) {
+        g_resetPending = true;
     }
     return DefWindowProcW(window, message, wParam, lParam);
 }
@@ -428,11 +589,17 @@ void applyTextureStages(bool linearTextures[4], UINT textureSizes[4][2]) {
         setSampler(D3DSAMP_ADDRESSV, convertAddress(ts[TSS_ADDRESSV]));
         setSampler(D3DSAMP_ADDRESSW, convertAddress(ts[TSS_ADDRESSW]));
         setSampler(D3DSAMP_MAGFILTER, convertFilter(ts[TSS_MAGFILTER]));
-        setSampler(D3DSAMP_MINFILTER, convertFilter(ts[TSS_MINFILTER]));
+        // CW_ANISOTROPY=<2..16> upgrades linear minification to anisotropic filtering.
+        static const DWORD anisotropy = [] {
+            const char* value = std::getenv("CW_ANISOTROPY");
+            return value == nullptr ? 1ul : std::clamp<DWORD>(std::strtoul(value, nullptr, 10), 1, 16);
+        }();
+        const DWORD minFilter = convertFilter(ts[TSS_MINFILTER]);
+        setSampler(D3DSAMP_MINFILTER, anisotropy > 1 && minFilter == D3DTEXF_LINEAR ? D3DTEXF_ANISOTROPIC : minFilter);
         setSampler(D3DSAMP_MIPFILTER, convertFilter(ts[TSS_MIPFILTER]));
         setSampler(D3DSAMP_MIPMAPLODBIAS, ts[TSS_MIPMAPLODBIAS]);
         setSampler(D3DSAMP_MAXMIPLEVEL, ts[TSS_MAXMIPLEVEL]);
-        setSampler(D3DSAMP_MAXANISOTROPY, std::max<DWORD>(1, ts[TSS_MAXANISOTROPY]));
+        setSampler(D3DSAMP_MAXANISOTROPY, std::max<DWORD>(anisotropy, ts[TSS_MAXANISOTROPY]));
         setSampler(D3DSAMP_BORDERCOLOR, g_borderColor[stage]);
         setStage(D3DTSS_COLOROP, convertTextureOp(ts[TSS_COLOROP]));
         setStage(D3DTSS_COLORARG0, ts[TSS_COLORARG0]);
@@ -520,8 +687,12 @@ const std::uint8_t* adjustVertices(const std::uint8_t* source, UINT count, UINT 
     for (UINT vertex = 0; vertex < count; ++vertex) {
         std::uint8_t* base = g_vertexScratch.data() + static_cast<std::size_t>(vertex) * stride;
         if (layout.pretransformed) {
+            auto* position = reinterpret_cast<float*>(base);
+            // Screen positions are in game pixels; map pixel centers onto the (larger) host target.
+            position[0] = (position[0] + 0.5f) * g_targetScaleX - 0.5f;
+            position[1] = (position[1] + 0.5f) * g_targetScaleY - 0.5f;
             // Xbox screen-space Z is expressed in depth-buffer units (24-bit).
-            reinterpret_cast<float*>(base)[2] /= 16777215.0f;
+            position[2] /= 16777215.0f;
         }
         for (UINT set = 0; set < layout.texCount && set < 8; ++set) {
             if (scaleTexture[set]) {
@@ -739,7 +910,9 @@ void maybeCaptureScreenshot() {
         return;
     }
     IDirect3DSurface9* copy = nullptr;
-    if (FAILED(g_device->CreateOffscreenPlainSurface(g_width, g_height, D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &copy, nullptr))) {
+    const UINT width = g_hostWidth;
+    const UINT height = g_hostHeight;
+    if (FAILED(g_device->CreateOffscreenPlainSurface(width, height, D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &copy, nullptr))) {
         return;
     }
     D3DLOCKED_RECT locked;
@@ -747,19 +920,19 @@ void maybeCaptureScreenshot() {
         BITMAPFILEHEADER file{};
         BITMAPINFOHEADER info{};
         info.biSize = sizeof(info);
-        info.biWidth = static_cast<LONG>(g_width);
-        info.biHeight = -static_cast<LONG>(g_height);
+        info.biWidth = static_cast<LONG>(width);
+        info.biHeight = -static_cast<LONG>(height);
         info.biPlanes = 1;
         info.biBitCount = 32;
         file.bfType = 0x4D42;
         file.bfOffBits = sizeof(file) + sizeof(info);
-        file.bfSize = file.bfOffBits + g_width * g_height * 4;
+        file.bfSize = file.bfOffBits + width * height * 4;
         const std::string name = "screenshot_" + std::to_string(g_frame) + ".bmp";
         if (FILE* output = std::fopen(name.c_str(), "wb")) {
             std::fwrite(&file, sizeof(file), 1, output);
             std::fwrite(&info, sizeof(info), 1, output);
-            for (UINT y = 0; y < g_height; ++y) {
-                std::fwrite(static_cast<std::uint8_t*>(locked.pBits) + y * locked.Pitch, 4, g_width, output);
+            for (UINT y = 0; y < height; ++y) {
+                std::fwrite(static_cast<std::uint8_t*>(locked.pBits) + y * locked.Pitch, 4, width, output);
             }
             std::fclose(output);
             logf("d3d: wrote %s", name.c_str());
@@ -795,17 +968,32 @@ HRESULT __stdcall xDirect3D_CreateDevice(UINT adapter, DWORD deviceType, HWND fo
     // In widescreen mode the game renders anamorphic 16:9 into 640x480, so the window supplies the horizontal stretch.
     const char* widescreenSetting = std::getenv("CW_WIDESCREEN");
     const bool widescreen = widescreenSetting == nullptr || std::strcmp(widescreenSetting, "0") != 0;
-    const LONG windowHeight = static_cast<LONG>(g_height * 2);
-    const LONG windowWidth = widescreen ? windowHeight * 16 / 9 : static_cast<LONG>(g_width * 2);
+    g_widescreen = widescreen;
+    g_resolution = resolutionFromEnvironment();
+    LONG windowHeight = static_cast<LONG>(g_height * 2);
+    LONG windowWidth = widescreen ? windowHeight * 16 / 9 : static_cast<LONG>(g_width * 2);
+    if (g_resolution.kind == Resolution::Kind::Scale || g_resolution.kind == Resolution::Kind::Fixed) {
+        // Open the window at the render size, shrunk to fit the screen.
+        UINT width = 0;
+        UINT height = 0;
+        hostSizeFor(g_resolution, width, height);
+        RECT work{};
+        SystemParametersInfoW(SPI_GETWORKAREA, 0, &work, 0);
+        const double fit = std::min({1.0, 0.95 * (work.right - work.left) / width, 0.9 * (work.bottom - work.top) / height});
+        windowHeight = static_cast<LONG>(height * fit);
+        windowWidth = static_cast<LONG>(width * fit);
+    }
     RECT rect{0, 0, windowWidth, windowHeight};
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
     g_window = CreateWindowW(windowClass.lpszClassName, L"Star Wars: The Clone Wars", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, windowClass.hInstance, nullptr);
 
     g_d3d = Direct3DCreate9(D3D_SDK_VERSION);
-    D3DPRESENT_PARAMETERS present{};
-    present.BackBufferWidth = g_width;
-    present.BackBufferHeight = g_height;
+    hostSizeFor(g_resolution, g_hostWidth, g_hostHeight);
+    D3DPRESENT_PARAMETERS& present = g_present;
+    present = {};
+    present.BackBufferWidth = g_hostWidth;
+    present.BackBufferHeight = g_hostHeight;
     present.BackBufferFormat = D3DFMT_X8R8G8B8;
     present.BackBufferCount = 1;
     present.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -829,6 +1017,8 @@ HRESULT __stdcall xDirect3D_CreateDevice(UINT adapter, DWORD deviceType, HWND fo
     initializeSurface(g_backBuffer, kFmtLinX8R8G8B8, 4);
     initializeSurface(g_depthBuffer, kFmtLinD24S8, 4);
     g_renderTarget = &g_backBuffer;
+    g_targetScaleX = static_cast<float>(g_hostWidth) / g_width;
+    g_targetScaleY = static_cast<float>(g_hostHeight) / g_height;
     g_viewport = {0, 0, g_width, g_height, 0.0f, 1.0f};
     setDefaultStates();
     *reinterpret_cast<void**>(static_cast<std::uintptr_t>(kDevicePointerAddress)) = g_fakeDevice;
@@ -840,7 +1030,7 @@ HRESULT __stdcall xDirect3D_CreateDevice(UINT adapter, DWORD deviceType, HWND fo
         *returnedDevice = g_fakeDevice;
     }
     g_device->BeginScene();
-    logf("d3d: device ready; window %p", g_window);
+    logf("d3d: device ready; window %p, rendering %ux%u (%s)", g_window, g_hostWidth, g_hostHeight, describeResolution(g_resolution));
     return D3D_OK;
 }
 
@@ -881,13 +1071,19 @@ DWORD __stdcall xSwap(DWORD flags) {
         const ULONGLONG now = GetTickCount64();
         if (now - windowStart >= 1000) {
             wchar_t title[96];
-            swprintf_s(title, L"Star Wars: The Clone Wars - %.1f FPS (frame %lu)", windowFrames * 1000.0 / (now - windowStart), g_frame);
+            swprintf_s(title, L"Star Wars: The Clone Wars - %ux%u - %.1f FPS (frame %lu)", g_hostWidth, g_hostHeight,
+                windowFrames * 1000.0 / (now - windowStart), g_frame);
             SetWindowTextW(g_window, title);
             windowStart = now;
             windowFrames = 0;
         }
     }
+    postScriptedHotkeys();
     pumpMessages();
+    if (g_resetPending) {
+        g_resetPending = false;
+        resizeHost();
+    }
     g_device->BeginScene();
     if (g_frame % 300 == 0) {
         logf("d3d: frame %lu (%lu draws)", g_frame, g_drawsThisFrame);
@@ -902,7 +1098,12 @@ void __stdcall xClear(DWORD count, const D3DRECT* rects, DWORD flags, D3DCOLOR c
     if (flags & 0xF0) hostFlags |= D3DCLEAR_TARGET;
     if (flags & 0x01) hostFlags |= D3DCLEAR_ZBUFFER;
     if (flags & 0x02) hostFlags |= D3DCLEAR_STENCIL;
-    g_device->Clear(count, rects, hostFlags, color, std::clamp(z, 0.0f, 1.0f), stencil);
+    std::vector<D3DRECT> scaled(rects != nullptr ? count : 0);
+    for (std::size_t index = 0; index < scaled.size(); ++index) {
+        scaled[index] = {std::lround(rects[index].x1 * g_targetScaleX), std::lround(rects[index].y1 * g_targetScaleY),
+            std::lround(rects[index].x2 * g_targetScaleX), std::lround(rects[index].y2 * g_targetScaleY)};
+    }
+    g_device->Clear(static_cast<DWORD>(scaled.size()), scaled.empty() ? nullptr : scaled.data(), hostFlags, color, std::clamp(z, 0.0f, 1.0f), stencil);
 }
 
 void __stdcall xDrawVertices(DWORD primitive, UINT startVertex, UINT vertexCount) {
@@ -1089,10 +1290,13 @@ void __stdcall xGetTransform(DWORD state, D3DMATRIX* matrix) {
     }
 }
 
-void __stdcall xSetViewport(const D3DVIEWPORT9* viewport) {
-    std::lock_guard lock(g_lock);
-    g_viewport = *viewport;
-    D3DVIEWPORT9 host = *viewport;
+// The game's viewport (game pixels) scaled to the current host render target.
+void applyHostViewport() {
+    D3DVIEWPORT9 host = g_viewport;
+    host.X = static_cast<DWORD>(std::lround(g_viewport.X * g_targetScaleX));
+    host.Y = static_cast<DWORD>(std::lround(g_viewport.Y * g_targetScaleY));
+    host.Width = static_cast<DWORD>(std::lround((g_viewport.X + g_viewport.Width) * g_targetScaleX)) - host.X;
+    host.Height = static_cast<DWORD>(std::lround((g_viewport.Y + g_viewport.Height) * g_targetScaleY)) - host.Y;
     D3DSURFACE_DESC description;
     IDirect3DSurface9* target = nullptr;
     if (SUCCEEDED(g_device->GetRenderTarget(0, &target))) {
@@ -1106,24 +1310,63 @@ void __stdcall xSetViewport(const D3DVIEWPORT9* viewport) {
     g_device->SetViewport(&host);
 }
 
+void __stdcall xSetViewport(const D3DVIEWPORT9* viewport) {
+    std::lock_guard lock(g_lock);
+    g_viewport = *viewport;
+    applyHostViewport();
+}
+
 void __stdcall xGetViewport(D3DVIEWPORT9* viewport) {
     *viewport = g_viewport;
 }
 
+// Fixed-function lighting state is kept so it can be restored after a device reset (resolution change).
+std::map<DWORD, D3DLIGHT9> g_lights;
+std::map<DWORD, BOOL> g_lightsEnabled;
+D3DMATERIAL9 g_material{};
+bool g_materialSet = false;
+
 HRESULT __stdcall xLightEnable(DWORD index, BOOL enable) {
     std::lock_guard lock(g_lock);
+    g_lightsEnabled[index] = enable;
     return g_device->LightEnable(index, enable);
 }
 
 // Xbox D3DLIGHT8/D3DMATERIAL8 share the Direct3D 9 layouts.
 HRESULT __stdcall xSetLight(DWORD index, const D3DLIGHT9* light) {
     std::lock_guard lock(g_lock);
+    g_lights[index] = *light;
     return g_device->SetLight(index, light);
 }
 
 HRESULT __stdcall xSetMaterial(const D3DMATERIAL9* material) {
     std::lock_guard lock(g_lock);
+    g_material = *material;
+    g_materialSet = true;
     return g_device->SetMaterial(material);
+}
+
+// Device state that Reset() clears and the game does not set every frame.
+void restoreDeviceState() {
+    for (DWORD state = 0; state < 10; ++state) {
+        g_device->SetTransform(convertTransform(state), &g_transforms[state]);
+    }
+    for (const auto& [index, light] : g_lights) {
+        g_device->SetLight(index, &light);
+    }
+    for (const auto& [index, enabled] : g_lightsEnabled) {
+        g_device->LightEnable(index, enabled);
+    }
+    if (g_materialSet) {
+        g_device->SetMaterial(&g_material);
+    }
+    static constexpr D3DTEXTURESTAGESTATETYPE kBumpTypes[] = {D3DTSS_BUMPENVMAT00, D3DTSS_BUMPENVMAT01, D3DTSS_BUMPENVMAT11,
+        D3DTSS_BUMPENVMAT10, D3DTSS_BUMPENVLSCALE, D3DTSS_BUMPENVLOFFSET};
+    for (DWORD stage = 0; stage < 4; ++stage) {
+        for (DWORD type = 22; type <= 27; ++type) {
+            g_device->SetTextureStageState(stage, kBumpTypes[type - 22], g_tss[stage * kStageSize + type]);
+        }
+    }
 }
 
 HRESULT __stdcall xReset(XPresentParameters* parameters) {
@@ -1247,12 +1490,18 @@ IDirect3DTexture9* hostRenderTargetFor(const XPixelContainer* container) {
         return existing->second;
     }
     const TextureLayout layout = describe(container);
+    // Same scale as the back buffer, uniform, and never larger than the shared depth buffer.
+    const float scale = std::max(1.0f, std::min({static_cast<float>(g_hostWidth) / g_width, static_cast<float>(g_hostHeight) / g_height,
+        static_cast<float>(g_hostWidth) / layout.width, static_cast<float>(g_hostHeight) / layout.height}));
+    const UINT width = std::max<UINT>(1, static_cast<UINT>(layout.width * scale));
+    const UINT height = std::max<UINT>(1, static_cast<UINT>(layout.height * scale));
     IDirect3DTexture9* texture = nullptr;
-    if (FAILED(g_device->CreateTexture(layout.width, layout.height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, nullptr))) {
-        logf("d3d: could not create %ux%u render target", layout.width, layout.height);
+    if (FAILED(g_device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, nullptr))) {
+        logf("d3d: could not create %ux%u render target", width, height);
         return nullptr;
     }
     g_hostRenderTargets[container] = texture;
+    g_renderTargetScales[container] = {static_cast<float>(width) / layout.width, static_cast<float>(height) / layout.height};
     setRenderTargetOverride(container, texture);
     return texture;
 }
@@ -1371,24 +1620,85 @@ XSurface* __stdcall xGetDepthStencilSurface2() {
     return &g_depthBuffer;
 }
 
-void __stdcall xSetRenderTarget(XPixelContainer* renderTarget, XPixelContainer* depthStencil) {
-    std::lock_guard lock(g_lock);
-    if (renderTarget == nullptr) {
-        return;
-    }
-    g_renderTarget = renderTarget;
-    if (renderTarget == &g_backBuffer) {
+XPixelContainer* g_renderDepth = &g_depthBuffer;
+
+// Binds the host surface for g_renderTarget and sets the matching game-to-host scale and viewport.
+void bindHostRenderTarget() {
+    if (g_renderTarget == nullptr || g_renderTarget == &g_backBuffer) {
         g_device->SetRenderTarget(0, g_hostBackBuffer);
+        g_targetScaleX = static_cast<float>(g_hostWidth) / g_width;
+        g_targetScaleY = static_cast<float>(g_hostHeight) / g_height;
     } else {
-        const XPixelContainer* owner = static_cast<XSurface*>(renderTarget)->Parent != nullptr ? static_cast<XSurface*>(renderTarget)->Parent : renderTarget;
+        const XPixelContainer* owner = static_cast<XSurface*>(g_renderTarget)->Parent != nullptr ? static_cast<XSurface*>(g_renderTarget)->Parent : g_renderTarget;
         IDirect3DTexture9* texture = hostRenderTargetFor(owner);
         IDirect3DSurface9* surface = nullptr;
         if (texture != nullptr && SUCCEEDED(texture->GetSurfaceLevel(0, &surface))) {
             g_device->SetRenderTarget(0, surface);
             surface->Release();
         }
+        const auto scale = g_renderTargetScales.find(owner);
+        g_targetScaleX = scale != g_renderTargetScales.end() ? scale->second.first : 1.0f;
+        g_targetScaleY = scale != g_renderTargetScales.end() ? scale->second.second : 1.0f;
     }
-    g_device->SetDepthStencilSurface(depthStencil != nullptr ? g_hostDepth : nullptr);
+    g_device->SetDepthStencilSurface(g_renderDepth != nullptr ? g_hostDepth : nullptr);
+    applyHostViewport();
+}
+
+void __stdcall xSetRenderTarget(XPixelContainer* renderTarget, XPixelContainer* depthStencil) {
+    std::lock_guard lock(g_lock);
+    if (renderTarget == nullptr) {
+        return;
+    }
+    g_renderTarget = renderTarget;
+    g_renderDepth = depthStencil;
+    bindHostRenderTarget();
+}
+
+// Recreates the back buffer at the new output size (F9, window resize). Host render targets are rebuilt at the new
+// scale; the game redraws their contents every frame.
+void resizeHost() {
+    UINT width = 0;
+    UINT height = 0;
+    hostSizeFor(g_resolution, width, height);
+    if (width == g_hostWidth && height == g_hostHeight) {
+        return;
+    }
+    std::vector<const XPixelContainer*> targets;
+    for (auto& [container, texture] : g_hostRenderTargets) {
+        targets.push_back(container);
+        setRenderTargetOverride(container, nullptr);
+        texture->Release();
+    }
+    g_hostRenderTargets.clear();
+    g_renderTargetScales.clear();
+    for (DWORD stage = 0; stage < 4; ++stage) {
+        g_device->SetTexture(stage, nullptr);
+    }
+    g_device->SetDepthStencilSurface(nullptr);
+    if (g_hostBackBuffer != nullptr) {
+        g_hostBackBuffer->Release();
+        g_hostBackBuffer = nullptr;
+    }
+    if (g_hostDepth != nullptr) {
+        g_hostDepth->Release();
+        g_hostDepth = nullptr;
+    }
+    g_present.BackBufferWidth = width;
+    g_present.BackBufferHeight = height;
+    const HRESULT result = g_device->Reset(&g_present);
+    if (FAILED(result)) {
+        fatal("d3d: device reset to %ux%u failed (0x%08lX)", width, height, result);
+    }
+    g_hostWidth = width;
+    g_hostHeight = height;
+    g_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &g_hostBackBuffer);
+    g_device->GetDepthStencilSurface(&g_hostDepth);
+    for (const XPixelContainer* container : targets) {
+        hostRenderTargetFor(container);
+    }
+    restoreDeviceState();
+    bindHostRenderTarget();
+    logf("d3d: rendering %ux%u (%s)", g_hostWidth, g_hostHeight, describeResolution(g_resolution));
 }
 
 ULONG __stdcall xDeviceRelease() {

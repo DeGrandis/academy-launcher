@@ -159,6 +159,8 @@ These environment variables affect `clone_wars.exe`:
 - `CW_EXIT_MS=60000`: exits after the given time. `CW_LOG_PATH` and `CW_HDD_ROOT` move the log file and the hard disk folder.
 - `CW_DISABLE_HOOKS=XOnlineReadCachedRecord,...`: skips the named hooks, to compare against the original game code.
 - `CW_WIDESCREEN=0`: use the original 4:3 mode (widescreen 16:9 is the default, using the game's own widescreen support).
+- `CW_RESOLUTION=2560x1440` renders at a fixed resolution, `CW_RESOLUTION=window` follows the window size, `CW_RENDER_SCALE=3` renders at 3x (1440 lines). The game still works at 640x480; the runtime scales the back buffer, render targets, viewports and 2D elements. In game, F9 cycles 1x/2x/3x/4x/window size and F11 (or Alt+Enter) toggles borderless fullscreen. `CW_ANISOTROPY=8` enables anisotropic filtering.
+- `CW_HOTKEY_SCRIPT=36000:f9,40000:f11`: presses those hotkeys at time offsets (for tests).
 - `CW_FPS=n`: software frame cap instead of vsync (`CW_FPS=0` = unlimited, for fast automated tests).
 - `CW_SHADERLOG=1`: writes translated shaders to `vs_<n>.hlsl` / `ps_<n>.hlsl`.
 - `CW_DRAWLOG_FRAME=1500`: logs every draw call of one frame.
