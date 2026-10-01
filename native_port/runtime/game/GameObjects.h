@@ -81,7 +81,7 @@ struct ThuleAcademyScript {
         const float* delays;            // seconds before each group
         const char* const* sounds;      // voice/sound cue per group (may be null)
         const std::uint8_t* pathEffects;// 0x14-byte records per group
-        const std::uint8_t* waitForClear;
+        const std::uint8_t* keepGoing;  // per group: 0 = wait until every enemy is dead before the next group
         const void* startEffects;
         const void* stopEffects;
     };
