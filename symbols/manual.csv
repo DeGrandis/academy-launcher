@@ -1,0 +1,50 @@
+kind,address,name,type,comment
+function,00077340,Mp_Update,void __cdecl(float dt),multiplayer per-frame update; exits early while an XLive error is pending
+function,0007A940,Mp_DrawPlayerHud,,draws per-player multiplayer HUD text (GET READY / countdown / kill messages / victory)
+function,000DEA10,XLiveError_IsPending,bool __cdecl(),returns g_xliveErrorPending
+function,000DEA20,XLiveError_GetText,void* __cdecl(),
+function,000DEA40,XLiveError_Clear,void __cdecl(),
+function,000DEA60,XLiveError_Post,int __cdecl(const char* key; int code; int extra),posts a localized XLive error unless one is pending
+function,000DEAA0,XLiveError_PostText,int __cdecl(const wchar_t* text; int code; int extra),
+function,000E6F60,XLive_ReportHResult,void __cdecl(int hr),maps an Xbox Live HRESULT to an error message and posts it
+function,000DCA00,XOnline_ReadCachedRecordChecked,int __cdecl(void* record),
+function,002B53CE,XOnline_ReadCachedRecord,int __stdcall(void* record),XONLINES wrapper over the global XOnline object; hooked (offline)
+function,001488C0,MainMenu_Enter,,main menu screen init; reads the cached XOnline record
+function,000ED660,Shell_GetState,int __cdecl(),returns g_shellState
+function,00167640,Input_PollControllers,void __cdecl(),XInput polling for the 4 ports into the input state arrays
+function,00066FE0,UpdateList_Run,void __cdecl(float dt),runs registered per-frame callbacks
+function,000F3E50,Mission_Load,,loads the current mission ("Mission load failed")
+function,00062750,Batch_BeginMission,void __cdecl(const char* mission; const char* directory),opens or records level caches (Bins)
+function,00062830,Batch_ReadConfig,void __cdecl(),reads doBatch / doReset from config.ini
+function,00062890,Batch_EndMission,void __cdecl(),writes Bins\done.bin
+function,0022BF40,Batch_BeginOdfCache,void __cdecl(const char* mission; const char* directory),<map>fil.bin / <map>odf.bin
+function,00089A00,Batch_BeginAnimCache,void __cdecl(const char* mission; const char* directory),<map>anm.bin
+function,0022B330,BatchFile_Open,void* __cdecl(const char* path; int read),zlib-compressed record/playback stream
+function,0022AA00,BatchFile_Transfer,int __thiscall(void* self; void* buffer; int length),reads or writes depending on mode
+function,002299B0,BatchFile_Close,void __fastcall(void* self),
+function,00226B80,Config_GetInt,int __cdecl(const char* name; int fallback),config.ini value
+function,0022C330,Zwp_Open,void __cdecl(),opens D:\data.zwp and builds the name-hash directory
+function,0022B430,Zwp_Inflate,void __thiscall(int storedSize; void* file; void* out; int outSize),inflates one archive entry through fread
+function,0022B5E0,GameFile_Open,void __thiscall(void* self; const char* name),opens a game file from the batch cache or data.zwp
+function,0022C100,GameFile_GameFile,void* __thiscall(void* self; const char* name; int flags),
+function,0022BE70,GameFile_Scan,int __cdecl(void* file; const char* section; const char* key; const char* format; ...),ODF/INI reader: finds [section] then key and sscanf()s the value
+function,0022C820,HashString,int __cdecl(const char* text; int length; int seed),name hash used for ODF section/key and file lookups
+function,0022CB00,HashFileName,int __cdecl(const char* name; int seed),
+function,00262860,MoviePlayer_Open,int __thiscall(void* self; const char* name; int flags),hooked (XMV skipped)
+function,00273A60,VoiceCodec_CpuCheck,int __cdecl(),hooked
+global,0041B880,g_mpMatchTime,float,
+global,0041B884,g_mpPregameTimer,float,counts up from -5; GET READY until -3; match starts at 0
+global,0041B888,g_mpMatchState,int32_t,0 = pre-game/playing
+global,005EC010,g_mpGameType,uint8_t,3 = Academy
+global,005EC012,g_mpTeamCount,int8_t,
+global,005EC32C,g_mpPlayerSlots,uint8_t,8 slots of 0x80 bytes; +0x00 state; +0x0A name; +0x38 team
+global,005A2448,g_xliveErrorText,wchar_t,512 characters
+global,005A2854,g_xliveErrorExtra,int32_t,
+global,005A285C,g_xliveErrorCode,int32_t,
+global,005A2860,g_xliveErrorPending,uint8_t,
+global,0038F7A8,g_shellState,int32_t,15 = main menu; 4 = in game
+global,005F7548,g_xonline,void*,XOnline object; null when the network is offline
+global,00608880,g_zwpFile,void*,FILE* for D:\data.zwp
+global,00608885,g_zwpOpen,uint8_t,
+global,003FAABC,g_batchEnabled,uint8_t,config.ini doBatch
+global,003FAABD,g_batchReset,uint8_t,config.ini doReset

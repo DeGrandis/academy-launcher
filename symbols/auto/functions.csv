@@ -1,0 +1,1879 @@
+address,name,comment
+00011C10,ZeroAABB::Construct_011C10,installs the class vtable (constructor or destructor variant)
+00011D30,ZeroUnknown::GetTypeHash,returns the type name hash
+00012420,Class_00334C24::Construct_012420,installs the class vtable (constructor or destructor variant)
+00012C80,ZeroAABB::ZeroAABB,constructor
+00012DB0,ZeroAABB::GetTypeHash,returns the type name hash
+00012E60,Class_00334C24::Construct_012E60,installs the class vtable (constructor or destructor variant)
+00012F30,GameVisWorld::vf01,vtable slot 1 (0x4)
+00012F60,GameVisWorld::GetTypeHash,returns the type name hash
+000130C0,GameVisWorld::Construct_0130C0,installs the class vtable (constructor or destructor variant)
+00013390,GameVisWorld::vf00,vtable slot 0 (0x0)
+00013550,ZeroUnknown::ZeroUnknown,constructor
+000136F0,Class_00334C24::Construct_0136F0,installs the class vtable (constructor or destructor variant)
+000137C0,ZeroUnknown::vf00,vtable slot 0 (0x0)
+00013D50,ZeroEntity::ZeroEntity,constructor
+00013E40,ZeroEntity::GetTypeHash,returns the type name hash
+00014030,ZeroObject_00334E60::ZeroObject_00334E60,constructor
+00014100,ZeroObject::GetTypeHash,returns the type name hash
+00014160,ZeroBaseNode_00334ED0::Construct_014160,installs the class vtable (constructor or destructor variant)
+000141A0,ZeroBaseNode::GetTypeHash,returns the type name hash
+00014240,ZeroBaseNode_00334F00::ZeroBaseNode_00334F00,constructor
+00014B70,TreeGridObject::Construct_014B70,installs the class vtable (constructor or destructor variant)
+00014B80,TreeGridObject::vf00,vtable slot 0 (0x0)
+00015060,TreeGridObject::vf01,vtable slot 1 (0x4)
+00015090,TreeGridObject::GetTypeHash,returns the type name hash
+000190C0,Class_00334C24::Construct_0190C0,installs the class vtable (constructor or destructor variant)
+000199D0,PhysicsManagerObject::PhysicsManagerObject,constructor
+00019BC0,PhysicsManagerObject::vf01,vtable slot 1 (0x4)
+00019BF0,PhysicsManagerObject::GetTypeHash,returns the type name hash
+00019C00,PhysicsManagerObject::vf04,vtable slot 4 (0x10)
+00019CB0,PhysicsManagerObject::vf00,vtable slot 0 (0x0)
+00019CD0,PhysicsManagerObject::Construct_019CD0,installs the class vtable (constructor or destructor variant)
+00019EA0,ZeroUnknown_00335068::ZeroUnknown_00335068,constructor
+0001A050,ZeroUnknown_00335068::vf00,vtable slot 0 (0x0)
+0001B850,ZeroUserData::GetTypeHash,returns the type name hash
+0001B950,ZeroUserData::ZeroUserData,constructor
+0001BA10,ZeroUserData::ZeroUserData,constructor
+0001BAE0,ZeroUserData::vf08,vtable slot 8 (0x20)
+0001BB50,ZeroUserData::vf00,vtable slot 0 (0x0)
+0001BB70,Class_00334C24::Construct_01BB70,installs the class vtable (constructor or destructor variant)
+0001BD00,ZeroUserData_00335368::ZeroUserData_00335368,constructor
+0001BD50,Class_00334C24::Construct_01BD50,installs the class vtable (constructor or destructor variant)
+0001BF20,ZeroUserData_00335368::vf08,vtable slot 8 (0x20)
+0001C120,ZeroUserData_00335368::vf00,vtable slot 0 (0x0)
+0001CAD0,GameObject::Construct_01CAD0,installs the class vtable (constructor or destructor variant)
+0001CD10,GameObject::GetTypeHash,returns the type name hash
+0001CD20,GameObject::vf00,vtable slot 0 (0x0)
+0001CD40,GameObject::GameObject,constructor
+0001D0E0,ZeroObject_00334E60::ZeroObject_00334E60,constructor
+0001DF70,ZeroEntity::ZeroEntity,constructor
+0001E000,GameObject::GameObject,constructor
+0001E270,ZeroCollision::GetTypeHash,returns the type name hash
+0001E280,ZeroCollision::ZeroCollision,constructor
+0001E330,ZeroSphereCollision::ZeroSphereCollision,constructor
+0001E3C0,ZeroSphereCollision::GetTypeHash,returns the type name hash
+0001E3D0,ZeroSphereCollision::ZeroSphereCollision,constructor
+0001E460,ZeroPolyCollision::ZeroPolyCollision,constructor
+0001E510,ZeroPolyCollision::GetTypeHash,returns the type name hash
+0001E590,ZeroPolyCollision::ZeroPolyCollision,constructor
+0001E640,ZeroPolyCollision::Construct_01E640,installs the class vtable (constructor or destructor variant)
+0001E970,odf_load_GameObjectClass,reads ODF keys
+0001EAB0,Class_00334C24::Class_00334C24,constructor
+0001ED30,odf_load_GameObjectClass_Physics,reads ODF keys
+0001F270,ZeroCollision_003354C4::Construct_01F270,installs the class vtable (constructor or destructor variant)
+0001F2A0,ZeroCollision_003354C4::Construct_01F2A0,installs the class vtable (constructor or destructor variant)
+0001F350,ZeroCollision_003354C4::Construct_01F350,installs the class vtable (constructor or destructor variant)
+0001F3C0,ZeroCollision_003354BC::Construct_01F3C0,installs the class vtable (constructor or destructor variant)
+0001F3F0,ZeroCollision_003354BC::vf00,vtable slot 0 (0x0)
+0001F550,ZeroCollision_003354BC::Construct_01F550,installs the class vtable (constructor or destructor variant)
+0001F6C0,GameObjectClass::GameObjectClass,constructor
+0001F970,ZeroPolyCollision::LoadOdf_01F970,reads ODF keys; constructor
+00020AF0,Class_00334C24::Construct_020AF0,installs the class vtable (constructor or destructor variant)
+00020E30,odf_load_Physics,reads ODF keys
+00021780,Physics::vf24,vtable slot 36 (0x90)
+000217B0,Physics::vf16,vtable slot 22 (0x58)
+000217E0,Physics::vf22,vtable slot 34 (0x88)
+00021830,Physics::vf04,vtable slot 4 (0x10)
+00021970,Physics::Physics,constructor
+00021B70,Physics::vf01,vtable slot 1 (0x4)
+00021BB0,Physics::GetTypeHash,returns the type name hash
+00021C30,ZeroRigidBody::ZeroRigidBody,constructor
+00021DA0,ZeroRigidBody::vf01,vtable slot 1 (0x4)
+00021DD0,ZeroRigidBody::GetTypeHash,returns the type name hash
+00021DE0,ZeroRigidBody::vf08,vtable slot 8 (0x20)
+00021E50,ZeroTransform::ZeroTransform,constructor
+00021EC0,ZeroTransform::vf01,vtable slot 1 (0x4)
+00021EF0,ZeroTransform::GetTypeHash,returns the type name hash
+00021F00,ZeroTransform::vf08,vtable slot 8 (0x20)
+00021F70,ZeroTransform::ZeroTransform,constructor
+00022030,Physics::Physics,constructor
+000220E0,Physics::Construct_0220E0,installs the class vtable (constructor or destructor variant)
+00022150,Physics::vf08,vtable slot 8 (0x20)
+000221C0,Physics::vf00,vtable slot 0 (0x0)
+00023370,SoundClass::Construct_023370,installs the class vtable (constructor or destructor variant)
+000233D0,SoundClass::vf01,vtable slot 1 (0x4)
+00023400,SoundClass::GetTypeHash,returns the type name hash
+00023410,SoundObject_00336480::Construct_023410,installs the class vtable (constructor or destructor variant)
+000234B0,SoundObject::GetTypeHash,returns the type name hash
+000234C0,SoundObject_003364C0::Construct_0234C0,installs the class vtable (constructor or destructor variant)
+000234D0,SoundObject_00336500::Construct_0234D0,installs the class vtable (constructor or destructor variant)
+00023880,SoundObject::Construct_023880,installs the class vtable (constructor or destructor variant)
+00023B30,SoundClass::vf00,vtable slot 0 (0x0)
+00023B50,SoundClass::SoundClass,constructor
+00023D00,SoundObject_00336480::SoundObject_00336480,constructor
+00023DA0,SoundObject_00336480::vf00,vtable slot 0 (0x0)
+00023DE0,SoundObject_00336500::SoundObject_00336500,constructor
+00023ED0,SoundObject::SoundObject,constructor
+00024010,SoundObject_003364C0::SoundObject_003364C0,constructor
+000242B0,WeaponPhysics::vf22,vtable slot 34 (0x88)
+000242D0,ZeroUserData_0033661C::ZeroUserData_0033661C,constructor
+00024390,ZeroUserData_0033661C::ZeroUserData_0033661C,constructor
+00024460,ZeroUserData_0033661C::vf0D,vtable slot 13 (0x34)
+00024A40,ZeroUserData_0033661C::vf08,vtable slot 8 (0x20)
+00024AE0,ZeroUserData_0033661C::vf0E,vtable slot 14 (0x38)
+000250C0,ZeroUserData_00336678::ZeroUserData_00336678,constructor
+00025250,ZeroUserData_00336678::ZeroUserData_00336678,constructor
+000256F0,ZeroUserData_00336678::vf0D,vtable slot 13 (0x34)
+00025930,ZeroUserData_00336678::vf08,vtable slot 8 (0x20)
+000259A0,BuildingClass::BuildingClass,constructor
+00025A50,BuildingClass::Construct_025A50,installs the class vtable (constructor or destructor variant)
+00025B70,BuildingClass::vf01,vtable slot 1 (0x4)
+00025BA0,BuildingClass::vf02,vtable slot 2 (0x8)
+00025BB0,BuildingClass::vf00,vtable slot 0 (0x0)
+00025BD0,BuildingClass::LoadOdf_025BD0,reads ODF keys; installs the class vtable (constructor or destructor variant)
+000269E0,BuildingClass::vf0B,vtable slot 11 (0x2C)
+00026A50,BuildingClass::vf0C,vtable slot 12 (0x30)
+00026E40,BuildingPhysics::Construct_026E40,installs the class vtable (constructor or destructor variant)
+00026EA0,BuildingPhysics::vf13,vtable slot 19 (0x4C)
+00026EB0,BuildingPhysics::vf01,vtable slot 1 (0x4)
+00026ED0,BuildingPhysics::GetTypeHash,returns the type name hash
+00026F30,BuildingPhysics::BuildingPhysics,constructor
+00027000,BuildingPhysics::vf00,vtable slot 0 (0x0)
+00027130,BuildingPhysics::vf16,vtable slot 22 (0x58)
+000271D0,BuildingPhysics::vf17,vtable slot 23 (0x5C)
+00027240,BuildingPhysics::vf1E,vtable slot 30 (0x78)
+000272B0,BuildingPhysics::BuildingPhysics,constructor
+000273A0,BuildingPhysics::vf08,vtable slot 8 (0x20)
+00027410,ZeroUserData_00336BE8::ZeroUserData_00336BE8,constructor
+000274F0,ZeroUserData_00336BE8::ZeroUserData_00336BE8,constructor
+000275E0,ZeroUserData_00336BE8::vf08,vtable slot 8 (0x20)
+00027700,Class_00334C24::Construct_027700,installs the class vtable (constructor or destructor variant)
+00027780,ZeroUserData_00336C24::ZeroUserData_00336C24,constructor
+000278A0,ZeroUserData_00336C24::vf00,vtable slot 0 (0x0)
+000278C0,ZeroUserData_00336C24::ZeroUserData_00336C24,constructor
+00027BE0,ZeroUserData_00336C24::vf08,vtable slot 8 (0x20)
+00027CB0,ZeroUserData_00336C24::vf0D,vtable slot 13 (0x34)
+00028450,LightningBuildingClass::LightningBuildingClass,constructor
+00028480,LightningBuildingClass::Construct_028480,installs the class vtable (constructor or destructor variant)
+00028490,LightningBuildingClass::vf0C,vtable slot 12 (0x30)
+000284A0,LightningBuildingClass::vf01,vtable slot 1 (0x4)
+000284E0,LightningBuildingClass::vf02,vtable slot 2 (0x8)
+000284F0,LightningBuildingClass::vf00,vtable slot 0 (0x0)
+00028510,LightningBuildingClass::Construct_028510,installs the class vtable (constructor or destructor variant)
+00028730,LightningBuildingClass::vf0B,vtable slot 11 (0x2C)
+000287A0,LightningBuildingPhysics::LightningBuildingPhysics,constructor
+000287F0,LightningBuildingPhysics::vf01,vtable slot 1 (0x4)
+00028820,LightningBuildingPhysics::GetTypeHash,returns the type name hash
+00028830,LightningBuildingPhysics::LightningBuildingPhysics,constructor
+000288F0,LightningBuildingPhysics::Construct_0288F0,installs the class vtable (constructor or destructor variant)
+000289A0,LightningBuildingPhysics::vf08,vtable slot 8 (0x20)
+00028A10,LightningBuildingPhysics::vf00,vtable slot 0 (0x0)
+00028AD0,ZeroUserData_00336F54::ZeroUserData_00336F54,constructor
+00028B00,Class_00334C24::Construct_028B00,installs the class vtable (constructor or destructor variant)
+00028BE0,ZeroUserData_00336F54::vf0D,vtable slot 13 (0x34)
+00028C10,ZeroUserData_00336F54::ZeroUserData_00336F54,constructor
+00028CA0,ZeroUserData_00336F54::vf00,vtable slot 0 (0x0)
+00028D00,ZeroSurface::vf09,vtable slot 9 (0x24)
+00028E50,ZeroUserData_00336F8C::ZeroUserData_00336F8C,constructor
+00028EF0,ZeroUserData_00336F8C::ZeroUserData_00336F8C,constructor
+000293E0,ZeroUserData_00336FF8::ZeroUserData_00336FF8,constructor
+000295B0,ZeroUserData_00336FF8::ZeroUserData_00336FF8,constructor
+00029780,Class_00334C24::Construct_029780,installs the class vtable (constructor or destructor variant)
+00029930,ZeroUserData_00336FF8::vf08,vtable slot 8 (0x20)
+000299A0,ZeroUserData_00336FF8::vf00,vtable slot 0 (0x0)
+00029F00,ZeroUserData_00336FF8::vf0D,vtable slot 13 (0x34)
+0002A6F0,ChunkClass::ChunkClass,constructor
+0002A720,ChunkClass::Construct_02A720,installs the class vtable (constructor or destructor variant)
+0002A730,ChunkClass::vf01,vtable slot 1 (0x4)
+0002A760,ChunkClass::vf02,vtable slot 2 (0x8)
+0002A770,ChunkClass::vf00,vtable slot 0 (0x0)
+0002A790,ChunkClass::Construct_02A790,installs the class vtable (constructor or destructor variant)
+0002A8D0,ChunkClass::vf0B,vtable slot 11 (0x2C)
+0002A940,ChunkCluster::vf15,vtable slot 21 (0x54)
+0002AC80,ChunkModel::ChunkModel,constructor
+0002ACC0,ChunkModel::vf01,vtable slot 1 (0x4)
+0002ACF0,ChunkModel::GetTypeHash,returns the type name hash
+0002AD00,Class_00334C24::Construct_02AD00,installs the class vtable (constructor or destructor variant)
+0002B380,ChunkModel::vf00,vtable slot 0 (0x0)
+0002B510,ChunkCluster::vf0C,vtable slot 12 (0x30)
+0002B7F0,ChunkCluster::Construct_02B7F0,installs the class vtable (constructor or destructor variant)
+0002B930,ChunkCluster::vf16,vtable slot 22 (0x58)
+0002B940,ChunkCluster::vf01,vtable slot 1 (0x4)
+0002B980,ChunkCluster::GetTypeHash,returns the type name hash
+0002B990,ChunkCluster::ChunkCluster,constructor
+0002BA50,ChunkCluster::vf00,vtable slot 0 (0x0)
+0002BA70,ChunkPhysics::ChunkPhysics,constructor
+0002BAF0,ChunkPhysics::ChunkPhysics,constructor
+0002BB60,ChunkPhysics::vf00,vtable slot 0 (0x0)
+0002BB80,ChunkPhysics::Construct_02BB80,installs the class vtable (constructor or destructor variant)
+0002BB90,ChunkPhysics::vf01,vtable slot 1 (0x4)
+0002BBD0,ChunkPhysics::GetTypeHash,returns the type name hash
+0002BBE0,ChunkPhysics::vf16,vtable slot 22 (0x58)
+0002BCC0,Class_003372A8::Class_003372A8,constructor
+0002BD00,Class_003372A8::vf0B,vtable slot 11 (0x2C)
+0002BD70,Terrain::Terrain,constructor
+0002BDD0,Terrain::Construct_02BDD0,installs the class vtable (constructor or destructor variant)
+0002BE40,Terrain::vf3A,vtable slot 58 (0xE8)
+0002BE60,Terrain::vf3B,vtable slot 59 (0xEC)
+0002BFE0,Terrain::vf2F,vtable slot 47 (0xBC)
+0002C000,Terrain::vf14,vtable slot 20 (0x50)
+0002C060,Terrain::vf2D,vtable slot 45 (0xB4)
+0002C0C0,Terrain::vf2A,vtable slot 42 (0xA8)
+0002C0F0,Terrain::vf2B,vtable slot 43 (0xAC)
+0002C130,Terrain::vf2C,vtable slot 44 (0xB0)
+0002C1A0,Terrain::GetTypeHash,returns the type name hash
+0002C1B0,Class_003372A8::vf01,vtable slot 1 (0x4)
+0002C1E0,Class_003372A8::vf02,vtable slot 2 (0x8)
+0002C1F0,Class_003372A8::vf0C,vtable slot 12 (0x30)
+0002C2B0,Terrain::vf00,vtable slot 0 (0x0)
+0002C380,Terrain_00337498::vf2D,vtable slot 45 (0xB4)
+0002C3A0,Terrain_00337498::vf34,vtable slot 52 (0xD0)
+0002DC40,ZeroTransform::ZeroTransform,constructor
+0002DE30,Terrain_00337498::Construct_02DE30,installs the class vtable (constructor or destructor variant)
+0002DEF0,Terrain_00337498::vf00,vtable slot 0 (0x0)
+0002DF20,TerrainClass::TerrainClass,constructor
+0002DF40,TerrainClass::vf0B,vtable slot 11 (0x2C)
+0002DFB0,TerrainClass::vf01,vtable slot 1 (0x4)
+0002DFE0,TerrainClass::vf02,vtable slot 2 (0x8)
+0002DFF0,TerrainCollision::TerrainCollision,constructor
+0002E020,TerrainCollision::vf01,vtable slot 1 (0x4)
+0002E050,TerrainCollision::GetTypeHash,returns the type name hash
+0002E060,TerrainCollision::vf09,vtable slot 9 (0x24)
+0002E150,TerrainCollision::vf0A,vtable slot 10 (0x28)
+0002E230,CarrierClass::CarrierClass,constructor
+0002E260,CraftClass::vf09,vtable slot 9 (0x24)
+0002E270,CraftClass::vf12,vtable slot 18 (0x48)
+0002E280,CraftClass::vf0E,vtable slot 14 (0x38)
+0002E290,CraftClass::vf10,vtable slot 16 (0x40)
+0002E2A0,CraftClass::vf14,vtable slot 20 (0x50)
+0002E2B0,CraftClass::vf15,vtable slot 21 (0x54)
+0002E2D0,CraftClass::vf16,vtable slot 22 (0x58)
+0002E2E0,CraftClass::vf1D,vtable slot 29 (0x74)
+0002E2F0,CraftClass::vf1E,vtable slot 30 (0x78)
+0002E300,CarrierClass::Construct_02E300,installs the class vtable (constructor or destructor variant)
+0002E360,CarrierClass::vf01,vtable slot 1 (0x4)
+0002E390,HoverCraftClass::vf01,vtable slot 1 (0x4)
+0002E3D0,CarrierClass::vf02,vtable slot 2 (0x8)
+0002E3E0,CarrierClass::vf00,vtable slot 0 (0x0)
+0002E400,CarrierClass::Construct_02E400,installs the class vtable (constructor or destructor variant)
+0002E5F0,CarrierClass::vf0B,vtable slot 11 (0x2C)
+0002E660,HoverCraftClass::vf1A,vtable slot 26 (0x68)
+0002E690,CarrierPhysics::vf22,vtable slot 34 (0x88)
+0002EB70,CarrierPhysics::vf04,vtable slot 4 (0x10)
+0002EBF0,CarrierPhysics::vf16,vtable slot 22 (0x58)
+0002EC20,CarrierPhysics::vf17,vtable slot 23 (0x5C)
+0002EC40,CarrierPhysics::CarrierPhysics,constructor
+0002ED70,FlyerPhysics::vf7C,vtable slot 124 (0x1F0)
+0002ED80,FlyerPhysics::vf7D,vtable slot 125 (0x1F4)
+0002ED90,FlyerPhysics::vf7E,vtable slot 126 (0x1F8)
+0002EDA0,FlyerPhysics::vf7F,vtable slot 127 (0x1FC)
+0002EDD0,FlyerPhysics::vf82,vtable slot 130 (0x208)
+0002EDE0,FlyerPhysics::vf83,vtable slot 131 (0x20C)
+0002EDF0,FlyerPhysics::vf84,vtable slot 132 (0x210)
+0002EE00,FlyerPhysics::vf85,vtable slot 133 (0x214)
+0002EE10,FlyerPhysics::vf86,vtable slot 134 (0x218)
+0002EE20,FlyerPhysics::vf87,vtable slot 135 (0x21C)
+0002EE30,FlyerPhysics::vf28,vtable slot 40 (0xA0)
+0002EE40,FlyerPhysics::vf30,vtable slot 48 (0xC0)
+0002EE50,CarrierPhysics::vf01,vtable slot 1 (0x4)
+0002EE80,HoverPhysics::vf01,vtable slot 1 (0x4)
+0002EEB0,CarrierPhysics::GetTypeHash,returns the type name hash
+0002EEC0,CarrierPhysics::CarrierPhysics,constructor
+0002EF70,CarrierPhysics::Construct_02EF70,installs the class vtable (constructor or destructor variant)
+0002EFE0,CarrierPhysics::vf08,vtable slot 8 (0x20)
+0002F050,CarrierPhysics::vf00,vtable slot 0 (0x0)
+0002F070,CraftClass::Construct_02F070,installs the class vtable (constructor or destructor variant)
+0002F160,CraftClass::vf01,vtable slot 1 (0x4)
+0002F190,CraftClass::vf02,vtable slot 2 (0x8)
+0002F1A0,CraftClass::vf00,vtable slot 0 (0x0)
+0002F1C0,CraftClass::LoadOdf_02F1C0,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00031210,CraftClass::vf0B,vtable slot 11 (0x2C)
+00031280,CraftClass::vf1C,vtable slot 28 (0x70)
+000312F0,CraftClass::CraftClass,constructor
+000318F0,CraftClass::vf0C,vtable slot 12 (0x30)
+00032560,CraftPhysics::vf04,vtable slot 4 (0x10)
+000326B0,CraftPhysics::vf22,vtable slot 34 (0x88)
+00032770,CraftPhysics::CraftPhysics,constructor
+00032970,CraftPhysics::vf01,vtable slot 1 (0x4)
+00032990,CraftPhysics::GetTypeHash,returns the type name hash
+000329A0,CraftPhysics::CraftPhysics,constructor
+00032BA0,CraftPhysics::Construct_032BA0,installs the class vtable (constructor or destructor variant)
+00032E80,CraftPhysics::vf08,vtable slot 8 (0x20)
+00032EF0,CraftPhysics::vf00,vtable slot 0 (0x0)
+00032F10,CraftPhysics::vf16,vtable slot 22 (0x58)
+00033620,FlyerClass::FlyerClass,constructor
+00033710,FlyerClass::Construct_033710,installs the class vtable (constructor or destructor variant)
+00033780,FlyerClass::vf01,vtable slot 1 (0x4)
+000337A0,FlyerClass::vf02,vtable slot 2 (0x8)
+000337B0,FlyerClass::vf00,vtable slot 0 (0x0)
+000337D0,FlyerClass::LoadOdf_0337D0,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00034010,FlyerClass::vf0B,vtable slot 11 (0x2C)
+00034080,FlyerPhysics::Construct_034080,installs the class vtable (constructor or destructor variant)
+000340E0,FlyerPhysics::vf22,vtable slot 34 (0x88)
+000341C0,FlyerPhysics::vf2A,vtable slot 42 (0xA8)
+000341D0,FlyerPhysics::vf2B,vtable slot 43 (0xAC)
+000341E0,FlyerPhysics::vf68,vtable slot 104 (0x1A0)
+000341F0,FlyerPhysics::vf69,vtable slot 105 (0x1A4)
+00034200,FlyerPhysics::vf6A,vtable slot 106 (0x1A8)
+00034210,FlyerPhysics::vf6B,vtable slot 107 (0x1AC)
+00034220,FlyerPhysics::vf6C,vtable slot 108 (0x1B0)
+00034230,FlyerPhysics::vf6D,vtable slot 109 (0x1B4)
+00034240,FlyerPhysics::vf6E,vtable slot 110 (0x1B8)
+00034250,FlyerPhysics::vf6F,vtable slot 111 (0x1BC)
+00034260,FlyerPhysics::vf70,vtable slot 112 (0x1C0)
+00034270,FlyerPhysics::vf71,vtable slot 113 (0x1C4)
+00034280,FlyerPhysics::vf76,vtable slot 118 (0x1D8)
+000342A0,FlyerPhysics::vf88,vtable slot 136 (0x220)
+000342C0,FlyerPhysics::vf89,vtable slot 137 (0x224)
+000342E0,FlyerPhysics::vf8A,vtable slot 138 (0x228)
+00034300,FlyerPhysics::vf8B,vtable slot 139 (0x22C)
+000343B0,FlyerPhysics::vf01,vtable slot 1 (0x4)
+000343E0,FlyerPhysics::GetTypeHash,returns the type name hash
+000343F0,FlyerPhysics::FlyerPhysics,constructor
+00034650,FlyerPhysics::vf00,vtable slot 0 (0x0)
+00034670,FlyerPhysics::vf24,vtable slot 36 (0x90)
+000346E0,FlyerPhysics::vf29,vtable slot 41 (0xA4)
+000347A0,FlyerPhysics::FlyerPhysics,constructor
+00034CD0,FlyerPhysics::vf25,vtable slot 37 (0x94)
+00035310,FlyerPhysics::vf16,vtable slot 22 (0x58)
+00036910,FlyerPhysics::vf08,vtable slot 8 (0x20)
+00036AC0,HoverCraftClass::HoverCraftClass,constructor
+00036C90,HoverCraftClass::Construct_036C90,installs the class vtable (constructor or destructor variant)
+00036E60,HoverCraftClass::vf02,vtable slot 2 (0x8)
+00036E70,HoverCraftClass::vf00,vtable slot 0 (0x0)
+00036E90,HoverCraftClass::LoadOdf_036E90,reads ODF keys; installs the class vtable (constructor or destructor variant)
+000391C0,HoverCraftClass::vf0B,vtable slot 11 (0x2C)
+00039770,HoverPhysics::Construct_039770,installs the class vtable (constructor or destructor variant)
+00039840,HoverPhysics::GetTypeHash,returns the type name hash
+00039B40,HoverPhysics::HoverPhysics,constructor
+0003A150,HoverPhysics::vf00,vtable slot 0 (0x0)
+0003B2B0,HoverPhysics::vf16,vtable slot 22 (0x58)
+0003C590,HoverPhysics::HoverPhysics,constructor
+0003C9D0,HoverPhysics::vf08,vtable slot 8 (0x20)
+0003CA40,JediClass::JediClass,constructor
+0003CAD0,WalkerClass::vf17,vtable slot 23 (0x5C)
+0003CAE0,JediClass::Construct_03CAE0,installs the class vtable (constructor or destructor variant)
+0003CB60,JediClass::vf01,vtable slot 1 (0x4)
+0003CB90,WalkerClass::vf01,vtable slot 1 (0x4)
+0003CBD0,JediClass::vf02,vtable slot 2 (0x8)
+0003CBE0,JediClass::vf00,vtable slot 0 (0x0)
+0003CC00,JediClass::LoadOdf_03CC00,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0003D440,JediClass::vf0B,vtable slot 11 (0x2C)
+0003D4B0,JediPhysics::vf04,vtable slot 4 (0x10)
+0003D530,JediPhysics::Construct_03D530,installs the class vtable (constructor or destructor variant)
+0003D5D0,WalkerPhysics::vf27,vtable slot 39 (0x9C)
+0003D5E0,WalkerPhysics::vf28,vtable slot 40 (0xA0)
+0003D5F0,WalkerPhysics::vf77,vtable slot 119 (0x1DC)
+0003D600,WalkerPhysics::vf78,vtable slot 120 (0x1E0)
+0003D610,WalkerPhysics::vf79,vtable slot 121 (0x1E4)
+0003D620,WalkerPhysics::vf7A,vtable slot 122 (0x1E8)
+0003D630,WalkerPhysics::vf7B,vtable slot 123 (0x1EC)
+0003D640,JediPhysics::vf01,vtable slot 1 (0x4)
+0003D670,JediPhysics::GetTypeHash,returns the type name hash
+0003D6A0,JediPhysics::vf16,vtable slot 22 (0x58)
+0003D910,JediPhysics::vf00,vtable slot 0 (0x0)
+0003ED30,JediPhysics::JediPhysics,constructor
+0003F200,JediPhysics::JediPhysics,constructor
+0003F6B0,JediPhysics::vf08,vtable slot 8 (0x20)
+0003F720,PersonClass::PersonClass,constructor
+0003F750,PersonClass::Construct_03F750,installs the class vtable (constructor or destructor variant)
+0003F780,PersonClass::Construct_03F780,installs the class vtable (constructor or destructor variant)
+0003F790,PersonClass::vf0B,vtable slot 11 (0x2C)
+0003F800,PersonClass::vf01,vtable slot 1 (0x4)
+0003F820,PersonClass::vf02,vtable slot 2 (0x8)
+0003F830,PersonClass::vf00,vtable slot 0 (0x0)
+0003F850,RecoilPhysics::vf16,vtable slot 22 (0x58)
+0003F920,RecoilPhysics::RecoilPhysics,constructor
+0003FA20,RecoilPhysics::vf01,vtable slot 1 (0x4)
+0003FA50,RecoilPhysics::GetTypeHash,returns the type name hash
+0003FA60,RecoilPhysics::RecoilPhysics,constructor
+0003FB40,Class_00334C24::Construct_03FB40,installs the class vtable (constructor or destructor variant)
+0003FBA0,RecoilPhysics::vf08,vtable slot 8 (0x20)
+0003FC10,RecoilPhysics::vf00,vtable slot 0 (0x0)
+0003FC30,StationaryClass::StationaryClass,constructor
+0003FC90,StationaryClass::Construct_03FC90,installs the class vtable (constructor or destructor variant)
+0003FCA0,StationaryClass::vf01,vtable slot 1 (0x4)
+0003FCE0,StationaryClass::vf02,vtable slot 2 (0x8)
+0003FCF0,StationaryClass::vf00,vtable slot 0 (0x0)
+0003FD10,StationaryClass::LoadOdf_03FD10,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0003FF40,StationaryClass::vf0B,vtable slot 11 (0x2C)
+0003FFB0,StationaryPhysics::StationaryPhysics,constructor
+00040010,StationaryPhysics::vf13,vtable slot 19 (0x4C)
+00040050,StationaryPhysics::Construct_040050,installs the class vtable (constructor or destructor variant)
+00040060,StationaryPhysics::vf01,vtable slot 1 (0x4)
+00040090,StationaryPhysics::GetTypeHash,returns the type name hash
+000400C0,StationaryPhysics::vf00,vtable slot 0 (0x0)
+000401F0,StationaryPhysics::vf16,vtable slot 22 (0x58)
+000402A0,StationaryPhysics::vf1E,vtable slot 30 (0x78)
+00040360,StationaryPhysics::StationaryPhysics,constructor
+00040400,StationaryPhysics::vf08,vtable slot 8 (0x20)
+00040470,TreadClass::TreadClass,constructor
+000404F0,TreadClass::Construct_0404F0,installs the class vtable (constructor or destructor variant)
+00040500,TreadClass::vf01,vtable slot 1 (0x4)
+00040540,TreadClass::vf02,vtable slot 2 (0x8)
+00040550,TreadClass::vf00,vtable slot 0 (0x0)
+00040570,TreadClass::Construct_040570,installs the class vtable (constructor or destructor variant)
+00040A30,TreadClass::vf0B,vtable slot 11 (0x2C)
+00040AA0,TreadClass::vf0C,vtable slot 12 (0x30)
+00040AD0,ZeroObject_00339558::ZeroObject_00339558,constructor
+00040B40,ZeroObject_00339558::Construct_040B40,installs the class vtable (constructor or destructor variant)
+00040B50,TreadPhysics::Construct_040B50,installs the class vtable (constructor or destructor variant)
+00040BA0,ZeroObject_00339558::vf06,vtable slot 6 (0x18)
+00040C40,TreadPhysics::GetTypeHash,returns the type name hash
+00040C50,ZeroObject_00339558::ZeroObject_00339558,constructor
+00040DE0,ZeroObject_00339558::vf00,vtable slot 0 (0x0)
+00040E00,ZeroObject_00339558::vf0C,vtable slot 12 (0x30)
+00040E50,TreadPhysics::TreadPhysics,constructor
+00040EF0,TreadPhysics::TreadPhysics,constructor
+000413F0,TurretPhysics::vf47,vtable slot 71 (0x11C)
+00041410,TurretPhysics::vf04,vtable slot 4 (0x10)
+00041430,TurretPhysics::vf22,vtable slot 34 (0x88)
+00041830,TurretPhysics::vf16,vtable slot 22 (0x58)
+000426D0,TurretPhysics::vf46,vtable slot 70 (0x118)
+00042E40,TurretPhysics::TurretPhysics,constructor
+00043070,TurretPhysics::vf01,vtable slot 1 (0x4)
+000430A0,TurretPhysics::GetTypeHash,returns the type name hash
+000430B0,TurretPhysics::TurretPhysics,constructor
+000432D0,Class_00334C24::Construct_0432D0,installs the class vtable (constructor or destructor variant)
+00043350,AnimTurretPhysics::AnimTurretPhysics,constructor
+00043420,TurretPhysics::vf25,vtable slot 37 (0x94)
+00043460,AnimTurretPhysics::GetTypeHash,returns the type name hash
+00043470,AnimTurretPhysics::AnimTurretPhysics,constructor
+000434E0,AnimTurretPhysics::Construct_0434E0,installs the class vtable (constructor or destructor variant)
+000434F0,TurretPhysics::vf08,vtable slot 8 (0x20)
+00043560,TurretPhysics::vf2C,vtable slot 44 (0xB0)
+000435D0,TurretPhysics::vf00,vtable slot 0 (0x0)
+000435F0,TurretPhysics::vf24,vtable slot 36 (0x90)
+00043610,WalkerClass::WalkerClass,constructor
+00043770,WalkerClass::Construct_043770,installs the class vtable (constructor or destructor variant)
+000437D0,WalkerClass::vf02,vtable slot 2 (0x8)
+000437E0,WalkerClass::vf00,vtable slot 0 (0x0)
+00043800,WalkerClass::LoadOdf_043800,reads ODF keys; installs the class vtable (constructor or destructor variant)
+000445A0,WalkerClass::vf0B,vtable slot 11 (0x2C)
+00044610,WalkerPhysics::vf04,vtable slot 4 (0x10)
+00044630,WalkerPhysics::vf2A,vtable slot 42 (0xA8)
+00044640,WalkerPhysics::vf2B,vtable slot 43 (0xAC)
+00044650,WalkerPhysics::vf3B,vtable slot 59 (0xEC)
+00044670,WalkerPhysics::vf41,vtable slot 65 (0x104)
+00044680,WalkerPhysics::vf59,vtable slot 89 (0x164)
+00044690,WalkerPhysics::vf3E,vtable slot 62 (0xF8)
+000446A0,WalkerPhysics::vf3F,vtable slot 63 (0xFC)
+000446B0,WalkerPhysics::vf26,vtable slot 38 (0x98)
+000446E0,WalkerPhysics::vf73,vtable slot 115 (0x1CC)
+00044800,WalkerPhysics::Construct_044800,installs the class vtable (constructor or destructor variant)
+00044880,WalkerPhysics::vf01,vtable slot 1 (0x4)
+000448A0,WalkerPhysics::GetTypeHash,returns the type name hash
+000448B0,WalkerPhysics::vf2D,vtable slot 45 (0xB4)
+000448E0,WalkerPhysics::WalkerPhysics,constructor
+000456F0,WalkerPhysics::vf00,vtable slot 0 (0x0)
+000462C0,WalkerPhysics::vf16,vtable slot 22 (0x58)
+000470D0,WalkerPhysics::vf17,vtable slot 23 (0x5C)
+000476F0,WalkerPhysics::vf23,vtable slot 35 (0x8C)
+000478D0,WalkerPhysics::vf24,vtable slot 36 (0x90)
+00047D70,WalkerPhysics::vf25,vtable slot 37 (0x94)
+00047F00,WalkerPhysics::WalkerPhysics,constructor
+00048530,WalkerPhysics::vf08,vtable slot 8 (0x20)
+000485A0,CannonClass::CannonClass,constructor
+00048620,WeaponClass::vf20,vtable slot 32 (0x80)
+00048630,CannonClass::Construct_048630,installs the class vtable (constructor or destructor variant)
+00048640,CannonClass::vf25,vtable slot 37 (0x94)
+000486E0,CannonClass::vf22,vtable slot 34 (0x88)
+00048760,CannonClass::vf24,vtable slot 36 (0x90)
+00048790,CannonClass::vf01,vtable slot 1 (0x4)
+000487D0,CannonClass::vf02,vtable slot 2 (0x8)
+000487E0,CannonClass::vf00,vtable slot 0 (0x0)
+00048800,CannonClass::LoadOdf_048800,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00048B70,CannonClass::vf0B,vtable slot 11 (0x2C)
+00048BE0,CannonClass::vf1F,vtable slot 31 (0x7C)
+00048EF0,CannonClass::vf21,vtable slot 33 (0x84)
+00049040,CannonPhysics::CannonPhysics,constructor
+00049150,CannonPhysics::vf23,vtable slot 35 (0x8C)
+00049190,CannonPhysics::vf26,vtable slot 38 (0x98)
+000491C0,CannonPhysics::vf27,vtable slot 39 (0x9C)
+000491D0,CannonPhysics::vf28,vtable slot 40 (0xA0)
+00049210,CannonPhysics::vf2A,vtable slot 42 (0xA8)
+00049220,CannonPhysics::vf2B,vtable slot 43 (0xAC)
+00049230,CannonPhysics::CannonPhysics,constructor
+00049340,CannonPhysics::vf04,vtable slot 4 (0x10)
+000493A0,CannonPhysics::vf24,vtable slot 36 (0x90)
+00049430,CannonPhysics::vf01,vtable slot 1 (0x4)
+00049470,CannonPhysics::GetTypeHash,returns the type name hash
+00049480,CannonPhysics::vf08,vtable slot 8 (0x20)
+000494F0,CannonPhysics::Construct_0494F0,installs the class vtable (constructor or destructor variant)
+00049540,CannonPhysics::vf16,vtable slot 22 (0x58)
+0004A230,CannonPhysics::vf00,vtable slot 0 (0x0)
+0004A250,ChargeClass::ChargeClass,constructor
+0004A2B0,ChargeClass::Construct_04A2B0,installs the class vtable (constructor or destructor variant)
+0004A320,ChargeClass::vf01,vtable slot 1 (0x4)
+0004A340,ChargeClass::vf02,vtable slot 2 (0x8)
+0004A350,ChargeClass::vf00,vtable slot 0 (0x0)
+0004A370,ChargeClass::LoadOdf_04A370,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004A6B0,ChargeClass::vf0B,vtable slot 11 (0x2C)
+0004A720,ChargePhysics::ChargePhysics,constructor
+0004A820,ChargePhysics::vf04,vtable slot 4 (0x10)
+0004A890,ChargePhysics::vf22,vtable slot 34 (0x88)
+0004A8E0,ChargePhysics::vf01,vtable slot 1 (0x4)
+0004A900,ChargePhysics::GetTypeHash,returns the type name hash
+0004A910,ChargePhysics::vf08,vtable slot 8 (0x20)
+0004A980,ChargePhysics::ChargePhysics,constructor
+0004AA80,ChargePhysics::Construct_04AA80,installs the class vtable (constructor or destructor variant)
+0004AD10,ChargePhysics::vf16,vtable slot 22 (0x58)
+0004AEE0,ChargePhysics::vf00,vtable slot 0 (0x0)
+0004AF00,ConfuseClass::ConfuseClass,constructor
+0004AF40,WeaponClass::vf1F,vtable slot 31 (0x7C)
+0004AF60,WeaponClass::vf21,vtable slot 33 (0x84)
+0004AF70,ConfuseClass::Construct_04AF70,installs the class vtable (constructor or destructor variant)
+0004AFD0,ConfuseClass::vf01,vtable slot 1 (0x4)
+0004B010,ConfuseClass::vf02,vtable slot 2 (0x8)
+0004B020,ConfuseClass::vf00,vtable slot 0 (0x0)
+0004B040,ConfuseClass::LoadOdf_04B040,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004B240,ConfuseClass::vf0B,vtable slot 11 (0x2C)
+0004B2B0,ConfusePhysics::ConfusePhysics,constructor
+0004B310,ConfusePhysics::vf26,vtable slot 38 (0x98)
+0004B330,ConfusePhysics::ConfusePhysics,constructor
+0004B390,ConfusePhysics::Construct_04B390,installs the class vtable (constructor or destructor variant)
+0004B3A0,ConfusePhysics::vf01,vtable slot 1 (0x4)
+0004B3C0,ForcePhysics::vf01,vtable slot 1 (0x4)
+0004B400,ConfusePhysics::GetTypeHash,returns the type name hash
+0004B410,ConfusePhysics::vf08,vtable slot 8 (0x20)
+0004B480,ConfusePhysics::vf00,vtable slot 0 (0x0)
+0004B610,ConfusePhysics::vf16,vtable slot 22 (0x58)
+0004B830,ForceClass::ForceClass,constructor
+0004B860,ForceClass::Construct_04B860,installs the class vtable (constructor or destructor variant)
+0004B8C0,ForceClass::vf01,vtable slot 1 (0x4)
+0004B8F0,ForceClass::vf02,vtable slot 2 (0x8)
+0004B900,ForceClass::vf00,vtable slot 0 (0x0)
+0004B920,ForceClass::LoadOdf_04B920,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004BA70,ForceClass::vf0B,vtable slot 11 (0x2C)
+0004BAE0,ForcePhysics::ForcePhysics,constructor
+0004BB50,ForcePhysics::ForcePhysics,constructor
+0004BBC0,ForcePhysics::vf04,vtable slot 4 (0x10)
+0004BC10,ForcePhysics::GetTypeHash,returns the type name hash
+0004BC20,ForcePhysics::vf08,vtable slot 8 (0x20)
+0004BC90,ForcePhysics::Construct_04BC90,installs the class vtable (constructor or destructor variant)
+0004BD20,ForcePhysics::vf00,vtable slot 0 (0x0)
+0004C050,MeleeClass::Construct_04C050,installs the class vtable (constructor or destructor variant)
+0004C0E0,MeleeClass::vf22,vtable slot 34 (0x88)
+0004C150,MeleeClass::vf01,vtable slot 1 (0x4)
+0004C190,MeleeClass::GetTypeHash,returns the type name hash
+0004C210,MeleeClass::vf00,vtable slot 0 (0x0)
+0004C230,MeleeClass::LoadOdf_04C230,reads ODF keys; constructor
+0004C5F0,MeleeClass::vf0B,vtable slot 11 (0x2C)
+0004C660,MeleeClass::vf21,vtable slot 33 (0x84)
+0004C6B0,MeleePhysics::vf04,vtable slot 4 (0x10)
+0004C6E0,MeleePhysics::MeleePhysics,constructor
+0004C7C0,MeleePhysics::vf01,vtable slot 1 (0x4)
+0004C800,MeleePhysics::GetTypeHash,returns the type name hash
+0004C810,MeleePhysics::MeleePhysics,constructor
+0004C8F0,MeleePhysics::Construct_04C8F0,installs the class vtable (constructor or destructor variant)
+0004C990,MeleePhysics::vf08,vtable slot 8 (0x20)
+0004CA00,MeleePhysics::vf00,vtable slot 0 (0x0)
+0004CA20,MeleePhysics::vf16,vtable slot 22 (0x58)
+0004D030,PullClass::PullClass,constructor
+0004D070,PullClass::Construct_04D070,installs the class vtable (constructor or destructor variant)
+0004D080,PullClass::vf01,vtable slot 1 (0x4)
+0004D0C0,PullClass::vf02,vtable slot 2 (0x8)
+0004D0D0,PullClass::vf00,vtable slot 0 (0x0)
+0004D0F0,PullClass::LoadOdf_04D0F0,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004D210,PullClass::vf0B,vtable slot 11 (0x2C)
+0004D280,PullPhysics::PullPhysics,constructor
+0004D2D0,PullPhysics::Construct_04D2D0,installs the class vtable (constructor or destructor variant)
+0004D2E0,PullPhysics::vf01,vtable slot 1 (0x4)
+0004D320,PullPhysics::GetTypeHash,returns the type name hash
+0004D330,PullPhysics::PullPhysics,constructor
+0004D3C0,PullPhysics::vf00,vtable slot 0 (0x0)
+0004D3E0,PullPhysics::vf16,vtable slot 22 (0x58)
+0004D710,PushClass::PushClass,constructor
+0004D7C0,PushClass::Construct_04D7C0,installs the class vtable (constructor or destructor variant)
+0004D820,PushClass::vf01,vtable slot 1 (0x4)
+0004D860,PushClass::vf02,vtable slot 2 (0x8)
+0004D870,PushClass::vf00,vtable slot 0 (0x0)
+0004D890,PushClass::LoadOdf_04D890,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004DCC0,PushClass::vf0B,vtable slot 11 (0x2C)
+0004DD30,PushPhysics::PushPhysics,constructor
+0004DF00,PushPhysics::vf26,vtable slot 38 (0x98)
+0004DF20,PushPhysics::vf27,vtable slot 39 (0x9C)
+0004DF30,PushPhysics::PushPhysics,constructor
+0004E0C0,PushPhysics::Construct_04E0C0,installs the class vtable (constructor or destructor variant)
+0004E130,PushPhysics::vf01,vtable slot 1 (0x4)
+0004E150,PushPhysics::GetTypeHash,returns the type name hash
+0004E160,PushPhysics::vf08,vtable slot 8 (0x20)
+0004E1D0,PushPhysics::vf00,vtable slot 0 (0x0)
+0004EB10,PushPhysics::vf16,vtable slot 22 (0x58)
+0004EEE0,ShieldClass::ShieldClass,constructor
+0004EF10,ShieldClass::Construct_04EF10,installs the class vtable (constructor or destructor variant)
+0004EF20,ShieldClass::vf01,vtable slot 1 (0x4)
+0004EF60,ShieldClass::vf02,vtable slot 2 (0x8)
+0004EF70,ShieldClass::vf00,vtable slot 0 (0x0)
+0004EF90,ShieldClass::LoadOdf_04EF90,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004F080,ShieldClass::vf0B,vtable slot 11 (0x2C)
+0004F0F0,ShieldPhysics::ShieldPhysics,constructor
+0004F140,ShieldPhysics::vf26,vtable slot 38 (0x98)
+0004F160,ShieldPhysics::vf04,vtable slot 4 (0x10)
+0004F1A0,ShieldPhysics::vf01,vtable slot 1 (0x4)
+0004F1C0,ShieldPhysics::GetTypeHash,returns the type name hash
+0004F1D0,ShieldPhysics::ShieldPhysics,constructor
+0004F280,ShieldPhysics::Construct_04F280,installs the class vtable (constructor or destructor variant)
+0004F300,ShieldPhysics::vf16,vtable slot 22 (0x58)
+0004F590,ShieldPhysics::vf00,vtable slot 0 (0x0)
+0004F5B0,StreamClass::StreamClass,constructor
+0004F620,StreamClass::Construct_04F620,installs the class vtable (constructor or destructor variant)
+0004F6D0,StreamClass::vf23,vtable slot 35 (0x8C)
+0004F6F0,StreamClass::vf01,vtable slot 1 (0x4)
+0004F730,StreamClass::vf02,vtable slot 2 (0x8)
+0004F740,StreamClass::vf00,vtable slot 0 (0x0)
+0004F760,StreamClass::LoadOdf_04F760,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0004FBD0,StreamClass::vf0B,vtable slot 11 (0x2C)
+0004FCC0,StreamPhysics::StreamPhysics,constructor
+0004FE40,StreamPhysics::StreamPhysics,constructor
+0004FFC0,StreamPhysics::vf04,vtable slot 4 (0x10)
+00050100,StreamPhysics::vf24,vtable slot 36 (0x90)
+00050140,StreamPhysics::vf01,vtable slot 1 (0x4)
+00050180,StreamPhysics::GetTypeHash,returns the type name hash
+00050190,StreamPhysics::vf08,vtable slot 8 (0x20)
+00050200,StreamPhysics::Construct_050200,installs the class vtable (constructor or destructor variant)
+00050280,StreamPhysics::vf00,vtable slot 0 (0x0)
+000502A0,StreamPhysics::vf16,vtable slot 22 (0x58)
+00050D60,ThrowerClass::ThrowerClass,constructor
+00050DA0,ThrowerClass::Construct_050DA0,installs the class vtable (constructor or destructor variant)
+00050DB0,ThrowerClass::vf22,vtable slot 34 (0x88)
+00050E30,ThrowerClass::vf24,vtable slot 36 (0x90)
+00050E60,ThrowerClass::vf01,vtable slot 1 (0x4)
+00050EA0,ThrowerClass::vf02,vtable slot 2 (0x8)
+00050EB0,ThrowerClass::vf00,vtable slot 0 (0x0)
+00050ED0,ThrowerClass::LoadOdf_050ED0,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00051120,ThrowerClass::vf0B,vtable slot 11 (0x2C)
+00051190,ThrowerClass::vf1F,vtable slot 31 (0x7C)
+00051450,ThrowerClass::vf21,vtable slot 33 (0x84)
+000515A0,ThrowerPhysics::ThrowerPhysics,constructor
+00051610,ThrowerPhysics::ThrowerPhysics,constructor
+00051670,ThrowerPhysics::vf04,vtable slot 4 (0x10)
+000516B0,ThrowerPhysics::vf01,vtable slot 1 (0x4)
+000516F0,ThrowerPhysics::GetTypeHash,returns the type name hash
+00051700,ThrowerPhysics::vf08,vtable slot 8 (0x20)
+00051770,ThrowerPhysics::vf26,vtable slot 38 (0x98)
+00051790,ThrowerPhysics::vf25,vtable slot 37 (0x94)
+000517B0,ThrowerPhysics::Construct_0517B0,installs the class vtable (constructor or destructor variant)
+00051840,ThrowerPhysics::vf00,vtable slot 0 (0x0)
+000518A0,ThrowerPhysics::vf16,vtable slot 22 (0x58)
+00051DA0,TractorClass::TractorClass,constructor
+00051DE0,TractorClass::Construct_051DE0,installs the class vtable (constructor or destructor variant)
+00051EC0,TractorClass::vf01,vtable slot 1 (0x4)
+00051F00,TractorClass::vf02,vtable slot 2 (0x8)
+00051F10,TractorClass::vf00,vtable slot 0 (0x0)
+00051F30,TractorClass::LoadOdf_051F30,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00052150,TractorClass::vf0B,vtable slot 11 (0x2C)
+000521C0,TractorPhysics::vf04,vtable slot 4 (0x10)
+000522C0,TractorPhysics::vf24,vtable slot 36 (0x90)
+00052300,TractorPhysics::TractorPhysics,constructor
+000523F0,TractorPhysics::vf01,vtable slot 1 (0x4)
+00052430,TractorPhysics::GetTypeHash,returns the type name hash
+00052440,TractorPhysics::TractorPhysics,constructor
+00052530,TractorPhysics::Construct_052530,installs the class vtable (constructor or destructor variant)
+00052580,TractorPhysics::vf08,vtable slot 8 (0x20)
+000525F0,TractorPhysics::vf00,vtable slot 0 (0x0)
+00052610,TractorPhysics::vf16,vtable slot 22 (0x58)
+00052CD0,WarpClass::WarpClass,constructor
+00052D10,WarpClass::Construct_052D10,installs the class vtable (constructor or destructor variant)
+00052D20,WarpClass::vf01,vtable slot 1 (0x4)
+00052D60,WarpClass::vf02,vtable slot 2 (0x8)
+00052D70,WarpClass::vf00,vtable slot 0 (0x0)
+00052D90,WarpClass::LoadOdf_052D90,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00052F00,WarpClass::vf0B,vtable slot 11 (0x2C)
+00052F70,WarpPhysics::WarpPhysics,constructor
+00052FE0,WarpPhysics::vf26,vtable slot 38 (0x98)
+00053000,WarpPhysics::WarpPhysics,constructor
+00053070,WarpPhysics::Construct_053070,installs the class vtable (constructor or destructor variant)
+00053080,WarpPhysics::vf01,vtable slot 1 (0x4)
+000530A0,WarpPhysics::GetTypeHash,returns the type name hash
+000530B0,WarpPhysics::vf08,vtable slot 8 (0x20)
+00053120,WarpPhysics::vf00,vtable slot 0 (0x0)
+000531C0,WarpPhysics::vf16,vtable slot 22 (0x58)
+00053510,WeaponClass::WeaponClass,constructor
+000535C0,WeaponClass::Construct_0535C0,installs the class vtable (constructor or destructor variant)
+00053670,WeaponClass::vf01,vtable slot 1 (0x4)
+000536A0,WeaponClass::vf02,vtable slot 2 (0x8)
+000536B0,WeaponClass::vf00,vtable slot 0 (0x0)
+000536D0,WeaponClass::vf0C,vtable slot 12 (0x30)
+00053700,WeaponClass::LoadOdf_053700,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00053DA0,WeaponClass::vf0B,vtable slot 11 (0x2C)
+00053EA0,WeaponPhysics::vf04,vtable slot 4 (0x10)
+000544F0,WeaponPhysics::vf16,vtable slot 22 (0x58)
+000546E0,WeaponPhysics::WeaponPhysics,constructor
+000548C0,WeaponPhysics::vf01,vtable slot 1 (0x4)
+000548F0,WeaponPhysics::GetTypeHash,returns the type name hash
+00054900,WeaponPhysics::WeaponPhysics,constructor
+00054B30,Class_00334C24::Construct_054B30,installs the class vtable (constructor or destructor variant)
+00054BA0,WeaponPhysics::vf08,vtable slot 8 (0x20)
+00054C10,WeaponPhysics::vf00,vtable slot 0 (0x0)
+00054C30,BeamClass::BeamClass,constructor
+00054C70,OrdnanceClass::vf19,vtable slot 25 (0x64)
+00054C80,BeamClass::vf17,vtable slot 23 (0x5C)
+00054C90,BeamClass::LoadOdf_054C90,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00054D60,BeamClass::Construct_054D60,installs the class vtable (constructor or destructor variant)
+00054DC0,BeamClass::vf0B,vtable slot 11 (0x2C)
+00054E30,BeamClass::vf01,vtable slot 1 (0x4)
+00054E70,BeamClass::vf02,vtable slot 2 (0x8)
+00054E80,BeamClass::vf00,vtable slot 0 (0x0)
+00054EA0,BulletClass::BulletClass,constructor
+00054F00,BulletClass::vf17,vtable slot 23 (0x5C)
+00054F10,BulletClass::Construct_054F10,installs the class vtable (constructor or destructor variant)
+00054F80,BulletClass::vf08,vtable slot 8 (0x20)
+00054FA0,BulletClass::vf01,vtable slot 1 (0x4)
+00054FE0,BulletClass::vf02,vtable slot 2 (0x8)
+00054FF0,BulletClass::vf00,vtable slot 0 (0x0)
+00055010,BulletClass::LoadOdf_055010,reads ODF keys; installs the class vtable (constructor or destructor variant)
+000553C0,BulletClass::vf0B,vtable slot 11 (0x2C)
+00055450,BulletPhysics::Construct_055450,installs the class vtable (constructor or destructor variant)
+000554C0,BulletPhysics::vf72,vtable slot 114 (0x1C8)
+000554F0,BulletPhysics::vf01,vtable slot 1 (0x4)
+00055520,BulletPhysics::GetTypeHash,returns the type name hash
+00055530,ZeroRef::ZeroRef,constructor
+000555E0,ZeroRef::Construct_0555E0,installs the class vtable (constructor or destructor variant)
+00055660,ZeroRef::GetTypeHash,returns the type name hash
+00055670,BulletPhysics::vf00,vtable slot 0 (0x0)
+00055690,BulletPhysics::vf04,vtable slot 4 (0x10)
+00055740,BulletPhysics::vf75,vtable slot 117 (0x1D4)
+00055900,BulletPhysics::BulletPhysics,constructor
+00055AD0,BulletPhysics::BulletPhysics,constructor
+00055C80,BulletPhysics::vf16,vtable slot 22 (0x58)
+00055E60,BulletPhysics::vf08,vtable slot 8 (0x20)
+00055ED0,BulletPhysics::vf1E,vtable slot 30 (0x78)
+000568E0,DetonatorClass::DetonatorClass,constructor
+00056900,GrenadeClass::vf18,vtable slot 24 (0x60)
+00056910,DetonatorClass::Construct_056910,installs the class vtable (constructor or destructor variant)
+00056920,DetonatorClass::vf01,vtable slot 1 (0x4)
+00056950,DetonatorClass::vf02,vtable slot 2 (0x8)
+00056960,DetonatorClass::vf00,vtable slot 0 (0x0)
+00056980,DetonatorClass::Construct_056980,installs the class vtable (constructor or destructor variant)
+00056B50,DetonatorClass::vf0B,vtable slot 11 (0x2C)
+00056BC0,DetonatorPhysics::DetonatorPhysics,constructor
+00056C10,DetonatorPhysics::Construct_056C10,installs the class vtable (constructor or destructor variant)
+00056C20,DetonatorPhysics::vf16,vtable slot 22 (0x58)
+00056CE0,DetonatorPhysics::vf01,vtable slot 1 (0x4)
+00056D10,DetonatorPhysics::GetTypeHash,returns the type name hash
+00056D20,DetonatorPhysics::DetonatorPhysics,constructor
+00056DB0,DetonatorPhysics::vf00,vtable slot 0 (0x0)
+00056DD0,GrenadeClass::GrenadeClass,constructor
+00056E00,GrenadeClass::Construct_056E00,installs the class vtable (constructor or destructor variant)
+00056E10,GrenadeClass::vf01,vtable slot 1 (0x4)
+00056E30,GrenadeClass::vf02,vtable slot 2 (0x8)
+00056E40,GrenadeClass::vf00,vtable slot 0 (0x0)
+00056E60,GrenadeClass::LoadOdf_056E60,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00056FB0,GrenadeClass::vf0B,vtable slot 11 (0x2C)
+00057020,GrenadePhysics::Construct_057020,installs the class vtable (constructor or destructor variant)
+00057030,GrenadePhysics::vf01,vtable slot 1 (0x4)
+00057060,GrenadePhysics::GetTypeHash,returns the type name hash
+00057070,GrenadePhysics::GrenadePhysics,constructor
+000570F0,GrenadePhysics::vf00,vtable slot 0 (0x0)
+00057110,GrenadePhysics::GrenadePhysics,constructor
+00057190,GrenadePhysics::vf08,vtable slot 8 (0x20)
+00057200,MineClass::MineClass,constructor
+000572A0,MineClass::Construct_0572A0,installs the class vtable (constructor or destructor variant)
+000572B0,MineClass::vf01,vtable slot 1 (0x4)
+000572E0,MineClass::vf02,vtable slot 2 (0x8)
+000572F0,MineClass::vf00,vtable slot 0 (0x0)
+00057310,MineClass::LoadOdf_057310,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00057A70,MineClass::vf0B,vtable slot 11 (0x2C)
+00057AE0,MinePhysics::MinePhysics,constructor
+00057BB0,MinePhysics::vf04,vtable slot 4 (0x10)
+00057BD0,MinePhysics::vf01,vtable slot 1 (0x4)
+00057C00,MinePhysics::GetTypeHash,returns the type name hash
+00057C10,MinePhysics::vf08,vtable slot 8 (0x20)
+00057C80,MinePhysics::MinePhysics,constructor
+00057D70,MinePhysics::Construct_057D70,installs the class vtable (constructor or destructor variant)
+00057FA0,MinePhysics::vf00,vtable slot 0 (0x0)
+000580F0,MinePhysics::vf16,vtable slot 22 (0x58)
+000587D0,MinePhysics::vf1E,vtable slot 30 (0x78)
+00058870,MissileClass::Construct_058870,installs the class vtable (constructor or destructor variant)
+00058880,MissileClass::vf15,vtable slot 21 (0x54)
+000588A0,MissileClass::vf01,vtable slot 1 (0x4)
+000588C0,MissileClass::vf02,vtable slot 2 (0x8)
+000588D0,MissileClass::MissileClass,constructor
+00058B60,MissileClass::vf00,vtable slot 0 (0x0)
+00058B80,MissileClass::LoadOdf_058B80,reads ODF keys; installs the class vtable (constructor or destructor variant)
+00058DB0,MissileClass::vf0B,vtable slot 11 (0x2C)
+00058E20,MissilePhysics::vf04,vtable slot 4 (0x10)
+00058E40,MissilePhysics::Construct_058E40,installs the class vtable (constructor or destructor variant)
+00058EB0,MissilePhysics::vf01,vtable slot 1 (0x4)
+00058EE0,MissilePhysics::GetTypeHash,returns the type name hash
+00058EF0,MissilePhysics::vf75,vtable slot 117 (0x1D4)
+00058F20,MissilePhysics::MissilePhysics,constructor
+000590B0,MissilePhysics::vf00,vtable slot 0 (0x0)
+000590D0,MissilePhysics::MissilePhysics,constructor
+00059250,MissilePhysics::vf16,vtable slot 22 (0x58)
+000596D0,MissilePhysics::vf08,vtable slot 8 (0x20)
+00059740,OrdnanceClass::OrdnanceClass,constructor
+000597A0,OrdnanceClass::vf01,vtable slot 1 (0x4)
+000597D0,OrdnanceClass::vf02,vtable slot 2 (0x8)
+000597E0,OrdnanceClass::Construct_0597E0,installs the class vtable (constructor or destructor variant)
+00059870,OrdnanceClass::vf00,vtable slot 0 (0x0)
+00059890,ZeroCollision::LoadOdf_059890,reads ODF keys; constructor
+00059E30,OrdnanceClass::vf0B,vtable slot 11 (0x2C)
+00059EA0,OrdnanceClass::vf0C,vtable slot 12 (0x30)
+00059F10,OrdnancePhysics::vf04,vtable slot 4 (0x10)
+00059FE0,OrdnancePhysics::Construct_059FE0,installs the class vtable (constructor or destructor variant)
+0005A070,OrdnancePhysics::vf01,vtable slot 1 (0x4)
+0005A090,OrdnancePhysics::GetTypeHash,returns the type name hash
+0005A0D0,CapsuleData::GetTypeHash,returns the type name hash
+0005A0E0,OrdnancePhysics::vf17,vtable slot 23 (0x5C)
+0005A1E0,OrdnancePhysics::OrdnancePhysics,constructor
+0005A3C0,OrdnancePhysics::vf00,vtable slot 0 (0x0)
+0005A3E0,OrdnancePhysics::OrdnancePhysics,constructor
+0005A5C0,OrdnancePhysics::vf16,vtable slot 22 (0x58)
+0005A830,OrdnancePhysics::vf08,vtable slot 8 (0x20)
+0005A8A0,ThrownClass::ThrownClass,constructor
+0005A8E0,ThrownClass::Construct_05A8E0,installs the class vtable (constructor or destructor variant)
+0005A8F0,ThrownClass::vf01,vtable slot 1 (0x4)
+0005A910,ThrownClass::vf02,vtable slot 2 (0x8)
+0005A920,ThrownClass::vf00,vtable slot 0 (0x0)
+0005A940,ThrownClass::LoadOdf_05A940,reads ODF keys; installs the class vtable (constructor or destructor variant)
+0005ABD0,ThrownClass::vf0B,vtable slot 11 (0x2C)
+0005AC40,ThrownPhysics::ThrownPhysics,constructor
+0005ACB0,ThrownPhysics::Construct_05ACB0,installs the class vtable (constructor or destructor variant)
+0005ACC0,ThrownPhysics::vf01,vtable slot 1 (0x4)
+0005ACF0,ThrownPhysics::GetTypeHash,returns the type name hash
+0005AD00,ThrownPhysics::vf00,vtable slot 0 (0x0)
+0005AD20,ThrownPhysics::ThrownPhysics,constructor
+0005ADC0,ThrownPhysics::vf1E,vtable slot 30 (0x78)
+0005AFC0,ThrownPhysics::vf08,vtable slot 8 (0x20)
+0005B030,ThrownPhysics::vf16,vtable slot 22 (0x58)
+0005B790,ExplosionClass::ExplosionClass,constructor
+0005B950,ExplosionClass::vf01,vtable slot 1 (0x4)
+0005B980,ExplosionClass::vf02,vtable slot 2 (0x8)
+0005B990,ExplosionClass::Construct_05B990,installs the class vtable (constructor or destructor variant)
+0005BA20,ExplosionClass::vf00,vtable slot 0 (0x0)
+0005BA40,ExplosionClass::LoadOdf_05BA40,reads ODF keys; constructor
+0005C3B0,ExplosionClass::vf0B,vtable slot 11 (0x2C)
+0005C420,ExplosionPhysics::Construct_05C420,installs the class vtable (constructor or destructor variant)
+0005C4B0,ExplosionPhysics::vf01,vtable slot 1 (0x4)
+0005C4D0,ExplosionPhysics::GetTypeHash,returns the type name hash
+0005C4E0,ExplosionPhysics::ExplosionPhysics,constructor
+0005C700,ExplosionPhysics::vf00,vtable slot 0 (0x0)
+0005C720,ExplosionPhysics::ExplosionPhysics,constructor
+0005CAB0,ExplosionPhysics::vf16,vtable slot 22 (0x58)
+0005D080,ExplosionPhysics::vf08,vtable slot 8 (0x20)
+0005D0F0,DeathAnimationPhysics::Construct_05D0F0,installs the class vtable (constructor or destructor variant)
+0005D170,DeathAnimationPhysics::vf01,vtable slot 1 (0x4)
+0005D190,DeathPhysics::vf01,vtable slot 1 (0x4)
+0005D1D0,DeathAnimationPhysics::GetTypeHash,returns the type name hash
+0005D1E0,DeathAnimationPhysics::vf00,vtable slot 0 (0x0)
+0005D280,DeathAnimationPhysics::vf16,vtable slot 22 (0x58)
+0005D2D0,DeathAnimationPhysics::vf22,vtable slot 34 (0x88)
+0005D340,DeathAnimationPhysics::DeathAnimationPhysics,constructor
+0005D7B0,DeathCrashPhysics::DeathCrashPhysics,constructor
+0005DB50,DeathCrashPhysics::vf01,vtable slot 1 (0x4)
+0005DB70,DeathCrashPhysics::GetTypeHash,returns the type name hash
+0005DB80,DeathCrashPhysics::vf04,vtable slot 4 (0x10)
+0005DCF0,DeathCrashPhysics::vf1E,vtable slot 30 (0x78)
+0005DD20,DeathCrashPhysics::Construct_05DD20,installs the class vtable (constructor or destructor variant)
+0005DD90,DeathCrashPhysics::vf16,vtable slot 22 (0x58)
+0005E340,DeathCrashPhysics::vf00,vtable slot 0 (0x0)
+0005E360,DeathPhysics::DeathPhysics,constructor
+0005E3A0,DeathPhysics::Construct_05E3A0,installs the class vtable (constructor or destructor variant)
+0005E3B0,DeathPhysics::vf17,vtable slot 23 (0x5C)
+0005E400,DeathPhysics::GetTypeHash,returns the type name hash
+0005E410,DeathPhysics::vf00,vtable slot 0 (0x0)
+0005E430,DeathPhysics::vf16,vtable slot 22 (0x58)
+0005E4E0,DeathPhysics::vf22,vtable slot 34 (0x88)
+0005E5B0,DeathTumblePhysics::vf16,vtable slot 22 (0x58)
+0005E610,DeathTumblePhysics::DeathTumblePhysics,constructor
+0005E8D0,DeathTumblePhysics::vf01,vtable slot 1 (0x4)
+0005E8F0,DeathTumblePhysics::GetTypeHash,returns the type name hash
+0005E900,DeathTumblePhysics::vf04,vtable slot 4 (0x10)
+0005EAA0,DeathTumblePhysics::Construct_05EAA0,installs the class vtable (constructor or destructor variant)
+0005EAF0,DeathTumblePhysics::vf1E,vtable slot 30 (0x78)
+0005EDA0,DeathTumblePhysics::vf00,vtable slot 0 (0x0)
+00063550,ZeroAABB::ZeroAABB,constructor
+0006B250,ZeroRef_0033E790::Construct_06B250,installs the class vtable (constructor or destructor variant)
+0006B260,ZeroRef_0033E790::vf00,vtable slot 0 (0x0)
+0006B5E0,ZeroRef_0033E7C8::ZeroRef_0033E7C8,constructor
+0006B630,ZeroRef_0033E7C8::vf00,vtable slot 0 (0x0)
+0006B650,ZeroRef_0033E7C8::Construct_06B650,installs the class vtable (constructor or destructor variant)
+0006B7B0,ZeroRef_0033E7FC::ZeroRef_0033E7FC,constructor
+0006B840,ZeroRef_0033E7FC::Construct_06B840,installs the class vtable (constructor or destructor variant)
+0006B940,ZeroRef_0033E830::ZeroRef_0033E830,constructor
+0006D440,ZeroRef_0033E7C8::vf09,vtable slot 9 (0x24)
+0006D4B0,ZeroRef_0033E7C8::vf0A,vtable slot 10 (0x28)
+0007E2F0,Region::Construct_07E2F0,installs the class vtable (constructor or destructor variant)
+0007E350,Region::vf01,vtable slot 1 (0x4)
+0007E380,Region::GetTypeHash,returns the type name hash
+0007E430,Region::Region,constructor
+0007E470,Region::vf00,vtable slot 0 (0x0)
+0007E490,Region::vf08,vtable slot 8 (0x20)
+0007E5F0,Region::vf09,vtable slot 9 (0x24)
+0007E700,Region::vf0A,vtable slot 10 (0x28)
+0007E870,Region::vf0B,vtable slot 11 (0x2C)
+00080420,RegionList_0033FF00::vf00,vtable slot 0 (0x0)
+00080520,RegionList_0033FF00::Construct_080520,installs the class vtable (constructor or destructor variant)
+00080550,Class_00334C24::Construct_080550,installs the class vtable (constructor or destructor variant)
+000805D0,RegionList_0033FF00::vf02,vtable slot 2 (0x8)
+00080650,RegionList::RegionList,constructor
+00080700,RegionList::GetTypeHash,returns the type name hash
+000898B0,ZeroAnimation::ZeroAnimation,constructor
+00089930,ZeroAnimation::vf01,vtable slot 1 (0x4)
+00089960,ZeroAnimation::GetTypeHash,returns the type name hash
+00089970,ZeroAnimation::ZeroAnimation,constructor
+00089C60,ZeroAnimation::vf00,vtable slot 0 (0x0)
+00089C80,ZeroAnimation::Construct_089C80,installs the class vtable (constructor or destructor variant)
+0008A280,ZeroSkeleton::ZeroSkeleton,constructor
+0008A2B0,ZeroSkeleton_003404D8::vf01,vtable slot 1 (0x4)
+0008A2E0,ZeroSkeleton::GetTypeHash,returns the type name hash
+0008A2F0,ZeroSkeleton::vf00,vtable slot 0 (0x0)
+0008A360,ZeroSkeleton::ZeroSkeleton,constructor
+0008A560,SceneManagerObject::SceneManagerObject,constructor
+0008A5F0,SceneManagerObject::Construct_08A5F0,installs the class vtable (constructor or destructor variant)
+0008A680,SceneManagerObject::GetTypeHash,returns the type name hash
+0008B470,SceneManagerObject_0034044C::vf00,vtable slot 0 (0x0)
+0008B4B0,SceneManagerObject_0034044C::Construct_08B4B0,installs the class vtable (constructor or destructor variant)
+0008B500,Class_00334C24::Construct_08B500,installs the class vtable (constructor or destructor variant)
+0008B5F0,ZeroSceneManager::GetTypeHash,returns the type name hash
+0008B600,ZeroSceneManager::ZeroSceneManager,constructor
+0008CA00,Class_00334C24::Construct_08CA00,installs the class vtable (constructor or destructor variant)
+0008CC30,ZeroSkeleton_003404D8::ZeroSkeleton_003404D8,constructor
+0008CD90,ZeroSkeleton_003404D8::vf00,vtable slot 0 (0x0)
+0008CDB0,ZeroSkeleton_003404D8::ZeroSkeleton_003404D8,constructor
+00093A50,Antenna::Construct_093A50,installs the class vtable (constructor or destructor variant)
+00093AB0,Antenna::vf01,vtable slot 1 (0x4)
+00093AE0,Antenna::GetTypeHash,returns the type name hash
+00093AF0,Antenna::vf00,vtable slot 0 (0x0)
+00093C10,Antenna::vf0C,vtable slot 12 (0x30)
+00093E60,Antenna::Antenna,constructor
+00094D00,odf_load_CoronaClass,reads ODF keys
+00098740,ZeroObject::Construct_098740,installs the class vtable (constructor or destructor variant)
+00098750,ZeroObject::vf00,vtable slot 0 (0x0)
+00098A40,ZeroObject::ZeroObject,constructor
+00098A80,ZeroObject::vf0C,vtable slot 12 (0x30)
+000999F0,CapsuleTxLight::vf1E,vtable slot 30 (0x78)
+00099AB0,CapsuleTxLight::vf1F,vtable slot 31 (0x7C)
+00099B00,CapsuleTxLight::vf16,vtable slot 22 (0x58)
+00099B80,CapsuleTxLight::vf20,vtable slot 32 (0x80)
+00099BF0,CapsuleData::CapsuleData,constructor
+00099C90,CapsuleTxLight::vf24,vtable slot 36 (0x90)
+00099CA0,CapsuleTxLight::vf25,vtable slot 37 (0x94)
+00099CB0,CapsuleTxLight::vf01,vtable slot 1 (0x4)
+00099CD0,ZeroTxLight::vf01,vtable slot 1 (0x4)
+00099D00,CapsuleTxLight::GetTypeHash,returns the type name hash
+00099D10,CapsuleTxLight::vf23,vtable slot 35 (0x8C)
+00099D40,CapsuleTxLight::vf00,vtable slot 0 (0x0)
+00099D60,Class_00334C24::Construct_099D60,installs the class vtable (constructor or destructor variant)
+00099EA0,ParticleEmitterObject::ParticleEmitterObject,constructor
+00099FA0,ParticleEmitterObject::GetTypeHash,returns the type name hash
+00099FB0,ParticleEmitterObject::vf00,vtable slot 0 (0x0)
+00099FE0,ParticleEmitterObject::vf1C,vtable slot 28 (0x70)
+0009D450,ParticleEmitterObject_003414F0::Construct_09D450,installs the class vtable (constructor or destructor variant)
+0009D460,ParticleEmitterObject_003414F0::ParticleEmitterObject_003414F0,constructor
+0009D4D0,ParticleEmitterObject_003414F0::vf00,vtable slot 0 (0x0)
+0009D550,ParticleEmitterObject_003414F0::vf1C,vtable slot 28 (0x70)
+0009EC00,ParticleEmitterDesc::ParticleEmitterDesc,constructor
+0009EE20,ParticleEmitterDesc::vf01,vtable slot 1 (0x4)
+0009EE50,ParticleEmitterDesc::GetTypeHash,returns the type name hash
+0009F1D0,ParticleEmitter::ParticleEmitter,constructor
+0009F280,ParticleEmitter::vf01,vtable slot 1 (0x4)
+0009F2B0,ParticleEmitter::GetTypeHash,returns the type name hash
+0009F2C0,Class_00334C24::Construct_09F2C0,installs the class vtable (constructor or destructor variant)
+0009FC60,ParticleEmitter::vf00,vtable slot 0 (0x0)
+000A1920,Class_00334C24::Construct_0A1920,installs the class vtable (constructor or destructor variant)
+000A1A40,ParticleEmitterObject_003415F8::vf1C,vtable slot 28 (0x70)
+000A1DC0,ParticleEmitterDesc::vf00,vtable slot 0 (0x0)
+000A1DE0,ParticleEmitterObject_003415F8::Construct_0A1DE0,installs the class vtable (constructor or destructor variant)
+000A1F70,ParticleEmitterObject_003415F8::ParticleEmitterObject_003415F8,constructor
+000A2280,ParticleEmitterObject_003415F8::vf00,vtable slot 0 (0x0)
+000A2340,ParticleGeometryEmitterDesc::vf0D,vtable slot 13 (0x34)
+000A2370,ParticleGeometryEmitterDesc::ParticleGeometryEmitterDesc,constructor
+000A23A0,ParticleGeometryEmitterDesc::vf01,vtable slot 1 (0x4)
+000A23D0,ParticleGeometryEmitterDesc::GetTypeHash,returns the type name hash
+000A23E0,ParticleGeometryEmitterDesc::ParticleGeometryEmitterDesc,constructor
+000A2440,Class_00334C24::Construct_0A2440,installs the class vtable (constructor or destructor variant)
+000A24A0,ParticleGeometryEmitterDesc::vf00,vtable slot 0 (0x0)
+000A24C0,ParticleGeometryEmitterDesc::vf09,vtable slot 9 (0x24)
+000A27E0,ParticleGeometryLightDesc::ParticleGeometryLightDesc,constructor
+000A2810,ParticleGeometryLightDesc::vf01,vtable slot 1 (0x4)
+000A2840,ParticleGeometryLightDesc::GetTypeHash,returns the type name hash
+000A2CB0,ParticleGeometryLightDesc::vf09,vtable slot 9 (0x24)
+000A3050,ParticleGeometryMeshDesc::vf0A,vtable slot 10 (0x28)
+000A3100,ParticleGeometryMeshDesc::vf09,vtable slot 9 (0x24)
+000A3480,ParticleGeometryMeshDesc::vf0B,vtable slot 11 (0x2C)
+000A3690,Class_00334C24::Construct_0A3690,installs the class vtable (constructor or destructor variant)
+000A3700,ParticleGeometryMeshDesc::vf01,vtable slot 1 (0x4)
+000A3730,ParticleGeometryMeshDesc::GetTypeHash,returns the type name hash
+000A3740,ParticleGeometryMeshDesc::ParticleGeometryMeshDesc,constructor
+000A37E0,ParticleGeometryMeshDesc::vf00,vtable slot 0 (0x0)
+000A39F0,ParticleGeometryStreakDesc::vf08,vtable slot 8 (0x20)
+000A3A50,ParticleGeometryStreakDesc::vf09,vtable slot 9 (0x24)
+000A3DB0,ParticleGeometryStreakDesc::vf0A,vtable slot 10 (0x28)
+000A3E30,ParticleGeometryStreakDesc::vf0B,vtable slot 11 (0x2C)
+000A4300,Class_00334C24::Construct_0A4300,installs the class vtable (constructor or destructor variant)
+000A4370,ParticleGeometryStreakDesc::vf01,vtable slot 1 (0x4)
+000A43A0,ParticleGeometryStreakDesc::GetTypeHash,returns the type name hash
+000A43B0,ParticleGeometryStreakDesc::ParticleGeometryStreakDesc,constructor
+000A4430,ParticleGeometryStreakDesc::vf00,vtable slot 0 (0x0)
+000A4490,ParticleGeometryTextureDesc::vf08,vtable slot 8 (0x20)
+000A44A0,ParticleGeometryTextureDesc::vf09,vtable slot 9 (0x24)
+000A45D0,ParticleGeometryTextureDesc::ParticleGeometryTextureDesc,constructor
+000A4660,ParticleGeometryTextureDesc::vf01,vtable slot 1 (0x4)
+000A4690,ParticleGeometryTextureDesc::GetTypeHash,returns the type name hash
+000A46A0,Class_00334C24::Construct_0A46A0,installs the class vtable (constructor or destructor variant)
+000A4700,ParticleGeometryTextureDesc::vf00,vtable slot 0 (0x0)
+000A4720,ParticleGeometryTextureDesc::vf0E,vtable slot 14 (0x38)
+000A5920,ParticleState::ParticleState,constructor
+000A59A0,ParticleState::vf01,vtable slot 1 (0x4)
+000A59D0,ParticleState::GetTypeHash,returns the type name hash
+000A67D0,PropCluster::vf0C,vtable slot 12 (0x30)
+000A6B00,PropCluster::Construct_0A6B00,installs the class vtable (constructor or destructor variant)
+000A6B70,PropCluster::vf01,vtable slot 1 (0x4)
+000A6BB0,PropCluster::GetTypeHash,returns the type name hash
+000A6BD0,PropCluster::PropCluster,constructor
+000A6C40,PropCluster::vf00,vtable slot 0 (0x0)
+000A6C60,GameObject_003419A8::Construct_0A6C60,installs the class vtable (constructor or destructor variant)
+000A6C90,ZeroTransform::ZeroTransform,constructor
+000A6D50,GameObject_003419A8::vf00,vtable slot 0 (0x0)
+000A8690,ZeroSegment_00341F28::vf0C,vtable slot 12 (0x30)
+000A8710,ZeroSegment_00341EA8::Construct_0A8710,installs the class vtable (constructor or destructor variant)
+000A87A0,ZeroSegment::GetTypeHash,returns the type name hash
+000A87C0,Class_00334C24::Construct_0A87C0,installs the class vtable (constructor or destructor variant)
+000A8820,ZeroSegment_00341F28::ZeroSegment_00341F28,constructor
+000A8C60,ZeroSegment_00341EA8::ZeroSegment_00341EA8,constructor
+000A8CC0,ZeroSegment_00341EA8::vf00,vtable slot 0 (0x0)
+000A8ED0,ZeroSegment_00341EA8::vf01,vtable slot 1 (0x4)
+000AA2D0,ZeroSegment_00341F28::vf18,vtable slot 24 (0x60)
+000AA2E0,ZeroSegment_00341F28::vf10,vtable slot 16 (0x40)
+000AAE90,Decal::Decal,constructor
+000AAF10,Decal::vf01,vtable slot 1 (0x4)
+000AAF40,Decal::GetTypeHash,returns the type name hash
+000AAF50,Class_00334C24::Construct_0AAF50,installs the class vtable (constructor or destructor variant)
+000AAFC0,Decal::vf00,vtable slot 0 (0x0)
+000AD0F0,Class_00334C24::Construct_0AD0F0,installs the class vtable (constructor or destructor variant)
+000AD150,Path::vf01,vtable slot 1 (0x4)
+000AD180,Path::GetTypeHash,returns the type name hash
+000AD190,Path::Path,constructor
+000AD210,Path::vf00,vtable slot 0 (0x0)
+000AD230,Path::Path,constructor
+000ADE50,Team::vf04,vtable slot 4 (0x10)
+000ADE80,Team::vf1F,vtable slot 31 (0x7C)
+000ADED0,Team::vf1C,vtable slot 28 (0x70)
+000ADF80,Team::vf20,vtable slot 32 (0x80)
+000AE090,Team::vf22,vtable slot 34 (0x88)
+000AE0B0,Team::vf23,vtable slot 35 (0x8C)
+000AE0D0,Team::Construct_0AE0D0,installs the class vtable (constructor or destructor variant)
+000AE130,Team::vf01,vtable slot 1 (0x4)
+000AE170,Team::GetTypeHash,returns the type name hash
+000AE180,Team::vf1E,vtable slot 30 (0x78)
+000AE1D0,Team::Team,constructor
+000AE280,Team::vf00,vtable slot 0 (0x0)
+000AE2A0,CmdInfo::CmdInfo,constructor
+000AE2D0,CmdInfo::CmdInfo,constructor
+000AE340,CmdInfo::CmdInfo,constructor
+000AE3B0,CmdInfo::Construct_0AE3B0,installs the class vtable (constructor or destructor variant)
+000AE480,CmdInfo::GetTypeHash,returns the type name hash
+000AE600,Controller::vf04,vtable slot 4 (0x10)
+000AE840,Controller::Controller,constructor
+000AE8D0,Controller::vf01,vtable slot 1 (0x4)
+000AE900,Controller::GetTypeHash,returns the type name hash
+000AE910,Controller::Controller,constructor
+000AE9B0,Class_00334C24::Construct_0AE9B0,installs the class vtable (constructor or destructor variant)
+000AEA40,Controller::vf08,vtable slot 8 (0x20)
+000AEAB0,Controller::vf00,vtable slot 0 (0x0)
+000AEB60,Class_0034225C::Class_0034225C,constructor
+000AEBD0,Class_0034225C::Construct_0AEBD0,installs the class vtable (constructor or destructor variant)
+000AED50,ControllerTask::ControllerTask,constructor
+000AED70,ControllerTask::vf01,vtable slot 1 (0x4)
+000AEDA0,ControllerTask::GetTypeHash,returns the type name hash
+000AEDB0,Class_00334C24::Construct_0AEDB0,installs the class vtable (constructor or destructor variant)
+000AEDC0,LandingController::Construct_0AEDC0,installs the class vtable (constructor or destructor variant)
+000AEDF0,LandingController::vf01,vtable slot 1 (0x4)
+000AEE20,LandingController::GetTypeHash,returns the type name hash
+000AEE30,LandingController::LandingController,constructor
+000AEEF0,LandingController::vf00,vtable slot 0 (0x0)
+000AFBE0,PlayerController::vf17,vtable slot 23 (0x5C)
+000AFD70,PlayerController::vf04,vtable slot 4 (0x10)
+000B08B0,PlayerController::vf13,vtable slot 19 (0x4C)
+000B1430,PlayerController::vf0D,vtable slot 13 (0x34)
+000B1FA0,PlayerController::Construct_0B1FA0,installs the class vtable (constructor or destructor variant)
+000B2020,PlayerController::vf0F,vtable slot 15 (0x3C)
+000B2030,PlayerController::vf18,vtable slot 24 (0x60)
+000B2040,PlayerController::vf01,vtable slot 1 (0x4)
+000B2080,PlayerController::GetTypeHash,returns the type name hash
+000B2090,PlayerController::PlayerController,constructor
+000B2150,PlayerController::vf00,vtable slot 0 (0x0)
+000B2170,PlayerController::PlayerController,constructor
+000B2250,PlayerController::vf08,vtable slot 8 (0x20)
+000B22C0,TeamController::TeamController,constructor
+000B22E0,TeamController::vf01,vtable slot 1 (0x4)
+000B2300,FsmController::vf01,vtable slot 1 (0x4)
+000B2340,TeamController::GetTypeHash,returns the type name hash
+000B2350,TeamController::vf00,vtable slot 0 (0x0)
+000B2380,TeamController::vf0D,vtable slot 13 (0x34)
+000B23F0,TurretController::TurretController,constructor
+000B2440,TurretController::vf0F,vtable slot 15 (0x3C)
+000B2450,TurretController::vf04,vtable slot 4 (0x10)
+000B2480,TurretController::vf01,vtable slot 1 (0x4)
+000B24C0,TurretController::GetTypeHash,returns the type name hash
+000B24D0,TurretController::TurretController,constructor
+000B2580,TurretController::Construct_0B2580,installs the class vtable (constructor or destructor variant)
+000B25F0,TurretController::vf00,vtable slot 0 (0x0)
+000B2850,TurretController::vf0D,vtable slot 13 (0x34)
+000B2F20,Class_00342568::Class_00342568,constructor
+000B2F90,Class_00342568::Construct_0B2F90,installs the class vtable (constructor or destructor variant)
+000B30F0,Class_00342568::vf00,vtable slot 0 (0x0)
+000B3110,Factory_StandardCtrlMgr::Factory_StandardCtrlMgr,constructor
+000B3140,Factory_StandardCtrlMgr::vf00,vtable slot 0 (0x0)
+000B3160,Factory_StandardCtrlMgr::vf08,vtable slot 8 (0x20)
+000B3E80,Class_003426DC::Class_003426DC,constructor
+000B3EF0,Class_003426DC::Construct_0B3EF0,installs the class vtable (constructor or destructor variant)
+000B3F50,Factory_StandardTeamCtrlMgr::Factory_StandardTeamCtrlMgr,constructor
+000C4640,NetSmoothInfo::NetSmoothInfo,constructor
+000C4680,NetSmoothInfo::vf01,vtable slot 1 (0x4)
+000C46B0,NetSmoothInfo::GetTypeHash,returns the type name hash
+000C46C0,NetSmoothInfo::vf00,vtable slot 0 (0x0)
+000C46F0,Class_00334C24::Construct_0C46F0,installs the class vtable (constructor or destructor variant)
+000C4750,NetObjInfo::NetObjInfo,constructor
+000C47D0,NetObjInfo::GetTypeHash,returns the type name hash
+000C5390,ReliablePacket::vf01,vtable slot 1 (0x4)
+000C53C0,ReliablePacket::GetTypeHash,returns the type name hash
+000C53D0,ReliablePacket::ReliablePacket,constructor
+000CD640,ReliablePacket::Construct_0CD640,installs the class vtable (constructor or destructor variant)
+000D2BD0,SoundController::GetTypeHash,returns the type name hash
+000D2BE0,SoundController_00344620::SoundController_00344620,constructor
+000D2C50,SoundCategory::GetTypeHash,returns the type name hash
+000D2CA0,Sample::GetTypeHash,returns the type name hash
+000D2D50,SoundBuffer_003446E0::SoundBuffer_003446E0,constructor
+000D2E20,SoundBuffer::vf01,vtable slot 1 (0x4)
+000D2E50,SoundBuffer::GetTypeHash,returns the type name hash
+000D2E60,SoundBuffer::vf11,vtable slot 17 (0x44)
+000D2E80,SoundBuffer::vf12,vtable slot 18 (0x48)
+000D2EA0,SoundBuffer::vf19,vtable slot 25 (0x64)
+000D2ED0,SoundBuffer_003446E0::Construct_0D2ED0,installs the class vtable (constructor or destructor variant)
+000D2F40,SoundBuffer_003446E0::vf08,vtable slot 8 (0x20)
+000D2F90,SoundBuffer_003446E0::vf09,vtable slot 9 (0x24)
+000D2FD0,SoundBuffer_003446E0::vf0A,vtable slot 10 (0x28)
+000D2FF0,SoundBuffer_003446E0::vf0E,vtable slot 14 (0x38)
+000D3020,SoundBuffer_003446E0::vf0F,vtable slot 15 (0x3C)
+000D3040,SoundBuffer_003446E0::vf15,vtable slot 21 (0x54)
+000D3050,SoundBuffer_003446E0::vf16,vtable slot 22 (0x58)
+000D3080,SoundBuffer_003446E0::vf17,vtable slot 23 (0x5C)
+000D30A0,SoundBuffer_003446E0::vf18,vtable slot 24 (0x60)
+000D32C0,SoundController_00344620::SoundController_00344620,constructor
+000D3530,SoundController_00344620::SoundController_00344620,constructor
+000D36A0,SoundCategory_00344650::SoundCategory_00344650,constructor
+000D3C40,Sample_00344678::Sample_00344678,constructor
+000D3DD0,SoundController_00344620::SoundController_00344620,constructor
+000D4040,SoundController_00344620::Construct_0D4040,installs the class vtable (constructor or destructor variant)
+000D41B0,SoundBuffer_003446E0::vf00,vtable slot 0 (0x0)
+000D4320,Sample::Sample,constructor
+000D45D0,NetSoundObj::NetSoundObj,constructor
+000D4770,NetSoundObj::GetTypeHash,returns the type name hash
+000E4DA0,PlayerController::vf10,vtable slot 16 (0x40)
+000F0950,CinematicShotDesc::GetTypeHash,returns the type name hash
+000F0F30,CinematicShotDesc::CinematicShotDesc,constructor
+000F2930,CinematicShotDesc_00345038::vf00,vtable slot 0 (0x0)
+000F2970,CinematicShotDesc_00345038::Construct_0F2970,installs the class vtable (constructor or destructor variant)
+000F29A0,CinematicShotDesc_00345038::CinematicShotDesc_00345038,constructor
+000F5CA0,Group::Group,constructor
+000F5D40,Group::vf01,vtable slot 1 (0x4)
+000F5D60,Group::GetTypeHash,returns the type name hash
+000F5D70,Group::vf00,vtable slot 0 (0x0)
+000F5E90,FormationFlock::vf1D,vtable slot 29 (0x74)
+000F5EC0,FormationFlock::vf24,vtable slot 36 (0x90)
+000F5F10,FormationFlock::vf25,vtable slot 37 (0x94)
+000F5FC0,FormationFlock::vf1E,vtable slot 30 (0x78)
+000F6000,FormationFlock::FormationFlock,constructor
+000F6100,FormationFlock::vf01,vtable slot 1 (0x4)
+000F6120,FormationFlock::GetTypeHash,returns the type name hash
+000F6130,FormationFlock::vf00,vtable slot 0 (0x0)
+000F7F10,ZeroUserData_003455A4::ZeroUserData_003455A4,constructor
+000F7FA0,ZeroUserData_003455A4::vf00,vtable slot 0 (0x0)
+000F7FC0,Class_00334C24::Construct_0F7FC0,installs the class vtable (constructor or destructor variant)
+000F8020,ZeroUserData_003455A4::ZeroUserData_003455A4,constructor
+000F80E0,ZeroUserData_003455A4::vf08,vtable slot 8 (0x20)
+000F8210,ControllerTask_00345600::vf0B,vtable slot 11 (0x2C)
+000F8270,ControllerTask_00345600::vf19,vtable slot 25 (0x64)
+000F82D0,ControllerTask_00345600::vf1E,vtable slot 30 (0x78)
+000F8330,ControllerTask_00345600::vf20,vtable slot 32 (0x80)
+000F8380,ControllerTask_00345600::vf22,vtable slot 34 (0x88)
+000F83C0,ControllerTask_00345600::vf23,vtable slot 35 (0x8C)
+000F83E0,ControllerTask_00345600::vf29,vtable slot 41 (0xA4)
+000F8410,ControllerTask_00345600::vf28,vtable slot 40 (0xA0)
+000F8450,ControllerTask_00345600::vf2B,vtable slot 43 (0xAC)
+000F84C0,ControllerTask_00345600::vf2E,vtable slot 46 (0xB8)
+000F84D0,ControllerTask_00345600::vf30,vtable slot 48 (0xC0)
+000F84F0,ControllerTask_00345600::vf0F,vtable slot 15 (0x3C)
+000F8500,ControllerTask_00345600::vf0A,vtable slot 10 (0x28)
+000F86B0,ControllerTask_00345600::vf17,vtable slot 23 (0x5C)
+000F89F0,ControllerTask_00345600::vf18,vtable slot 24 (0x60)
+000F8AD0,ControllerTask_00345600::vf1A,vtable slot 26 (0x68)
+000F8C60,ControllerTask_00345600::vf1C,vtable slot 28 (0x70)
+000F8CF0,ControllerTask_00345600::vf1D,vtable slot 29 (0x74)
+000F8E50,ControllerTask_00345600::vf1F,vtable slot 31 (0x7C)
+000F92B0,ControllerTask_00345600::vf24,vtable slot 36 (0x90)
+000F9510,ControllerTask_00345600::vf25,vtable slot 37 (0x94)
+000F9560,ControllerTask_00345600::vf27,vtable slot 39 (0x9C)
+000F9980,ControllerTask_00345600::vf2F,vtable slot 47 (0xBC)
+000F9C60,ControllerTask_00345600::vf21,vtable slot 33 (0x84)
+000F9F60,ControllerTask_00345600::vf2A,vtable slot 42 (0xA8)
+000FA160,ControllerTask_00345600::vf2D,vtable slot 45 (0xB4)
+000FA380,ControllerTask_00345600::vf0C,vtable slot 12 (0x30)
+000FB1C0,ControllerTask_00345600::Construct_0FB1C0,installs the class vtable (constructor or destructor variant)
+000FB220,ControllerTask_003458F8::vf09,vtable slot 9 (0x24)
+000FB230,ControllerTask_00345600::ControllerTask_00345600,constructor
+000FB2F0,ControllerTask_00345600::vf00,vtable slot 0 (0x0)
+000FB310,ControllerTask_00345600::ControllerTask_00345600,constructor
+000FB3C0,ControllerTask_003456D8::Construct_0FB3C0,installs the class vtable (constructor or destructor variant)
+000FB450,ControllerTask_003456D8::ControllerTask_003456D8,constructor
+000FB490,ControllerTask_003456D8::vf00,vtable slot 0 (0x0)
+000FB4B0,ControllerTask_003456D8::ControllerTask_003456D8,constructor
+000FB5C0,ControllerTask_003456D8::vf0A,vtable slot 10 (0x28)
+000FB8A0,ControllerTask_003456D8::vf0C,vtable slot 12 (0x30)
+000FBA70,ControllerTask_00345750::Construct_0FBA70,installs the class vtable (constructor or destructor variant)
+000FBA80,ControllerTask_00345750::vf0A,vtable slot 10 (0x28)
+000FBB30,ControllerTask_00345750::ControllerTask_00345750,constructor
+000FBB70,ControllerTask_00345750::vf00,vtable slot 0 (0x0)
+000FCAE0,ControllerTask_00345750::vf0C,vtable slot 12 (0x30)
+000FCE70,ControllerTask_003457B8::vf0A,vtable slot 10 (0x28)
+000FCF60,ControllerTask_003457B8::vf0B,vtable slot 11 (0x2C)
+000FCF90,ControllerTask_003457B8::vf17,vtable slot 23 (0x5C)
+000FCFA0,ControllerTask_003457B8::ControllerTask_003457B8,constructor
+000FD090,ControllerTask_003457B8::ControllerTask_003457B8,constructor
+000FD180,ControllerTask_003457B8::Construct_0FD180,installs the class vtable (constructor or destructor variant)
+000FD1F0,ControllerTask_003457B8::vf00,vtable slot 0 (0x0)
+000FD780,ControllerTask_003457B8::ControllerTask_003457B8,constructor
+000FD820,ControllerTask_003457B8::ControllerTask_003457B8,constructor
+000FD920,ControllerTask_003457B8::vf0C,vtable slot 12 (0x30)
+000FDB00,ControllerTask_00345820::ControllerTask_00345820,constructor
+000FDB30,ControllerTask_00345820::Construct_0FDB30,installs the class vtable (constructor or destructor variant)
+000FDB50,ControllerTask_00345820::vf0C,vtable slot 12 (0x30)
+000FDBA0,ControllerTask_00345880::Construct_0FDBA0,installs the class vtable (constructor or destructor variant)
+000FDBC0,ControllerTask_00345880::vf0C,vtable slot 12 (0x30)
+000FDBD0,ControllerTask_00345820::vf00,vtable slot 0 (0x0)
+000FDBF0,ControllerTask_00345880::ControllerTask_00345880,constructor
+000FDC40,ControllerTask_00345880::vf00,vtable slot 0 (0x0)
+000FDC60,ControllerTask_00345880::vf10,vtable slot 16 (0x40)
+000FDD40,ControllerTask_003458F8::vf12,vtable slot 18 (0x48)
+000FDD50,ControllerTask_003458F8::vf13,vtable slot 19 (0x4C)
+000FDD60,ControllerTask_003458F8::vf0E,vtable slot 14 (0x38)
+000FDD70,ControllerTask_003458F8::vf0F,vtable slot 15 (0x3C)
+000FDDA0,ControllerTask_003458F8::vf04,vtable slot 4 (0x10)
+000FDDD0,ControllerTask_003458F8::vf08,vtable slot 8 (0x20)
+000FDE80,ControllerTask_003458F8::vf15,vtable slot 21 (0x54)
+000FDEF0,ControllerTask_003458F8::vf10,vtable slot 16 (0x40)
+000FDF40,ControllerTask_003458F8::ControllerTask_003458F8,constructor
+000FE010,ControllerTask_003458F8::Construct_0FE010,installs the class vtable (constructor or destructor variant)
+000FE080,ControllerTask_003458F8::vf00,vtable slot 0 (0x0)
+000FE0A0,ControllerTask_003459F0::Construct_0FE0A0,installs the class vtable (constructor or destructor variant)
+000FE1D0,ControllerTask_003459F0::vf00,vtable slot 0 (0x0)
+000FE3F0,ControllerTask_003459F0::vf0A,vtable slot 10 (0x28)
+000FE460,ControllerTask_003459F0::ControllerTask_003459F0,constructor
+000FE510,ControllerTask_003459F0::vf0C,vtable slot 12 (0x30)
+000FE7B0,ControllerTask_00345A4C::ControllerTask_00345A4C,constructor
+000FE7D0,ControllerTask_00345A90::Construct_0FE7D0,installs the class vtable (constructor or destructor variant)
+000FE870,ControllerTask_00345A90::vf0A,vtable slot 10 (0x28)
+000FE8C0,ControllerTask_00345A90::ControllerTask_00345A90,constructor
+000FE960,ControllerTask_00345A90::vf00,vtable slot 0 (0x0)
+000FE980,ControllerTask_00345A90::vf0C,vtable slot 12 (0x30)
+000FECB0,ControllerTask_00345B00::ControllerTask_00345B00,constructor
+000FECE0,ControllerTask_00345C40::vf09,vtable slot 9 (0x24)
+000FECF0,ControllerTask_00345B00::ControllerTask_00345B00,constructor
+000FED20,ControllerTask_00345B00::Construct_0FED20,installs the class vtable (constructor or destructor variant)
+000FED30,ControllerTask_00345B00::vf0A,vtable slot 10 (0x28)
+000FED70,ControllerTask_00345B00::vf0B,vtable slot 11 (0x2C)
+000FED80,ControllerTask_00345B00::vf0C,vtable slot 12 (0x30)
+000FEDE0,ControllerTask_00345B00::vf00,vtable slot 0 (0x0)
+000FEE00,ControllerTask_00345B34::ControllerTask_00345B34,constructor
+000FEE40,ControllerTask_00345B34::Construct_0FEE40,installs the class vtable (constructor or destructor variant)
+000FEEC0,ControllerTask_00345B68::ControllerTask_00345B68,constructor
+000FEEF0,ControllerTask_00345B68::Construct_0FEEF0,installs the class vtable (constructor or destructor variant)
+000FEF60,ControllerTask_00345C40::vf08,vtable slot 8 (0x20)
+000FF050,ControllerTask_00345C40::vf04,vtable slot 4 (0x10)
+000FF140,ControllerTask_00345C40::ControllerTask_00345C40,constructor
+00100420,AttackHelper::AttackHelper,constructor
+00100480,AttackHelper::vf01,vtable slot 1 (0x4)
+001004B0,AttackHelper::GetTypeHash,returns the type name hash
+00100BF0,Path_00345CBC::Path_00345CBC,constructor
+00100C20,Path_00345CBC::vf00,vtable slot 0 (0x0)
+00100C50,GotoHelper::GotoHelper,constructor
+00100CB0,GotoHelper::GetTypeHash,returns the type name hash
+00100CC0,Class_00334C24::Construct_100CC0,installs the class vtable (constructor or destructor variant)
+00101C80,CW_Controller::vf19,vtable slot 25 (0x64)
+001020D0,CW_Controller::vf4A,vtable slot 74 (0x128)
+00103070,CW_Controller::vf46,vtable slot 70 (0x118)
+00103420,CW_Controller::Construct_103420,installs the class vtable (constructor or destructor variant)
+00103500,CW_Controller::vf01,vtable slot 1 (0x4)
+00103540,CW_Controller::GetTypeHash,returns the type name hash
+00103550,CW_Controller::CW_Controller,constructor
+00103790,CW_Controller::vf00,vtable slot 0 (0x0)
+001037B0,CW_Controller::CW_Controller,constructor
+00103A30,CW_Controller::vf08,vtable slot 8 (0x20)
+00103AA0,CW_FlightController::CW_FlightController,constructor
+00103B40,CW_FlightController::vf18,vtable slot 24 (0x60)
+00103B50,CW_FlightController::CW_FlightController,constructor
+00103BF0,CW_FlightController::Construct_103BF0,installs the class vtable (constructor or destructor variant)
+00103C50,CW_FlightController::vf3B,vtable slot 59 (0xEC)
+00103CB0,CW_FlightController::vf3A,vtable slot 58 (0xE8)
+00103CD0,CW_FlightController::vf3C,vtable slot 60 (0xF0)
+00103D10,CW_FlightController::vf3E,vtable slot 62 (0xF8)
+00103D50,CW_FlightController::vf17,vtable slot 23 (0x5C)
+00103D80,Factory_Flight::Factory_Flight,constructor
+00103E20,CW_FlightController::vf01,vtable slot 1 (0x4)
+00103E50,CW_FlightController::GetTypeHash,returns the type name hash
+00103E60,CW_FlightController::vf08,vtable slot 8 (0x20)
+00103ED0,CW_FlightController::vf00,vtable slot 0 (0x0)
+00103EF0,CW_FlightController::vf39,vtable slot 57 (0xE4)
+00104020,CW_OffensiveController::Construct_104020,installs the class vtable (constructor or destructor variant)
+00104090,CW_OffensiveController::vf36,vtable slot 54 (0xD8)
+00104130,CW_OffensiveController::vf38,vtable slot 56 (0xE0)
+00104160,CW_OffensiveController::vf47,vtable slot 71 (0x11C)
+00104170,CW_OffensiveController::vf48,vtable slot 72 (0x120)
+00104190,Factory_Offensive::Factory_Offensive,constructor
+001041B0,CW_OffensiveController::vf01,vtable slot 1 (0x4)
+001041D0,CW_OffensiveController::GetTypeHash,returns the type name hash
+001041E0,CW_OffensiveController::CW_OffensiveController,constructor
+00104220,CW_OffensiveController::vf00,vtable slot 0 (0x0)
+00104240,CW_OffensiveController::CW_OffensiveController,constructor
+00104290,CW_OffensiveController::CW_OffensiveController,constructor
+00104330,CW_OffensiveController::vf08,vtable slot 8 (0x20)
+001046C0,CW_OffensiveController::vf1A,vtable slot 26 (0x68)
+00104920,CW_StationaryController::vf19,vtable slot 25 (0x64)
+00104930,CW_StationaryController::vf46,vtable slot 70 (0x118)
+00104940,Factory_Stationary::Factory_Stationary,constructor
+00104960,CW_StationaryController::CW_StationaryController,constructor
+001049D0,CW_StationaryController::vf01,vtable slot 1 (0x4)
+001049F0,CW_StationaryController::GetTypeHash,returns the type name hash
+00104A00,CW_StationaryController::CW_StationaryController,constructor
+00104A70,CW_StationaryController::vf00,vtable slot 0 (0x0)
+00104AA0,CW_StationaryController::vf4A,vtable slot 74 (0x128)
+00104AF0,CW_StationaryController::vf49,vtable slot 73 (0x124)
+00104B80,FsmController::FsmController,constructor
+00104C30,FsmController::vf04,vtable slot 4 (0x10)
+00104C50,FsmController::vf0D,vtable slot 13 (0x34)
+00104CE0,FsmController::vf22,vtable slot 34 (0x88)
+00104D00,FsmController::vf11,vtable slot 17 (0x44)
+00104D20,FsmController::vf12,vtable slot 18 (0x48)
+00104DA0,FsmController::vf1D,vtable slot 29 (0x74)
+00104DD0,FsmController::vf1E,vtable slot 30 (0x78)
+00104E20,FsmController::vf1F,vtable slot 31 (0x7C)
+00104E80,FsmController::vf16,vtable slot 22 (0x58)
+00104EF0,FsmController::GetTypeHash,returns the type name hash
+00104F00,FsmController::Construct_104F00,installs the class vtable (constructor or destructor variant)
+00104F70,FsmController::vf00,vtable slot 0 (0x0)
+00104F90,GroupController::Construct_104F90,installs the class vtable (constructor or destructor variant)
+00104FE0,GroupController::vf04,vtable slot 4 (0x10)
+00105170,GroupController::vf1A,vtable slot 26 (0x68)
+00105220,GroupController::vf01,vtable slot 1 (0x4)
+00105250,GroupController::GetTypeHash,returns the type name hash
+00105260,GroupController::GroupController,constructor
+001052C0,GroupController::vf00,vtable slot 0 (0x0)
+001052E0,GroupController::vf21,vtable slot 33 (0x84)
+00105350,GroupController::vf23,vtable slot 35 (0x8C)
+001053A0,FormationFlockCtrl::vf04,vtable slot 4 (0x10)
+00105430,PlayerFormationCtrl::vf1A,vtable slot 26 (0x68)
+00105480,PlayerFormationCtrl::vf1B,vtable slot 27 (0x6C)
+001054D0,PlayerFormationCtrl::vf1C,vtable slot 28 (0x70)
+00105520,PlayerFormationCtrl::vf19,vtable slot 25 (0x64)
+00105590,PlayerFormationCtrl::vf25,vtable slot 37 (0x94)
+001055A0,PlayerFormationCtrl::vf28,vtable slot 40 (0xA0)
+00105640,PlayerFormationCtrl::vf2B,vtable slot 43 (0xAC)
+001056E0,PlayerFormationCtrl::vf2D,vtable slot 45 (0xB4)
+00105720,PlayerFormationCtrl::vf30,vtable slot 48 (0xC0)
+00105760,AIFormationCtrl::vf1B,vtable slot 27 (0x6C)
+001057D0,AIFormationCtrl::vf23,vtable slot 35 (0x8C)
+001057F0,AIFormationCtrl::vf27,vtable slot 39 (0x9C)
+00105830,AIFormationCtrl::vf2A,vtable slot 42 (0xA8)
+001058A0,AIFormationCtrl::vf2D,vtable slot 45 (0xB4)
+001058E0,AIFormationCtrl::vf33,vtable slot 51 (0xCC)
+00105920,AIFormationCtrl::vf36,vtable slot 54 (0xD8)
+00105960,AIFormationCtrl::vf39,vtable slot 57 (0xE4)
+001059A0,AIFormationCtrl::vf3B,vtable slot 59 (0xEC)
+001059C0,PlayerFormationCtrl::vf24,vtable slot 36 (0x90)
+001059F0,PlayerFormationCtrl::vf2E,vtable slot 46 (0xB8)
+00105A60,AIFormationCtrl::vf21,vtable slot 33 (0x84)
+00105A90,AIFormationCtrl::vf24,vtable slot 36 (0x90)
+00105AC0,AIFormationCtrl::vf1A,vtable slot 26 (0x68)
+00105B90,AIFormationCtrl::vf1C,vtable slot 28 (0x70)
+00105C30,AIFormationCtrl::vf0D,vtable slot 13 (0x34)
+00105D10,AIFormationCtrl::vf25,vtable slot 37 (0x94)
+00105DD0,AIFormationCtrl::vf2B,vtable slot 43 (0xAC)
+00105E60,AIFormationCtrl::vf28,vtable slot 40 (0xA0)
+00105F20,PlayerFormationCtrl::vf0D,vtable slot 13 (0x34)
+00106190,AIFormationCtrl::Construct_106190,installs the class vtable (constructor or destructor variant)
+001061E0,AIFormationCtrl::vf01,vtable slot 1 (0x4)
+00106210,AIFormationCtrl::GetTypeHash,returns the type name hash
+00106220,AIFormationCtrl::vf3D,vtable slot 61 (0xF4)
+00106240,FormationFlockCtrl::FormationFlockCtrl,constructor
+001062E0,FormationFlockCtrl::vf01,vtable slot 1 (0x4)
+00106310,FormationFlockCtrl::GetTypeHash,returns the type name hash
+00106320,FormationFlockCtrl::vf00,vtable slot 0 (0x0)
+00106340,PlayerFormationCtrl::PlayerFormationCtrl,constructor
+00106370,PlayerFormationCtrl::vf01,vtable slot 1 (0x4)
+001063A0,PlayerFormationCtrl::GetTypeHash,returns the type name hash
+001063B0,PlayerFormationCtrl::vf00,vtable slot 0 (0x0)
+001063E0,AIFormationCtrl::AIFormationCtrl,constructor
+00106400,AIFormationCtrl::vf00,vtable slot 0 (0x0)
+001086E0,Class_00334C24::Construct_1086E0,installs the class vtable (constructor or destructor variant)
+00108760,PathFollower::vf08,vtable slot 8 (0x20)
+00108770,PathFollower::vf01,vtable slot 1 (0x4)
+001087A0,PathFollower::GetTypeHash,returns the type name hash
+00108820,PathFollower::vf00,vtable slot 0 (0x0)
+00108D80,PathFollower::PathFollower,constructor
+001091E0,CW_Avoid::CW_Avoid,constructor
+00109210,CW_Avoid::vf09,vtable slot 9 (0x24)
+00109220,CW_Avoid::vf01,vtable slot 1 (0x4)
+00109250,CW_Avoid::GetTypeHash,returns the type name hash
+001094C0,CW_Avoid_00346854::CW_Avoid_00346854,constructor
+001099F0,CW_Avoid_00346854::vf08,vtable slot 8 (0x20)
+00109C00,CW_Avoid_00346898::vf09,vtable slot 9 (0x24)
+0010A2E0,CW_Avoid_00346898::CW_Avoid_00346898,constructor
+0010A300,CW_Avoid_00346898::vf08,vtable slot 8 (0x20)
+0011F120,Class_00347620::vf03,vtable slot 3 (0xC)
+0011FD30,Class_00347620::Class_00347620,constructor
+00126AE0,Class_00347620::Construct_126AE0,installs the class vtable (constructor or destructor variant)
+0012D950,Class_00347620::Construct_12D950,installs the class vtable (constructor or destructor variant)
+00131360,Class_00349450::vf04,vtable slot 4 (0x10)
+001313A0,Class_00349450::vf06,vtable slot 6 (0x18)
+00131490,Class_00349450::vf0B,vtable slot 11 (0x2C)
+001314D0,Factory_leclogo::vf06,vtable slot 6 (0x18)
+001315A0,Class_00349450::vf05,vtable slot 5 (0x14)
+001316B0,Class_00349450::vf01,vtable slot 1 (0x4)
+00131890,Class_00349450::vf03,vtable slot 3 (0xC)
+00131930,Factory_leclogo::vf0B,vtable slot 11 (0x2C)
+00131AA0,Class_00349450::Construct_131AA0,installs the class vtable (constructor or destructor variant)
+00131AD0,Class_00349450::Class_00349450,constructor
+00131B40,Factory_leclogo::Factory_leclogo,constructor
+0016AE00,ZeroBaseNode_0034EC98::Construct_16AE00,installs the class vtable (constructor or destructor variant)
+0016AE10,ZeroBaseNode_0034EC98::vf00,vtable slot 0 (0x0)
+0016AE30,ZeroBaseNode_0034ECC8::Construct_16AE30,installs the class vtable (constructor or destructor variant)
+0016AEA0,ZeroBaseNode_0034ECFC::Construct_16AEA0,installs the class vtable (constructor or destructor variant)
+0016AF00,ZeroBaseNode_0034ED30::Construct_16AF00,installs the class vtable (constructor or destructor variant)
+0016AF10,ZeroBaseNode_0034ED64::Construct_16AF10,installs the class vtable (constructor or destructor variant)
+0016AF20,ZeroBaseNode_0034ED98::Construct_16AF20,installs the class vtable (constructor or destructor variant)
+0016AF40,ZeroBaseNode_0034EDCC::Construct_16AF40,installs the class vtable (constructor or destructor variant)
+0016AFB0,ZeroBaseNode_0034ECC8::ZeroBaseNode_0034ECC8,constructor
+0016B140,ZeroBaseNode_0034ECC8::ZeroBaseNode_0034ECC8,constructor
+0016B180,ZeroBaseNode_0034ECFC::ZeroBaseNode_0034ECFC,constructor
+0016B1F0,ZeroBaseNode_0034ED30::ZeroBaseNode_0034ED30,constructor
+0016B240,ZeroBaseNode_0034ED64::ZeroBaseNode_0034ED64,constructor
+0016B290,ZeroBaseNode_0034ED98::ZeroBaseNode_0034ED98,constructor
+0016B340,ZeroBaseNode_0034EDCC::ZeroBaseNode_0034EDCC,constructor
+00170680,ZeroBaseNode::Construct_170680,installs the class vtable (constructor or destructor variant)
+001706A0,ZeroBaseNode::vf00,vtable slot 0 (0x0)
+00170D50,ZeroBaseNode_0034F224::Construct_170D50,installs the class vtable (constructor or destructor variant)
+00170E20,ZeroBaseNode_0034F224::ZeroBaseNode_0034F224,constructor
+00170EC0,ZeroBaseNode_0034F224::vf00,vtable slot 0 (0x0)
+00170F50,ZeroBaseNode_0034F224::ZeroBaseNode_0034F224,constructor
+00173420,ZeroBaseNode_0034F4C0::ZeroBaseNode_0034F4C0,constructor
+00173450,ZeroBaseNode_0034F4C0::Construct_173450,installs the class vtable (constructor or destructor variant)
+00173470,ZeroBaseNode_0034F4C0::vf00,vtable slot 0 (0x0)
+0021F780,Sample_00378F4C::Sample_00378F4C,constructor
+0021F880,Class_00334C24::Construct_21F880,installs the class vtable (constructor or destructor variant)
+0021F8F0,SoundDesc::vf01,vtable slot 1 (0x4)
+0021F920,SoundDesc::GetTypeHash,returns the type name hash
+0021FCF0,Class_00334C24::Construct_21FCF0,installs the class vtable (constructor or destructor variant)
+0021FDA0,Sound::GetTypeHash,returns the type name hash
+0021FF30,SoundDesc::SoundDesc,constructor
+0021FFD0,SoundDesc::vf00,vtable slot 0 (0x0)
+00220010,Sound::Sound,constructor
+00220290,Class_00334C24::Construct_220290,installs the class vtable (constructor or destructor variant)
+00220470,SoundCategory_00378FC8::SoundCategory_00378FC8,constructor
+00220650,SoundCategory::SoundCategory,constructor
+00220800,SoundController::SoundController,constructor
+00220860,Class_00334C24::Construct_220860,installs the class vtable (constructor or destructor variant)
+002208C0,SoundController::vf00,vtable slot 0 (0x0)
+002208E0,ZeroRef_00379084::ZeroRef_00379084,constructor
+00220950,ZeroRef_00379084::Construct_220950,installs the class vtable (constructor or destructor variant)
+00220AA0,ZeroRef_0033E7C8::vf06,vtable slot 6 (0x18)
+00220AB0,ZeroRef_0033E7C8::vf07,vtable slot 7 (0x1C)
+00220AE0,ZeroRef_0033E7C8::vf08,vtable slot 8 (0x20)
+00220B40,SoundQueue::SoundQueue,constructor
+00220BD0,SoundQueue::GetTypeHash,returns the type name hash
+00220BE0,ZeroRef_00379084::vf00,vtable slot 0 (0x0)
+00220CA0,SoundQueue::Construct_220CA0,installs the class vtable (constructor or destructor variant)
+00221310,SoundBuffer::vf0B,vtable slot 11 (0x2C)
+00221340,SoundBuffer::vf0C,vtable slot 12 (0x30)
+00221370,SoundBuffer::vf16,vtable slot 22 (0x58)
+00221380,SoundBuffer::vf17,vtable slot 23 (0x5C)
+002213A0,SoundBuffer::SoundBuffer,constructor
+00221450,Class_00334C24::Construct_221450,installs the class vtable (constructor or destructor variant)
+002214B0,SoundBuffer::vf00,vtable slot 0 (0x0)
+002214D0,SoundBuffer::vf0D,vtable slot 13 (0x34)
+00223330,SoundBuffer_00379258::SoundBuffer_00379258,constructor
+002233C0,SoundBuffer_00379258::vf11,vtable slot 17 (0x44)
+00223400,SoundBuffer_00379258::vf12,vtable slot 18 (0x48)
+00223440,SoundBuffer_00379258::vf00,vtable slot 0 (0x0)
+00223470,SoundBuffer_00379258::Construct_223470,installs the class vtable (constructor or destructor variant)
+002234D0,SoundBuffer_00379258::vf08,vtable slot 8 (0x20)
+002235C0,SoundBuffer_00379258::vf09,vtable slot 9 (0x24)
+002235F0,SoundBuffer_00379258::vf0A,vtable slot 10 (0x28)
+00223630,SoundBuffer_00379258::vf0E,vtable slot 14 (0x38)
+002236C0,SoundBuffer_00379258::vf0F,vtable slot 15 (0x3C)
+002237F0,SoundBuffer_00379258::vf13,vtable slot 19 (0x4C)
+00223810,SoundBuffer_00379258::vf14,vtable slot 20 (0x50)
+002238C0,SoundBuffer_00379258::vf15,vtable slot 21 (0x54)
+00223900,SoundBuffer_00379258::vf10,vtable slot 16 (0x40)
+00223AC0,SoundBuffer_00379258::vf16,vtable slot 22 (0x58)
+00223BF0,SoundBuffer_00379258::vf17,vtable slot 23 (0x5C)
+00223C30,SoundBuffer_00379258::vf18,vtable slot 24 (0x60)
+00223E80,SoundBuffer_00379258::vf0C,vtable slot 12 (0x30)
+00225330,Sample_00379400::Sample_00379400,constructor
+002258D0,Sample_0037943C::Sample_0037943C,constructor
+00225DA0,Sample_00379478::Sample_00379478,constructor
+002270A0,ZeroObject_00379508::Construct_2270A0,installs the class vtable (constructor or destructor variant)
+00227220,ZeroObject_00379508::vf21,vtable slot 33 (0x84)
+002273D0,ZeroObject_00379508::vf24,vtable slot 36 (0x90)
+002273E0,ZeroObject_00379508::vf34,vtable slot 52 (0xD0)
+00227490,ZeroObject_00379508::vf1F,vtable slot 31 (0x7C)
+002274A0,ZeroObject_00379508::vf37,vtable slot 55 (0xDC)
+002276E0,ZeroObject_00379508::ZeroObject_00379508,constructor
+002278C0,ZeroObject_00379508::vf00,vtable slot 0 (0x0)
+002278E0,ZeroObject_00379508::vf06,vtable slot 6 (0x18)
+00227950,ZeroObject_00379508::vf08,vtable slot 8 (0x20)
+00227960,ZeroObject_00379508::vf1D,vtable slot 29 (0x74)
+002280B0,ZeroObject_00379508::vf36,vtable slot 54 (0xD8)
+002281B0,ZeroObject_00379508::ZeroObject_00379508,constructor
+00228450,ZeroObject_00379508::vf23,vtable slot 35 (0x8C)
+00228480,ZeroObject_00379508::vf35,vtable slot 53 (0xD4)
+00228790,ZeroObject_00379508::vf22,vtable slot 34 (0x88)
+0022C2E0,ZeroRef_003796F8::vf00,vtable slot 0 (0x0)
+0022C330,ZeroRef_003796F8::ZeroRef_003796F8,constructor
+0022C590,ZeroRef_00379700::ZeroRef_00379700,constructor
+0022C630,Class_00379708::Construct_22C630,installs the class vtable (constructor or destructor variant)
+0022C6F0,Class_00379708::Construct_22C6F0,installs the class vtable (constructor or destructor variant)
+0022C730,Class_00379708::Class_00379708,constructor
+0022D4F0,ZeroBaseNode_00334F00::ZeroBaseNode_00334F00,constructor
+0022D5E0,Class_00334C24::Construct_22D5E0,installs the class vtable (constructor or destructor variant)
+0022EFE0,ZeroObject_00334E60::Construct_22EFE0,installs the class vtable (constructor or destructor variant)
+0022F050,ZeroObject_00334E60::ZeroObject_00334E60,constructor
+0022FD50,ZeroEntity::Construct_22FD50,installs the class vtable (constructor or destructor variant)
+0022FFE0,ZeroEntity::ZeroEntity,constructor
+002301E0,ZeroEntity::ZeroEntity,constructor
+00230970,ZeroPolySoup::ZeroPolySoup,constructor
+00230990,ZeroPolySoup::vf01,vtable slot 1 (0x4)
+002309C0,ZeroPolySoup::GetTypeHash,returns the type name hash
+00232650,ZeroAABB_00379918::ZeroAABB_00379918,constructor
+00232680,ZeroAABB_00379918::Construct_232680,installs the class vtable (constructor or destructor variant)
+002334B0,ZeroAABB_00379918::vf00,vtable slot 0 (0x0)
+00235510,ZeroObject_00334E60::ZeroObject_00334E60,constructor
+002381C0,ZeroSpriteCache::Construct_2381C0,installs the class vtable (constructor or destructor variant)
+00238230,ZeroSpriteCache::vf01,vtable slot 1 (0x4)
+00238260,ZeroSpriteCache::GetTypeHash,returns the type name hash
+00238270,ZeroSpriteCache::vf00,vtable slot 0 (0x0)
+002384B0,ZeroSpriteCache::ZeroSpriteCache,constructor
+00238D60,ZeroRigidBody::ZeroRigidBody,constructor
+00238EE0,ZeroRigidBody::vf16,vtable slot 22 (0x58)
+002391A0,ZeroRigidBody::ZeroRigidBody,constructor
+002394D0,ZeroRigidBody::vf17,vtable slot 23 (0x5C)
+00239C70,ZeroMaterial::GetTypeHash,returns the type name hash
+00239CA0,ZeroMaterial::ZeroMaterial,constructor
+00239DB0,Class_00334C24::Construct_239DB0,installs the class vtable (constructor or destructor variant)
+00239F50,ZeroMaterial::vf0F,vtable slot 15 (0x3C)
+00239FC0,ZeroMaterial::vf00,vtable slot 0 (0x0)
+0023A200,ZeroParticleCache::vf08,vtable slot 8 (0x20)
+0023A700,ZeroParticleCache::ZeroParticleCache,constructor
+0023A870,ZeroParticleCache::vf01,vtable slot 1 (0x4)
+0023A8A0,ZeroParticleCache::GetTypeHash,returns the type name hash
+0023AB00,ZeroParticleCache::Construct_23AB00,installs the class vtable (constructor or destructor variant)
+0023AC20,ZeroParticleCache::vf00,vtable slot 0 (0x0)
+0023AF20,ZeroMeshGeometry::vf16,vtable slot 22 (0x58)
+0023B590,ZeroMeshGeometry::vf0B,vtable slot 11 (0x2C)
+0023B5B0,ZeroMeshGeometry::vf13,vtable slot 19 (0x4C)
+0023B7D0,ZeroMeshGeometry::vf0F,vtable slot 15 (0x3C)
+0023B830,ZeroMeshGeometry::vf10,vtable slot 16 (0x40)
+0023B970,ZeroMeshGeometry::vf15,vtable slot 21 (0x54)
+0023BA40,ZeroMeshGeometry::vf1C,vtable slot 28 (0x70)
+0023BCC0,ZeroMeshGeometry::vf0C,vtable slot 12 (0x30)
+0023BD20,ZeroMeshGeometry::Construct_23BD20,installs the class vtable (constructor or destructor variant)
+0023BDC0,ZeroMeshGeometry::vf01,vtable slot 1 (0x4)
+0023BDF0,ZeroMeshGeometry::GetTypeHash,returns the type name hash
+0023BE10,ZeroMeshGeometry::vf0A,vtable slot 10 (0x28)
+0023BE20,ZeroMeshGeometry::vf0E,vtable slot 14 (0x38)
+0023BE50,ZeroMeshGeometry::vf11,vtable slot 17 (0x44)
+0023BE70,ZeroMeshGeometry::vf18,vtable slot 24 (0x60)
+0023BE80,ZeroMeshGeometry::vf19,vtable slot 25 (0x64)
+0023BE90,ZeroMeshGeometry::vf1A,vtable slot 26 (0x68)
+0023BEA0,ZeroMeshGeometry::vf1B,vtable slot 27 (0x6C)
+0023BEB0,ZeroMeshGeometry::vf14,vtable slot 20 (0x50)
+0023BF10,ZeroMeshGeometry::ZeroMeshGeometry,constructor
+0023BFA0,ZeroMeshGeometry::vf00,vtable slot 0 (0x0)
+0023BFC0,ZeroMeshGeometry::ZeroMeshGeometry,constructor
+0023C0C0,ZeroMeshGeometry::ZeroMeshGeometry,constructor
+0023CD40,ZeroTxLight::ZeroTxLight,constructor
+0023CD80,ZeroTxLight::GetTypeHash,returns the type name hash
+0023D500,ZeroTxLight::Construct_23D500,installs the class vtable (constructor or destructor variant)
+0023D5F0,ZeroTxLight::vf00,vtable slot 0 (0x0)
+00240F60,ZeroProceduralGeometry::vf15,vtable slot 21 (0x54)
+00240F70,ZeroTransformContraintGeometry::vf15,vtable slot 21 (0x54)
+00241000,ZeroUnknown_00379D30::ZeroUnknown_00379D30,constructor
+002410C0,ZeroUnknown_00379D30::vf00,vtable slot 0 (0x0)
+002410E0,Class_00334C24::Construct_2410E0,installs the class vtable (constructor or destructor variant)
+00241110,ZeroSkinGeometry::ZeroSkinGeometry,constructor
+00241270,ZeroTransformContraintGeometry::vf01,vtable slot 1 (0x4)
+002412A0,ZeroSkinGeometry::GetTypeHash,returns the type name hash
+002412B0,ZeroSkinGeometry::ZeroSkinGeometry,constructor
+00241330,ZeroSkinGeometry::Construct_241330,installs the class vtable (constructor or destructor variant)
+00241F00,ZeroClothGeometry::Construct_241F00,installs the class vtable (constructor or destructor variant)
+00241FB0,ZeroClothGeometry::vf01,vtable slot 1 (0x4)
+00241FE0,ZeroClothGeometry::GetTypeHash,returns the type name hash
+00241FF0,ZeroClothGeometry::vf15,vtable slot 21 (0x54)
+00242DA0,ZeroClothGeometry::vf00,vtable slot 0 (0x0)
+00242DC0,ZeroClothGeometry::vf08,vtable slot 8 (0x20)
+002430D0,ZeroClothGeometry::vf1C,vtable slot 28 (0x70)
+00243140,ZeroUnknown_00379E80::ZeroUnknown_00379E80,constructor
+00243710,Class_00334C24::Construct_243710,installs the class vtable (constructor or destructor variant)
+00243800,ZeroClothGeometry::ZeroClothGeometry,constructor
+00243930,ZeroClothGeometry::ZeroClothGeometry,constructor
+00243B20,ZeroClothGeometry::vf06,vtable slot 6 (0x18)
+00243B90,ZeroTransformContraintGeometry::ZeroTransformContraintGeometry,constructor
+00243BE0,ZeroTransformContraintGeometry::GetTypeHash,returns the type name hash
+00243BF0,ZeroTransformContraintGeometry::ZeroTransformContraintGeometry,constructor
+00243C40,ZeroTransformContraintGeometry::ZeroTransformContraintGeometry,constructor
+00243CD0,ZeroTransformContraintGeometry::Construct_243CD0,installs the class vtable (constructor or destructor variant)
+00243CE0,ZeroTransformContraintGeometry::vf06,vtable slot 6 (0x18)
+00243D50,ZeroTransformContraintGeometry::vf1C,vtable slot 28 (0x70)
+00243D80,ZeroTransformContraintGeometry::vf00,vtable slot 0 (0x0)
+00243FF0,ZeroUnknown_00379F88::ZeroUnknown_00379F88,constructor
+00244090,Class_00334C24::Construct_244090,installs the class vtable (constructor or destructor variant)
+002441B0,ZeroUnknown_0037A094::ZeroUnknown_0037A094,constructor
+002442A0,Class_00334C24::Construct_2442A0,installs the class vtable (constructor or destructor variant)
+002446F0,ZeroSurface::ZeroSurface,constructor
+00244720,ZeroSurface::vf01,vtable slot 1 (0x4)
+00244750,ZeroSurface::GetTypeHash,returns the type name hash
+00244760,ZeroSurface::vf0C,vtable slot 12 (0x30)
+00244770,ZeroSurface::vf0E,vtable slot 14 (0x38)
+00244780,ZeroSurface::vf10,vtable slot 16 (0x40)
+002447A0,ZeroSurface::vf12,vtable slot 18 (0x48)
+002447C0,ZeroSurface::vf11,vtable slot 17 (0x44)
+002447E0,ZeroSurface::ZeroSurface,constructor
+00244BD0,ZeroSurface::ZeroSurface,constructor
+00244D00,ZeroProceduralGeometry::ZeroProceduralGeometry,constructor
+00244D70,ZeroProceduralGeometry::vf01,vtable slot 1 (0x4)
+00244DA0,ZeroProceduralGeometry::GetTypeHash,returns the type name hash
+00244DB0,Class_00334C24::Construct_244DB0,installs the class vtable (constructor or destructor variant)
+00244E10,ZeroProceduralGeometry::vf06,vtable slot 6 (0x18)
+00244E80,ZeroProceduralGeometry::vf1C,vtable slot 28 (0x70)
+00244E90,ZeroProceduralGeometry::ZeroProceduralGeometry,constructor
+00244EB0,ZeroProceduralGeometry::vf00,vtable slot 0 (0x0)
+00244ED0,ZeroProceduralGeometry::ZeroProceduralGeometry,constructor
+00244F50,ZeroProceduralGeometry::vf08,vtable slot 8 (0x20)
+00246AC0,ZeroUnknown_0037A480::Construct_246AC0,installs the class vtable (constructor or destructor variant)
+00246C90,ZeroUnknown_0037A480::ZeroUnknown_0037A480,constructor
+00246E30,ZeroObject_0037A5B0::Construct_246E30,installs the class vtable (constructor or destructor variant)
+00246E40,ZeroObject_0037A5B0::vf00,vtable slot 0 (0x0)
+00248D10,ZeroObject_0037A650::Construct_248D10,installs the class vtable (constructor or destructor variant)
+00248DD0,ZeroObject_0037A650::ZeroObject_0037A650,constructor
+0024D060,ZeroObject_0037AB78::vf3B,vtable slot 59 (0xEC)
+0024D140,ZeroObject_0037AB78::vf21,vtable slot 33 (0x84)
+0024D1F0,ZeroObject_0037AB78::vf1E,vtable slot 30 (0x78)
+0024D220,ZeroObject_0037AB78::vf1F,vtable slot 31 (0x7C)
+0024D230,ZeroObject_0037AB78::vf24,vtable slot 36 (0x90)
+0024D260,ZeroObject_0037AB78::vf35,vtable slot 53 (0xD4)
+0024D280,ZeroObject_0037AB78::vf26,vtable slot 38 (0x98)
+0024D290,ZeroObject_0037AB78::vf27,vtable slot 39 (0x9C)
+0024D2A0,ZeroObject_0037AB78::vf2D,vtable slot 45 (0xB4)
+0024D470,ZeroObject_0037AB78::vf2F,vtable slot 47 (0xBC)
+0024DA30,ZeroObject_0037AB78::vf2C,vtable slot 44 (0xB0)
+0024DD50,ZeroObject_0037AB78::vf2E,vtable slot 46 (0xB8)
+0024E050,ZeroObject_0037AB78::vf34,vtable slot 52 (0xD0)
+0024E0C0,ZeroObject_0037AB78::vf1C,vtable slot 28 (0x70)
+0024E100,ZeroObject_0037AB78::vf39,vtable slot 57 (0xE4)
+0024E440,ZeroObject_0037AB78::vf1D,vtable slot 29 (0x74)
+0024ED30,ZeroObject_0037AB78::vf28,vtable slot 40 (0xA0)
+0024F250,ZeroObject_0037AB78::vf2A,vtable slot 42 (0xA8)
+0024F300,ZeroObject_0037AB78::vf23,vtable slot 35 (0x8C)
+0024FC30,ZeroObject_0037AB78::vf2B,vtable slot 43 (0xAC)
+00250180,ZeroObject_0037AB78::vf22,vtable slot 34 (0x88)
+002507A0,ZeroObject_0037AB78::vf29,vtable slot 41 (0xA4)
+002507C0,ZeroObject_0037AB78::ZeroObject_0037AB78,constructor
+002508A0,ZeroObject_0037AB78::vf38,vtable slot 56 (0xE0)
+002508B0,ZeroObject_0037AB78::ZeroObject_0037AB78,constructor
+00250980,ZeroObject_0037AB78::Construct_250980,installs the class vtable (constructor or destructor variant)
+002509F0,ZeroObject_0037AB78::vf06,vtable slot 6 (0x18)
+00250A60,ZeroObject_0037AB78::vf00,vtable slot 0 (0x0)
+00250C20,ZeroSurface_0037AC70::ZeroSurface_0037AC70,constructor
+00250C60,ZeroSurface_0037AC70::vf0F,vtable slot 15 (0x3C)
+00250E70,ZeroSurface_0037AC70::ZeroSurface_0037AC70,constructor
+00250F70,ZeroSurface_0037AC70::ZeroSurface_0037AC70,constructor
+00251190,ZeroSurface_0037AC70::ZeroSurface_0037AC70,constructor
+00251290,ZeroSurface_0037AC70::vf14,vtable slot 20 (0x50)
+002512C0,ZeroSurface_0037AC70::vf08,vtable slot 8 (0x20)
+00251640,ZeroSurface_0037AC70::vf0B,vtable slot 11 (0x2C)
+00251850,ZeroSurface_0037AC70::vf0D,vtable slot 13 (0x34)
+002519B0,ZeroSurface_0037AC70::vf11,vtable slot 17 (0x44)
+00251C50,ZeroSurface_0037AC70::vf13,vtable slot 19 (0x4C)
+00251DB0,ZeroSurface_0037AC70::ZeroSurface_0037AC70,constructor
+00251E40,ZeroSurface_0037AC70::Construct_251E40,installs the class vtable (constructor or destructor variant)
+00251EE0,ZeroSurface_0037AC70::vf00,vtable slot 0 (0x0)
+00251F00,ZeroParticleCache_0037ACE4::vf09,vtable slot 9 (0x24)
+00251F90,ZeroParticleCache_0037ACE4::ZeroParticleCache_0037ACE4,constructor
+00251FC0,ZeroParticleCache_0037ACE4::Construct_251FC0,installs the class vtable (constructor or destructor variant)
+00251FD0,ZeroParticleCache_0037ACE4::vf00,vtable slot 0 (0x0)
+00251FF0,ZeroParticleCache_0037ACE4::vf08,vtable slot 8 (0x20)
+002541F0,ZeroSegment_0037AD28::Construct_2541F0,installs the class vtable (constructor or destructor variant)
+00254230,ZeroSegment_0037AE98::vf0A,vtable slot 10 (0x28)
+00254240,ZeroSegment_0037AE98::vf0C,vtable slot 12 (0x30)
+00254250,ZeroSegment_0037AE98::vf0D,vtable slot 13 (0x34)
+00254280,ZeroSegment_0037AE98::vf10,vtable slot 16 (0x40)
+002546B0,ZeroSegment_0037AD28::vf18,vtable slot 24 (0x60)
+00254AC0,ZeroSegment_0037AD28::vf0E,vtable slot 14 (0x38)
+00254B30,ZeroSegment_0037AE98::vf0F,vtable slot 15 (0x3C)
+00254B90,ZeroSegment_0037AD28::ZeroSegment_0037AD28,constructor
+00254C00,ZeroSegment_0037AD28::vf00,vtable slot 0 (0x0)
+00255980,ZeroSegment_0037ADE8::ZeroSegment_0037ADE8,constructor
+002559E0,ZeroSegment_0037ADE8::Construct_2559E0,installs the class vtable (constructor or destructor variant)
+00255A40,ZeroSegment_0037ADE8::vf1A,vtable slot 26 (0x68)
+00255A80,ZeroSegment_0037ADE8::vf06,vtable slot 6 (0x18)
+00255AF0,ZeroSegment_0037ADE8::vf00,vtable slot 0 (0x0)
+00255B10,ClothStaticSegData::ClothStaticSegData,constructor
+00255C60,ClothStaticSegData::GetTypeHash,returns the type name hash
+00255C90,Class_00334C24::Construct_255C90,installs the class vtable (constructor or destructor variant)
+00255CF0,ZeroSegment_0037ADE8::ZeroSegment_0037ADE8,constructor
+00255D70,ZeroSegment_0037AE98::vf09,vtable slot 9 (0x24)
+00255DD0,ZeroSegment_0037AE98::vf0B,vtable slot 11 (0x2C)
+00256000,ZeroSegment_0037AE98::vf13,vtable slot 19 (0x4C)
+00256290,ZeroSegment_0037AE98::vf17,vtable slot 23 (0x5C)
+002562F0,ZeroSegment::ZeroSegment,constructor
+00256350,Class_00334C24::Construct_256350,installs the class vtable (constructor or destructor variant)
+00256D70,ZeroSegment_0037AE98::vf0E,vtable slot 14 (0x38)
+00256E60,ZeroSegment_0037AE98::vf16,vtable slot 22 (0x58)
+00256F40,ZeroSegment_0037AE98::vf15,vtable slot 21 (0x54)
+00257340,ZeroSegment_0037AE98::ZeroSegment_0037AE98,constructor
+00257430,ZeroSegment_0037AE98::vf00,vtable slot 0 (0x0)
+00257450,ZeroSegment_0037AE98::ZeroSegment_0037AE98,constructor
+00257670,ZeroSegment_0037AE98::ZeroSegment_0037AE98,constructor
+00257750,ZeroSegment_0037AE98::vf18,vtable slot 24 (0x60)
+00257830,ZeroSegment_0037AE98::vf06,vtable slot 6 (0x18)
+002578D0,ZeroObject_0037AF28::vf1E,vtable slot 30 (0x78)
+002578E0,ZeroObject_0037AF28::vf21,vtable slot 33 (0x84)
+002578F0,ZeroObject_0037AF28::vf1C,vtable slot 28 (0x70)
+00257CA0,ZeroObject_0037AF28::vf1D,vtable slot 29 (0x74)
+00257D70,ZeroObject_0037AF28::vf20,vtable slot 32 (0x80)
+00257E50,ZeroObject_0037AF28::ZeroObject_0037AF28,constructor
+00257EE0,ZeroObject_0037AF28::ZeroObject_0037AF28,constructor
+00257F60,ZeroObject_0037AF28::Construct_257F60,installs the class vtable (constructor or destructor variant)
+00257FC0,ZeroObject_0037AF28::vf06,vtable slot 6 (0x18)
+00258030,ZeroObject_0037AF28::vf00,vtable slot 0 (0x0)
+00258050,ZeroMaterial_0037AFC0::Construct_258050,installs the class vtable (constructor or destructor variant)
+002581A0,ZeroMaterial_0037AFC0::vf00,vtable slot 0 (0x0)
+002581C0,ZeroMaterial_0037B020::ZeroMaterial_0037B020,constructor
+002581F0,ZeroMaterial_0037B020::ZeroMaterial_0037B020,constructor
+002582E0,ZeroMaterial_0037B080::ZeroMaterial_0037B080,constructor
+00258310,ZeroMaterial_0037B080::ZeroMaterial_0037B080,constructor
+002583F0,ZeroMaterial_0037B0E0::ZeroMaterial_0037B0E0,constructor
+00258420,ZeroMaterial_0037B0E0::ZeroMaterial_0037B0E0,constructor
+00258500,ZeroMaterial_0037B140::ZeroMaterial_0037B140,constructor
+00258530,ZeroMaterial_0037B140::ZeroMaterial_0037B140,constructor
+00258610,ZeroMaterial_0037B1A0::ZeroMaterial_0037B1A0,constructor
+00258640,ZeroMaterial_0037B1A0::ZeroMaterial_0037B1A0,constructor
+00258720,ZeroMaterial_0037B200::ZeroMaterial_0037B200,constructor
+00258750,ZeroMaterial_0037B200::ZeroMaterial_0037B200,constructor
+00258830,ZeroMaterial_0037B260::ZeroMaterial_0037B260,constructor
+00258860,ZeroMaterial_0037B260::ZeroMaterial_0037B260,constructor
+00258940,ZeroMaterial_0037B2C0::ZeroMaterial_0037B2C0,constructor
+00258970,ZeroMaterial_0037B2C0::ZeroMaterial_0037B2C0,constructor
+00258A50,ZeroMaterial_0037B320::ZeroMaterial_0037B320,constructor
+00258A90,ZeroMaterial_0037B320::ZeroMaterial_0037B320,constructor
+00258B70,ZeroMaterial_0037B380::ZeroMaterial_0037B380,constructor
+00258CC0,ZeroMaterial_0037B3E0::ZeroMaterial_0037B3E0,constructor
+00258E20,ZeroMaterial_0037B440::ZeroMaterial_0037B440,constructor
+00258F80,ZeroMaterial_0037B4A0::ZeroMaterial_0037B4A0,constructor
+00259140,ZeroMaterial_0037B500::ZeroMaterial_0037B500,constructor
+002592A0,ZeroMaterial_0037B560::ZeroMaterial_0037B560,constructor
+00259460,ZeroMaterial_0037B5C0::ZeroMaterial_0037B5C0,constructor
+002595C0,ZeroMaterial_0037B620::ZeroMaterial_0037B620,constructor
+00259720,ZeroMaterial_0037B680::ZeroMaterial_0037B680,constructor
+00259750,ZeroMaterial_0037B680::ZeroMaterial_0037B680,constructor
+0025B780,ZeroMaterial_0037B700::vf15,vtable slot 21 (0x54)
+0025B7B0,ZeroMaterial_0037B700::ZeroMaterial_0037B700,constructor
+0025B820,ZeroMaterial_0037B700::vf11,vtable slot 17 (0x44)
+0025B8B0,ZeroMaterial_0037B700::vf0F,vtable slot 15 (0x3C)
+0025B9A0,ZeroMaterial_0037B770::vf15,vtable slot 21 (0x54)
+0025B9C0,ZeroMaterial_0037B770::ZeroMaterial_0037B770,constructor
+0025BA30,ZeroMaterial_0037B770::vf11,vtable slot 17 (0x44)
+0025BAE0,ZeroMaterial_0037B770::vf0F,vtable slot 15 (0x3C)
+0025BB80,ZeroMaterial_0037B7E0::vf15,vtable slot 21 (0x54)
+0025BB90,ZeroMaterial_0037B7E0::ZeroMaterial_0037B7E0,constructor
+0025BC00,ZeroMaterial_0037B7E0::vf11,vtable slot 17 (0x44)
+0025BCC0,ZeroMaterial_0037B7E0::vf0F,vtable slot 15 (0x3C)
+0025C230,ZeroMaterial_0037B858::vf15,vtable slot 21 (0x54)
+0025C250,ZeroMaterial_0037B858::ZeroMaterial_0037B858,constructor
+0025C2C0,ZeroMaterial_0037B858::vf11,vtable slot 17 (0x44)
+0025C380,ZeroMaterial_0037B858::vf0F,vtable slot 15 (0x3C)
+0025C4C0,ZeroMaterial_0037B8C8::vf15,vtable slot 21 (0x54)
+0025C4D0,ZeroMaterial_0037B8C8::ZeroMaterial_0037B8C8,constructor
+0025C5B0,ZeroMaterial_0037B8C8::vf11,vtable slot 17 (0x44)
+0025C670,ZeroMaterial_0037B8C8::vf0F,vtable slot 15 (0x3C)
+0025C7F0,ZeroMaterial_0037B940::ZeroMaterial_0037B940,constructor
+0025C860,ZeroMaterial_0037B940::vf11,vtable slot 17 (0x44)
+0025C930,ZeroMaterial_0037B940::vf0F,vtable slot 15 (0x3C)
+0025C9C0,ZeroMaterial_0037B9B8::ZeroMaterial_0037B9B8,constructor
+0025CA30,ZeroMaterial_0037B9B8::vf11,vtable slot 17 (0x44)
+0025CB00,ZeroMaterial_0037B9B8::vf0F,vtable slot 15 (0x3C)
+0025CBD0,ZeroMaterial_0037BA30::vf15,vtable slot 21 (0x54)
+0025CBF0,ZeroMaterial_0037BA30::ZeroMaterial_0037BA30,constructor
+0025CC60,ZeroMaterial_0037BA30::vf11,vtable slot 17 (0x44)
+0025CD10,ZeroMaterial_0037BA30::vf0F,vtable slot 15 (0x3C)
+0025CDA0,ZeroMaterial_0037BAA0::vf15,vtable slot 21 (0x54)
+0025CDB0,ZeroMaterial_0037BAA0::ZeroMaterial_0037BAA0,constructor
+0025CE20,ZeroMaterial_0037BAA0::vf11,vtable slot 17 (0x44)
+0025CED0,ZeroMaterial_0037BAA0::vf0F,vtable slot 15 (0x3C)
+0025D0A0,ZeroMaterial_0037BB18::vf15,vtable slot 21 (0x54)
+0025D0C0,ZeroMaterial_0037BB18::ZeroMaterial_0037BB18,constructor
+0025D130,ZeroMaterial_0037BB18::vf11,vtable slot 17 (0x44)
+0025D1E0,ZeroMaterial_0037BB18::vf0F,vtable slot 15 (0x3C)
+0025D3D0,ZeroMaterial_0037BB88::ZeroMaterial_0037BB88,constructor
+0025D440,ZeroMaterial_0037BB88::vf11,vtable slot 17 (0x44)
+0025D510,ZeroMaterial_0037BB88::vf0F,vtable slot 15 (0x3C)
+0025D6B0,ZeroMaterial_0037BC00::ZeroMaterial_0037BC00,constructor
+0025D720,ZeroMaterial_0037BC00::vf11,vtable slot 17 (0x44)
+0025D790,ZeroMaterial_0037BC00::vf0F,vtable slot 15 (0x3C)
+0025DA90,ZeroMaterial_0037BC70::vf15,vtable slot 21 (0x54)
+0025DAB0,ZeroMaterial_0037BC70::ZeroMaterial_0037BC70,constructor
+0025DB20,ZeroMaterial_0037BC70::vf11,vtable slot 17 (0x44)
+0025DBB0,ZeroMaterial_0037BC70::vf0F,vtable slot 15 (0x3C)
+0025E580,ZeroMaterial_0037B8C8::vf06,vtable slot 6 (0x18)
+0025E640,ZeroMaterial_0037B858::vf06,vtable slot 6 (0x18)
+0025E700,ZeroMaterial_0037B700::vf06,vtable slot 6 (0x18)
+0025E7C0,ZeroMaterial_0037B770::vf06,vtable slot 6 (0x18)
+0025E880,ZeroMaterial_0037B7E0::vf06,vtable slot 6 (0x18)
+0025E940,ZeroMaterial_0037B940::vf06,vtable slot 6 (0x18)
+0025EA00,ZeroMaterial_0037B9B8::vf06,vtable slot 6 (0x18)
+0025EAC0,ZeroMaterial_0037BA30::vf06,vtable slot 6 (0x18)
+0025EB80,ZeroMaterial_0037BAA0::vf06,vtable slot 6 (0x18)
+0025EC40,ZeroMaterial_0037BB18::vf06,vtable slot 6 (0x18)
+0025ED00,ZeroMaterial_0037BB88::vf06,vtable slot 6 (0x18)
+0025EDC0,ZeroMaterial_0037BC00::vf06,vtable slot 6 (0x18)
+0025EEA0,ZeroMaterial_0037BC70::vf06,vtable slot 6 (0x18)
+0025EF60,ZeroSpriteCache_0037BD5C::ZeroSpriteCache_0037BD5C,constructor
+0025EF90,ZeroSpriteCache_0037BD5C::Construct_25EF90,installs the class vtable (constructor or destructor variant)
+0025EFA0,ZeroSpriteCache_0037BD5C::vf00,vtable slot 0 (0x0)
+0025EFE0,ZeroSpriteCache_0037BD5C::vf09,vtable slot 9 (0x24)
+0025F070,ZeroSpriteCache_0037BD5C::vf0B,vtable slot 11 (0x2C)
+0025FA30,ZeroSpriteCache_0037BD5C::vf0A,vtable slot 10 (0x28)
+0025FA70,ZeroSpriteCache_0037BD5C::vf08,vtable slot 8 (0x20)
+002600A0,xboxVertexBuffer::xboxVertexBuffer,constructor
+00260140,xboxVertexBuffer::GetTypeHash,returns the type name hash
+00260150,Class_00334C24::Construct_260150,installs the class vtable (constructor or destructor variant)
+00260610,xboxVertexBuffer_0037BDD0::vf00,vtable slot 0 (0x0)
+00260650,xboxVertexBuffer_0037BDD0::Construct_260650,installs the class vtable (constructor or destructor variant)
+002606E0,xboxIndexBuffer::xboxIndexBuffer,constructor
+00260750,xboxIndexBuffer::GetTypeHash,returns the type name hash
+00260760,Class_00334C24::Construct_260760,installs the class vtable (constructor or destructor variant)
+00260AF0,xboxIndexBuffer_0037BE1C::vf00,vtable slot 0 (0x0)
+00260B30,xboxIndexBuffer_0037BE1C::Construct_260B30,installs the class vtable (constructor or destructor variant)
+00260C00,xboxUserVertexShader_0037C080::vf09,vtable slot 9 (0x24)
+00260C10,xboxVertexShader::xboxVertexShader,constructor
+00260C40,xboxVertexShader::vf01,vtable slot 1 (0x4)
+00260C70,xboxVertexShader::GetTypeHash,returns the type name hash
+00260CB0,xboxUserVertexShader::GetTypeHash,returns the type name hash
+00260CC0,Class_00334C24::Construct_260CC0,installs the class vtable (constructor or destructor variant)
+00260D30,xboxUserVertexShader::xboxUserVertexShader,constructor
+00260D50,xboxUserVertexShader::Construct_260D50,installs the class vtable (constructor or destructor variant)
+00260FF0,xboxUserVertexShader_0037BF90::xboxUserVertexShader_0037BF90,constructor
+002610A0,xboxUserVertexShader_0037BF90::vf09,vtable slot 9 (0x24)
+00261140,xboxUserVertexShader_0037BFD0::xboxUserVertexShader_0037BFD0,constructor
+00261200,xboxUserVertexShader_0037BFD0::vf09,vtable slot 9 (0x24)
+00261400,xboxUserVertexShader_0037C010::xboxUserVertexShader_0037C010,constructor
+002614C0,xboxUserVertexShader_0037C010::vf09,vtable slot 9 (0x24)
+00261760,xboxUserVertexShader_0037C048::xboxUserVertexShader_0037C048,constructor
+00261820,xboxUserVertexShader_0037C080::xboxUserVertexShader_0037C080,constructor
+00261910,xboxUserVertexShader_0037C0BC::xboxUserVertexShader_0037C0BC,constructor
+002619C0,xboxUserVertexShader_0037C0BC::vf09,vtable slot 9 (0x24)
+00261A10,xboxUserVertexShader_0037C0F4::xboxUserVertexShader_0037C0F4,constructor
+00261AD0,xboxUserVertexShader_0037C0F4::vf09,vtable slot 9 (0x24)
+00261D30,xboxUserVertexShader_0037C130::xboxUserVertexShader_0037C130,constructor
+00261DF0,xboxUserVertexShader_0037C130::vf09,vtable slot 9 (0x24)
+00262420,xboxUserVertexShader_0037C048::vf09,vtable slot 9 (0x24)
+0028A7A0,ZeroObject_00380040::ZeroObject_00380040,constructor
+0028A7D0,ZeroObject_00380040::Construct_28A7D0,installs the class vtable (constructor or destructor variant)
+0028A7E0,ZeroObject_00380040::ZeroObject_00380040,constructor
+0028A860,ZeroObject_00380040::vf08,vtable slot 8 (0x20)
+0028A870,ZeroObject_00380040::vf00,vtable slot 0 (0x0)
+0028A890,ZeroObject_00380040::ZeroObject_00380040,constructor

@@ -2,6 +2,7 @@
 
 #include "Kernel.h"
 #include "Log.h"
+#include "game/GameSymbols.h"
 
 #include <cstring>
 #include <intrin.h>
@@ -75,7 +76,7 @@ void installXapiHooks() {
     hookFunction(0x00273A60, reinterpret_cast<const void*>(&xVoiceCodecCpuCheck), "VoiceCodecCpuCheck");
     hookFunction(0x002A32A7, reinterpret_cast<const void*>(&xXNetStartup), "XNetStartup");
     hookFunction(0x002A32BE, reinterpret_cast<const void*>(&xWSAStartup), "WSAStartup");
-    hookFunction(0x002B53CE, reinterpret_cast<const void*>(&xXOnlineReadCachedRecord), "XOnlineReadCachedRecord");
+    hookFunction(reinterpret_cast<std::uint32_t>(game::XOnline_ReadCachedRecord), reinterpret_cast<const void*>(&xXOnlineReadCachedRecord), "XOnlineReadCachedRecord");
     hookFunction(0x00160DE9, reinterpret_cast<const void*>(&xQueryPerformanceFrequency), "QueryPerformanceFrequency");
 }
 
