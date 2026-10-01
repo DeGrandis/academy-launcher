@@ -709,6 +709,49 @@ float widescreenHudCorrection(const std::uint8_t* source, UINT count, UINT strid
     return kScale;
 }
 
+// True while the current draw is a list of quads (or a single 4-vertex strip/fan), as text and HUD sprites are.
+bool g_quadPrimitive = false;
+
+// Scaled-up 2D sprites (font glyphs, HUD pieces) sample their atlas with bilinear filtering; at the quad edges that
+// blends in texels of the neighbouring glyph, which shows as thin bars between letters. At native resolution the
+// screen pixels line up with texels and nothing bleeds, so pull each quad's texture rectangle in by the part of a
+// texel that the larger output exposes: 0.5 * (1 - 1/scale) texels per edge (0 at 1x).
+void insetQuadTexCoords(UINT count, UINT stride, const FvfLayout& layout, const UINT textureSizes[4][2], float hudScale) {
+    const float scaleX = g_targetScaleX * hudScale;
+    const float scaleY = g_targetScaleY;
+    if (scaleX <= 1.01f && scaleY <= 1.01f) {
+        return;
+    }
+    for (DWORD stage = 0; stage < 4; ++stage) {
+        if (g_textures[stage] == nullptr || (g_texCoordIndex[stage] & 0xFFFF0000) != 0) {
+            continue;
+        }
+        const DWORD set = g_texCoordIndex[stage] & 0xFFFF;
+        if (set >= layout.texCount || layout.texComponents[set] < 2 || textureSizes[stage][0] == 0 || textureSizes[stage][1] == 0) {
+            continue;
+        }
+        const float insetU = scaleX > 1.0f ? 0.5f * (1.0f - 1.0f / scaleX) / static_cast<float>(textureSizes[stage][0]) : 0.0f;
+        const float insetV = scaleY > 1.0f ? 0.5f * (1.0f - 1.0f / scaleY) / static_cast<float>(textureSizes[stage][1]) : 0.0f;
+        for (UINT quad = 0; quad + 3 < count; quad += 4) {
+            float* uv[4];
+            float minU = 1e30f, maxU = -1e30f, minV = 1e30f, maxV = -1e30f;
+            for (UINT corner = 0; corner < 4; ++corner) {
+                uv[corner] = reinterpret_cast<float*>(g_vertexScratch.data() + static_cast<std::size_t>(quad + corner) * stride + layout.texOffset[set]);
+                minU = std::min(minU, uv[corner][0]);
+                maxU = std::max(maxU, uv[corner][0]);
+                minV = std::min(minV, uv[corner][1]);
+                maxV = std::max(maxV, uv[corner][1]);
+            }
+            const float du = std::min(insetU, (maxU - minU) * 0.25f);
+            const float dv = std::min(insetV, (maxV - minV) * 0.25f);
+            for (UINT corner = 0; corner < 4; ++corner) {
+                uv[corner][0] += uv[corner][0] <= minU ? du : uv[corner][0] >= maxU ? -du : 0.0f;
+                uv[corner][1] += uv[corner][1] <= minV ? dv : uv[corner][1] >= maxV ? -dv : 0.0f;
+            }
+        }
+    }
+}
+
 // Copies vertices when Xbox-only conventions must be rewritten: screen-space Z and texel-space coordinates.
 const std::uint8_t* adjustVertices(const std::uint8_t* source, UINT count, UINT stride, const FvfLayout& layout,
     const bool linearTextures[4], const UINT textureSizes[4][2]) {
@@ -749,6 +792,9 @@ const std::uint8_t* adjustVertices(const std::uint8_t* source, UINT count, UINT 
                 uv[1] *= scale[set][1];
             }
         }
+    }
+    if (layout.pretransformed && g_quadPrimitive && count % 4 == 0) {
+        insetQuadTexCoords(count, stride, layout, textureSizes, hudScale);
     }
     return g_vertexScratch.data();
 }
@@ -1184,7 +1230,13 @@ void __stdcall xDrawVertices(DWORD primitive, UINT startVertex, UINT vertexCount
     bool quads;
     const std::uint8_t* vertices = nullptr;
     UINT stride = 0;
-    if (!hostPrimitive(primitive, vertexCount, type, primitiveCount, quads) || !prepareDraw(startVertex, vertexCount, vertices, stride)) {
+    if (!hostPrimitive(primitive, vertexCount, type, primitiveCount, quads)) {
+        return;
+    }
+    g_quadPrimitive = quads || (vertexCount == 4 && (type == D3DPT_TRIANGLESTRIP || type == D3DPT_TRIANGLEFAN));
+    const bool prepared = prepareDraw(startVertex, vertexCount, vertices, stride);
+    g_quadPrimitive = false;
+    if (!prepared) {
         return;
     }
     if (quads) {

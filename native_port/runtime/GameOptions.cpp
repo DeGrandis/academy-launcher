@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <iterator>
 
 namespace cw::options {
@@ -17,7 +18,10 @@ constexpr std::uint32_t kSkySetVisibilityRange = 0x000BBB20;  // void __cdecl(fl
 constexpr std::uint32_t kSkySetFogRange = 0x000BBB70;         // void __cdecl(float start, float end)
 constexpr float kSteps[] = {1.0f, 1.5f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 12.0f, 16.0f};
 
+constexpr std::uint32_t kConfigGetInt = 0x00226B80;          // int __cdecl(const char* name, int fallback)
+
 void(__cdecl* g_setVisibilityRange)(float) = nullptr;
+int(__cdecl* g_configGetInt)(const char*, int) = nullptr;
 void(__cdecl* g_setFogRange)(float, float) = nullptr;
 float g_multiplier = 1.0f;
 bool g_pending = false;
@@ -41,6 +45,16 @@ void __cdecl setFogRange(float start, float end) {
     g_setFogRange(start * g_multiplier, end * g_multiplier);
 }
 
+// With a mod overlay, level caches (Bins/<map>odf.bin, anm.bin) would be recorded on the first load and replayed in
+// the same order afterwards; any change in what loads (another vehicle, a changed mod) desynchronizes the replay and
+// crashes. config.ini's doBatch turns the caches on; report it as off so every file loads from data.zwp.
+int __cdecl configGetInt(const char* name, int fallback) {
+    if (name != nullptr && std::strcmp(name, "doBatch") == 0 && std::getenv("CW_MOD_ROOT") != nullptr) {
+        return 0;
+    }
+    return g_configGetInt(name, fallback);
+}
+
 } // namespace
 
 void install() {
@@ -51,6 +65,7 @@ void install() {
         "Sky_SetVisibilityRange (view distance)");
     hooks::detour(kSkySetFogRange, reinterpret_cast<const void*>(&setFogRange), reinterpret_cast<void**>(&g_setFogRange),
         "Sky_SetFogRange (view distance)");
+    hooks::detour(kConfigGetInt, reinterpret_cast<const void*>(&configGetInt), reinterpret_cast<void**>(&g_configGetInt), "Config_GetInt (no level caches with mods)");
     logf("options: view distance x%g", g_multiplier);
 }
 
