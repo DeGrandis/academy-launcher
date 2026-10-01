@@ -1,0 +1,60 @@
+cmake_minimum_required(VERSION 3.25)
+
+project(CloneWarsNativePort LANGUAGES CXX)
+
+if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+    message(FATAL_ERROR "The Xbox game code is 32-bit x86; configure with -A Win32.")
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CW_GAME_ROOT "${CMAKE_SOURCE_DIR}/../extracted_iso" CACHE PATH "Directory containing the extracted game files (default.xbe, data.zwp)")
+set(CW_OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin")
+
+foreach(config IN ITEMS "" _DEBUG _RELEASE _RELWITHDEBINFO _MINSIZEREL)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY${config} "${CW_OUTPUT_DIR}")
+endforeach()
+
+# C4100: kernel/HLE entry points must keep the Xbox ABI signature even when a parameter is unused.
+add_compile_options(/W4 /permissive- /utf-8 /wd4100)
+add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX _CRT_SECURE_NO_WARNINGS)
+
+add_executable(xbe2exe tools/xbe2exe/main.cpp)
+
+add_library(cw_runtime SHARED
+    runtime/d3d/Device.cpp
+    runtime/d3d/Textures.cpp
+    runtime/d3d/PixelShader.cpp
+    runtime/d3d/VertexShader.cpp
+    runtime/Hle.cpp
+    runtime/HleAudio.cpp
+    runtime/HleInput.cpp
+    runtime/HleXapi.cpp
+    runtime/Kernel.cpp
+    runtime/KernelCrypto.cpp
+    runtime/KernelFile.cpp
+    runtime/KernelMemory.cpp
+    runtime/KernelSync.cpp
+    runtime/KernelSystem.cpp
+    runtime/Log.cpp
+    runtime/Runtime.cpp
+    runtime/Threads.cpp
+    runtime/Trace.cpp
+)
+target_include_directories(cw_runtime PRIVATE runtime)
+target_link_libraries(cw_runtime PRIVATE ntdll d3d9 d3dcompiler Xinput9_1_0 winmm)
+target_link_options(cw_runtime PRIVATE /SAFESEH:NO)
+
+set(CW_GAME_EXE "${CW_OUTPUT_DIR}/clone_wars.exe")
+add_custom_command(
+    OUTPUT "${CW_GAME_EXE}"
+    COMMAND xbe2exe "${CW_GAME_ROOT}/default.xbe" "${CW_GAME_EXE}"
+    DEPENDS xbe2exe "${CW_GAME_ROOT}/default.xbe"
+    COMMENT "Converting default.xbe into clone_wars.exe"
+    VERBATIM
+)
+add_custom_target(clone_wars ALL DEPENDS "${CW_GAME_EXE}" cw_runtime)
+
+file(WRITE "${CW_OUTPUT_DIR}/game_root.txt" "${CW_GAME_ROOT}\n")

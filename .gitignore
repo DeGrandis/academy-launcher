@@ -1,0 +1,21 @@
+# Original game and console files (copyrighted; supply your own)
+/original_iso/
+/extracted_iso/
+/BIOS/
+/Boot ROM Image/
+*.qcow2
+
+# Ghidra database (binary, large); names and types are kept as text under symbols/
+/ghidra_projects/
+
+# Regenerable analysis dumps
+/analysis_exports/
+
+# Build output and runtime artifacts
+native_port/build*/
+native_port/out*/
+*.log
+*.bmp
+screenshot_*.png
+tests/results/
+__pycache__/
