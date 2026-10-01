@@ -63,7 +63,8 @@ DWORD g_packetNumber = 0;
 XboxGamepad g_lastState{};
 
 // CW_INPUT_SCRIPT="ms:button[:holdms],..." presses a button at each time offset, for 150 ms unless a hold time is given.
-// Buttons: start, back, a, b, x, y, black, white, lt, rt, up, down, left, right (d-pad), lup, ldown, lleft, lright (left stick).
+// Buttons: start, back, a, b, x, y, black, white, lt, rt, up, down, left, right (d-pad), lup, ldown, lleft, lright (left stick),
+// rup, rdown, rleft, rright (right stick), lthumb, rthumb (stick clicks).
 void applyScriptedInput(XboxGamepad& pad) {
     static const std::string script = [] {
         const char* value = std::getenv("CW_INPUT_SCRIPT");
@@ -103,6 +104,12 @@ void applyScriptedInput(XboxGamepad& pad) {
                 else if (button == "ldown") pad.thumbLY = -32768;
                 else if (button == "lleft") pad.thumbLX = -32768;
                 else if (button == "lright") pad.thumbLX = 32767;
+                else if (button == "rup") pad.thumbRY = 32767;
+                else if (button == "rdown") pad.thumbRY = -32768;
+                else if (button == "rleft") pad.thumbRX = -32768;
+                else if (button == "rright") pad.thumbRX = 32767;
+                else if (button == "lthumb") pad.buttons |= kLeftThumb;
+                else if (button == "rthumb") pad.buttons |= kRightThumb;
             }
         }
         position = end + 1;

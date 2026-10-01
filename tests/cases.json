@@ -242,7 +242,8 @@
         ]
       },
       "log_regex": [
-        "academy_tweaks: player health 3500 -> 7000"
+        "academy_tweaks: player health 3500 -> 7000",
+        "academy_vehicles: player flyer taking off"
       ],
       "screenshots": [
         1400
