@@ -110,6 +110,13 @@ inline const auto Mp_FindPlayerForCharacter = reinterpret_cast<int(__cdecl*)(int
 inline uint8_t* const g_profiles = reinterpret_cast<uint8_t*>(0x005EB9D8);  // 6 save profiles of 0x13C bytes; +0x130 bonus unlock mask
 inline int8_t* const g_currentProfile = reinterpret_cast<int8_t*>(0x005EC004);
 inline uint8_t* const g_bonusObjectivesRequired = reinterpret_cast<uint8_t*>(0x003FABC8);  // [33] objectives needed per bonus id (from Bonus.cfg)
+inline const auto Sky_SetVisibilityRange = reinterpret_cast<void(__cdecl*)(float range)>(0x000BBB20);  // far clip plane + stored range (object culling; sky dome scale); hooked for CW_VIEW_DISTANCE
+inline const auto Sky_SetFogRange = reinterpret_cast<void(__cdecl*)(float start, float end)>(0x000BBB70);  // hooked for CW_VIEW_DISTANCE
+constexpr std::uint32_t Sky_LoadInfo = 0x000BBD20;  // parses SkyInfo() from <map>.sky
+constexpr std::uint32_t Sky_WriteInfo = 0x000BB9C0;  // writes SkyInfo() text
+inline float* const g_skyFogStart = reinterpret_cast<float*>(0x004AE3FC);
+inline float* const g_skyFogEnd = reinterpret_cast<float*>(0x004AE400);
+inline float* const g_skyVisibilityRange = reinterpret_cast<float*>(0x004AE404);
 
 // ---- Generated addresses (symbols/auto)
 namespace addr {

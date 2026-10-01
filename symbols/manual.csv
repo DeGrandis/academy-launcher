@@ -103,3 +103,10 @@ function,00072CB0,Mp_FindPlayerForCharacter,int __cdecl(int slot; unsigned char 
 global,005EB9D8,g_profiles,uint8_t,6 save profiles of 0x13C bytes; +0x130 bonus unlock mask
 global,005EC004,g_currentProfile,int8_t,
 global,003FABC8,g_bonusObjectivesRequired,uint8_t,[33] objectives needed per bonus id (from Bonus.cfg)
+function,000BBB20,Sky_SetVisibilityRange,void __cdecl(float range),far clip plane + stored range (object culling; sky dome scale); hooked for CW_VIEW_DISTANCE
+function,000BBB70,Sky_SetFogRange,void __cdecl(float start; float end),hooked for CW_VIEW_DISTANCE
+function,000BBD20,Sky_LoadInfo,,parses SkyInfo() from <map>.sky
+function,000BB9C0,Sky_WriteInfo,,writes SkyInfo() text
+global,004AE3FC,g_skyFogStart,float,
+global,004AE400,g_skyFogEnd,float,
+global,004AE404,g_skyVisibilityRange,float,

@@ -1,3 +1,4 @@
+#include "GameOptions.h"
 #include "Hle.h"
 #include "Kernel.h"
 #include "Log.h"
@@ -154,6 +155,7 @@ extern "C" __declspec(dllexport) void __cdecl CwRun() {
     cw::kernel::installThunks(reinterpret_cast<std::uint32_t*>(static_cast<std::uintptr_t>(thunkTable)));
     cw::threads::patchSegmentAccesses();
     cw::hle::installHooks();
+    cw::options::install();
     cw::mods::loadPlugins(gameRoot, exeDirectory);
     cw::trace::installFromEnvironment();
     if (const char* exitAfter = std::getenv("CW_EXIT_MS")) {

@@ -300,6 +300,47 @@
       "screenshots": [
         2400
       ]
+    },
+    {
+      "name": "thule_academy_view_distance",
+      "route": "thule_academy",
+      "seconds": 45,
+      "env": {
+        "CW_AUDIO": "0",
+        "CW_VIEW_DISTANCE": "4",
+        "CW_HOTKEY_SCRIPT": "40000:f8,41000:f7"
+      },
+      "watch": {
+        "screen": "38f7a8",
+        "fog_start": "4ae3fc:f",
+        "fog_end": "4ae400:f",
+        "visibility": "4ae404:f"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ],
+        "fog_start": [
+          "==",
+          2800
+        ],
+        "fog_end": [
+          "==",
+          3560
+        ],
+        "visibility": [
+          "==",
+          3600
+        ]
+      },
+      "log_contains": [
+        "view distance -> x6",
+        "view distance -> x4"
+      ],
+      "screenshots": [
+        2300
+      ]
     }
   ]
 }

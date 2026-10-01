@@ -39,6 +39,7 @@ add_library(cw_runtime SHARED
     runtime/d3d/PixelShader.cpp
     runtime/d3d/VertexShader.cpp
     runtime/Hle.cpp
+    runtime/GameOptions.cpp
     runtime/HleAudio.cpp
     runtime/HleInput.cpp
     runtime/HleXapi.cpp

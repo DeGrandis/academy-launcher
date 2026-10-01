@@ -2,6 +2,7 @@
 #include "d3d/PixelShader.h"
 #include "d3d/VertexShader.h"
 
+#include "GameOptions.h"
 #include "Hle.h"
 #include "Log.h"
 
@@ -406,7 +407,7 @@ void toggleBorderless() {
 
 void resizeHost();
 
-// CW_HOTKEY_SCRIPT="ms:f9,ms:f11" presses window hotkeys at time offsets (for automated tests of live switching).
+// CW_HOTKEY_SCRIPT="ms:f9,ms:f11" (also f7, f8) presses window hotkeys at time offsets (for automated tests of live switching).
 void postScriptedHotkeys() {
     static const std::string script = [] {
         const char* value = std::getenv("CW_HOTKEY_SCRIPT");
@@ -426,7 +427,8 @@ void postScriptedHotkeys() {
             return;
         }
         const std::string key = item.substr(colon + 1);
-        PostMessageW(g_window, WM_KEYDOWN, key == "f11" ? VK_F11 : VK_F9, 0);
+        const WPARAM code = key == "f11" ? VK_F11 : key == "f7" ? VK_F7 : key == "f8" ? VK_F8 : VK_F9;
+        PostMessageW(g_window, WM_KEYDOWN, code, 0);
         next = end + 1;
     }
 }
@@ -437,6 +439,10 @@ LRESULT CALLBACK windowProc(HWND window, UINT message, WPARAM wParam, LPARAM lPa
     if (message == WM_CLOSE) {
         logf("window closed; exiting");
         ExitProcess(0);
+    }
+    if (message == WM_KEYDOWN && (wParam == VK_F7 || wParam == VK_F8)) {
+        options::stepViewDistance(wParam == VK_F8 ? 1 : -1);
+        return 0;
     }
     if (message == WM_KEYDOWN && wParam == VK_F9) {
         cycleResolution();
@@ -1084,6 +1090,7 @@ DWORD __stdcall xSwap(DWORD flags) {
         g_resetPending = false;
         resizeHost();
     }
+    options::applyPending();
     g_device->BeginScene();
     if (g_frame % 300 == 0) {
         logf("d3d: frame %lu (%lu draws)", g_frame, g_drawsThisFrame);
