@@ -48,6 +48,24 @@ The original menus have no pointer support, so a mouse click acts as A on the hi
 - Online and system link are disabled.
 - Xbox vertex shaders (NV2A microcode) and pixel shaders (register combiners) are translated to HLSL at runtime; a few rare texture modes are approximated.
 
+## Modding
+
+Game data lives in `data.zwp` (a zlib archive of ODF definitions, meshes, textures, worlds, effects and scripts); see `tools/zwp/zwp.py` for the format.
+
+```powershell
+python tools/zwp/zwp.py extract extracted_iso/data.zwp work/data          # unpack all 5066 files
+python tools/zwp/zwp.py list extracted_iso/data.zwp thule                  # search entries
+python tools/zwp/zwp.py reads extracted_iso/data.zwp <cw_runtime.log>     # entries a run loaded
+python tools/build_mod.py example_academy_ammo                            # build mods/<name> into work/mod_root/<name>
+$env:CW_MOD_ROOT = "work/mod_root/example_academy_ammo"; native_port/build-x86/bin/clone_wars.exe
+```
+
+A mod is a folder under `mods/` with `data/` (files that replace or add `data.zwp` entries) and/or `files/` (loose files on the game disc). `CW_MOD_ROOT` overlays the built folder on the game files without changing them.
+
+Levels keep caches in `Bins/` (`<map>fil.bin`, `<map>odf.bin`, `<map>anm.bin`). The game replays a level's cache when it exists and records a new one from `data.zwp` when it does not, so a mod gets its own empty `Bins/` and records caches on first load.
+
+Thule Moon Academy is world `multi5` (caches `mul5*.bin`); its player tank is `rep_tank_fighter1_player.odf`. `work/thule_academy_reads.txt` lists everything it loads (regenerate with `zwp.py reads`).
+
 ## Tests
 
 ```powershell

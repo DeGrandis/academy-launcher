@@ -52,6 +52,10 @@ def run_case(case, routes):
         script += "," + case["extra_input"]
 
     env = dict(os.environ)
+    if case.get("mods"):
+        # Build the mods fresh so the run records its own level caches.
+        subprocess.run([sys.executable, str(ROOT / "tools" / "build_mod.py"), *case["mods"]], check=True, stdout=subprocess.DEVNULL)
+        env["CW_MOD_ROOT"] = str(ROOT / "work" / "mod_root" / "+".join(case["mods"]))
     env.update({
         "CW_FPS": "60",
         "CW_INPUT_SCRIPT": script,

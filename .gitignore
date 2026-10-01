@@ -19,3 +19,6 @@ native_port/out*/
 screenshot_*.png
 tests/results/
 __pycache__/
+
+# Extracted game data and modded archives (derived from the original files)
+/work/

@@ -21,7 +21,14 @@ struct Tracepoint {
     int hits = 0;
 };
 
-constexpr int kMaxHitsPerTracepoint = 8;
+// CW_TRACE_HITS overrides how many hits of each tracepoint are logged.
+int maxHitsPerTracepoint() {
+    static const int hits = [] {
+        const char* value = std::getenv("CW_TRACE_HITS");
+        return value == nullptr ? 8 : std::atoi(value);
+    }();
+    return hits;
+}
 std::mutex g_mutex;
 std::map<std::uintptr_t, Tracepoint> g_tracepoints;
 thread_local std::uintptr_t t_rearmAddress = 0;
@@ -142,7 +149,7 @@ bool handle(EXCEPTION_POINTERS* info) {
         context->Ebp, context->Esp, stack[0], stack[1], stack[2], stack[3], stack[4], stack[5]);
 
     writeByte(address, point.original);
-    if (++point.hits < kMaxHitsPerTracepoint) {
+    if (++point.hits < maxHitsPerTracepoint()) {
         t_rearmAddress = address;
         context->EFlags |= 0x100;
     }

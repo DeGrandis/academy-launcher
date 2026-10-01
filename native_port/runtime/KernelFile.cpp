@@ -4,6 +4,7 @@
 #include "Nt.h"
 
 #include <algorithm>
+#include <intrin.h>
 #include <cctype>
 #include <map>
 #include <mutex>
@@ -22,6 +23,8 @@ constexpr std::uintptr_t kSymlinkHandleBase = 0x7FF00000;
 
 std::filesystem::path g_gameRoot;
 std::filesystem::path g_hddRoot;
+// CW_MOD_ROOT: files here override same-named game files (for example a rebuilt data.zwp).
+std::filesystem::path g_modRoot;
 std::mutex g_linksMutex;
 std::map<std::string, std::string> g_symbolicLinks;
 std::map<std::uintptr_t, std::string> g_symlinkHandles;
@@ -77,6 +80,18 @@ bool mapDevicePath(const std::string& xboxPath, std::filesystem::path& hostPath)
             std::filesystem::create_directories(mapping.root, error);
         }
         hostPath = rest.empty() ? mapping.root : mapping.root / rest;
+        if (mapping.root == g_gameRoot && !g_modRoot.empty() && !rest.empty()) {
+            std::error_code error;
+            const std::filesystem::path modPath = g_modRoot / rest;
+            if (startsWithNoCase(rest, "Bins")) {
+                // Level caches (<map>fil.bin, <map>anm.bin) are recorded from data.zwp when missing, so a mod keeps
+                // its own: the original caches would replay unmodified assets.
+                std::filesystem::create_directories(g_modRoot / "Bins", error);
+                hostPath = modPath;
+            } else if (std::filesystem::exists(modPath, error)) {
+                hostPath = modPath;
+            }
+        }
         return true;
     }
     return false;
@@ -167,7 +182,8 @@ NTSTATUS __stdcall xNtCreateFile(PHANDLE fileHandle, ACCESS_MASK desiredAccess, 
     } else if (ioStatusBlock != nullptr) {
         ioStatusBlock->Status = status;
     }
-    logf("NtCreateFile('%s') -> 0x%08X", toString(objectAttributes->ObjectName).c_str(), status);
+    logf("NtCreateFile('%s') -> 0x%08X handle %p", toString(objectAttributes->ObjectName).c_str(), status,
+        status == kStatusSuccess ? *fileHandle : nullptr);
     return status;
 }
 
@@ -182,6 +198,17 @@ NTSTATUS __stdcall xNtReadFile(HANDLE fileHandle, HANDLE event, PVOID apcRoutine
     if (status < 0) {
         logf("NtReadFile(%p, len=%lu, offset=%lld) -> 0x%08X read=%lu", fileHandle, length,
             byteOffset != nullptr ? byteOffset->QuadPart : -1LL, status, static_cast<unsigned long>(ioStatusBlock->Information));
+        // Game code mostly omits frame pointers, so list return-address candidates from the stack instead.
+        const auto* stack = static_cast<const std::uint32_t*>(_AddressOfReturnAddress());
+        char candidates[256] = {};
+        int used = 0;
+        for (int index = 0, found = 0; index < 256 && found < 16; ++index) {
+            if (stack[index] > 0x11000 && stack[index] < 0x2A2E00) {
+                used += snprintf(candidates + used, sizeof(candidates) - used, " %08X", stack[index]);
+                ++found;
+            }
+        }
+        logf("  NtReadFile stack scan:%s", candidates);
     }
     return status;
 }
@@ -199,7 +226,11 @@ NTSTATUS __stdcall xNtQueryInformationFile(HANDLE fileHandle, IoStatusBlock* ioS
 
 NTSTATUS __stdcall xNtSetInformationFile(HANDLE fileHandle, IoStatusBlock* ioStatusBlock, PVOID information, ULONG length, ULONG informationClass) {
     const NTSTATUS status = NtSetInformationFile(fileHandle, ioStatusBlock, information, length, informationClass);
-    logf("NtSetInformationFile(%p, class=%lu) -> 0x%08X", fileHandle, informationClass, status);
+    if (informationClass == 14 && information != nullptr) {
+        logf("NtSetInformationFile(%p, position=%lld) -> 0x%08X", fileHandle, static_cast<const LARGE_INTEGER*>(information)->QuadPart, status);
+    } else {
+        logf("NtSetInformationFile(%p, class=%lu) -> 0x%08X", fileHandle, informationClass, status);
+    }
     return status;
 }
 
@@ -262,6 +293,37 @@ NTSTATUS __stdcall xNtFlushBuffersFile(HANDLE fileHandle, IoStatusBlock* ioStatu
     return NtFlushBuffersFile(fileHandle, ioStatusBlock);
 }
 
+// The game sizes files through directory listings (the CRT's stat), so a listed game file that the mod overlay
+// replaces must report the replacement's size and times. Files that exist only in the mod are not listed.
+void applyModOverlayToEntry(HANDLE directory, const std::string& name, nt::FileDirectoryInformation& entry) {
+    if (g_modRoot.empty()) {
+        return;
+    }
+    wchar_t buffer[MAX_PATH];
+    const DWORD length = GetFinalPathNameByHandleW(directory, buffer, MAX_PATH, FILE_NAME_NORMALIZED);
+    if (length == 0 || length >= MAX_PATH) {
+        return;
+    }
+    std::error_code error;
+    const std::filesystem::path directoryPath = std::filesystem::weakly_canonical(std::wstring(buffer, length), error);
+    const std::filesystem::path gameRoot = std::filesystem::weakly_canonical(g_gameRoot, error);
+    const std::filesystem::path relative = directoryPath.lexically_relative(gameRoot);
+    if (relative.empty() || *relative.begin() == "..") {
+        return;
+    }
+    const std::filesystem::path modFile = g_modRoot / relative / name;
+    WIN32_FILE_ATTRIBUTE_DATA data;
+    if (!GetFileAttributesExW(modFile.c_str(), GetFileExInfoStandard, &data) || (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+        return;
+    }
+    entry.EndOfFile.LowPart = data.nFileSizeLow;
+    entry.EndOfFile.HighPart = static_cast<LONG>(data.nFileSizeHigh);
+    entry.AllocationSize = entry.EndOfFile;
+    entry.LastWriteTime.LowPart = data.ftLastWriteTime.dwLowDateTime;
+    entry.LastWriteTime.HighPart = static_cast<LONG>(data.ftLastWriteTime.dwHighDateTime);
+    entry.ChangeTime = entry.LastWriteTime;
+}
+
 // Xbox directory entries carry ANSI names, so each NT entry is converted one at a time.
 NTSTATUS __stdcall xNtQueryDirectoryFile(HANDLE fileHandle, HANDLE event, PVOID apcRoutine, PVOID apcContext, IoStatusBlock* ioStatusBlock,
     PVOID information, ULONG length, ULONG informationClass, AnsiString* fileMask, BOOLEAN restartScan) {
@@ -291,6 +353,7 @@ NTSTATUS __stdcall xNtQueryDirectoryFile(HANDLE fileHandle, HANDLE event, PVOID 
         return kStatusBufferTooSmall;
     }
     std::memcpy(information, entry, headerSize);
+    applyModOverlayToEntry(fileHandle, name, *static_cast<nt::FileDirectoryInformation*>(information));
     auto* xboxEntry = static_cast<std::uint8_t*>(information);
     reinterpret_cast<nt::FileDirectoryInformation*>(xboxEntry)->NextEntryOffset = 0;
     reinterpret_cast<nt::FileDirectoryInformation*>(xboxEntry)->FileNameLength = static_cast<ULONG>(name.size());
@@ -392,6 +455,10 @@ void createSymbolicLink(const std::string& link, const std::string& target) {
 void registerFileExports(const std::filesystem::path& gameRoot, const std::filesystem::path& hddRoot) {
     g_gameRoot = gameRoot;
     g_hddRoot = hddRoot;
+    if (const char* modRoot = std::getenv("CW_MOD_ROOT")) {
+        g_modRoot = modRoot;
+        logf("files: mod overlay '%s'", modRoot);
+    }
     registerExport(67, reinterpret_cast<void*>(&xIoCreateSymbolicLink));
     registerExport(69, reinterpret_cast<void*>(&xIoDeleteSymbolicLink));
     registerExport(187, reinterpret_cast<void*>(&xNtClose));

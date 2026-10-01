@@ -9,9 +9,18 @@
       "name": "boot_to_main_menu",
       "route": "main_menu",
       "seconds": 20,
-      "watch": {"screen": "38f7a8"},
-      "expect": {"screen": ["==", 15]},
-      "screenshots": [1100]
+      "watch": {
+        "screen": "38f7a8"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          15
+        ]
+      },
+      "screenshots": [
+        1100
+      ]
     },
     {
       "name": "thule_academy_starts",
@@ -26,12 +35,64 @@
         "slot0_state": "5ec32c"
       },
       "expect": {
-        "screen": ["==", 4],
-        "xlive_error_pending": ["==", 0],
-        "pregame_timer": [">", 5],
-        "game_type": ["==", 3]
+        "screen": [
+          "==",
+          4
+        ],
+        "xlive_error_pending": [
+          "==",
+          0
+        ],
+        "pregame_timer": [
+          ">",
+          5
+        ],
+        "game_type": [
+          "==",
+          3
+        ]
       },
-      "screenshots": [2000, 2520, 2900]
+      "screenshots": [
+        2000,
+        2520,
+        2900
+      ]
+    },
+    {
+      "name": "thule_academy_mod_overlay",
+      "route": "thule_academy",
+      "seconds": 55,
+      "watch": {
+        "screen": "38f7a8",
+        "xlive_error_pending": "5a2860:b",
+        "pregame_timer": "41b884:f",
+        "game_type": "5ec010:b",
+        "slot0_state": "5ec32c"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ],
+        "xlive_error_pending": [
+          "==",
+          0
+        ],
+        "pregame_timer": [
+          ">",
+          5
+        ],
+        "game_type": [
+          "==",
+          3
+        ]
+      },
+      "screenshots": [
+        2400
+      ],
+      "mods": [
+        "example_academy_ammo"
+      ]
     }
   ]
 }
