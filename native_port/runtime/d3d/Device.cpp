@@ -7,6 +7,7 @@
 #include "Log.h"
 
 #include <timeapi.h>
+#include <intrin.h>
 
 #include <algorithm>
 #include <cmath>
@@ -670,6 +671,44 @@ FvfLayout parseFvf(DWORD fvf) {
 std::vector<std::uint8_t> g_vertexScratch;
 std::vector<WORD> g_indexScratch;
 
+// Widescreen: the game renders its 3D view for 16:9 but lays out 2D (HUD, text, menus) for a 4:3 screen, so the
+// display stretches every 2D element by 4/3. Each 2D draw is narrowed back to 4:3 proportions around an anchor:
+// in game, elements in the left / right third of the viewport keep their distance to that edge and the rest stay
+// centered; in menus everything is narrowed around the center. Full-width pieces (screen border, full-screen
+// images) are left as they are. CW_WIDESCREEN_HUD=stretch keeps the original stretched 2D.
+float widescreenHudCorrection(const std::uint8_t* source, UINT count, UINT stride, float& anchor) {
+    static const bool stretch = [] {
+        const char* value = std::getenv("CW_WIDESCREEN_HUD");
+        return value != nullptr && _stricmp(value, "stretch") == 0;
+    }();
+    if (!g_widescreen || stretch || count == 0) {
+        return 1.0f;
+    }
+    float minX = 1e30f;
+    float maxX = -1e30f;
+    for (UINT vertex = 0; vertex < count; ++vertex) {
+        const float x = reinterpret_cast<const float*>(source + static_cast<std::size_t>(vertex) * stride)[0];
+        minX = std::min(minX, x);
+        maxX = std::max(maxX, x);
+    }
+    const float left = static_cast<float>(g_viewport.X);
+    const float width = static_cast<float>(g_viewport.Width);
+    if (width <= 0.0f || maxX - minX > width * 0.85f) {
+        return 1.0f;
+    }
+    constexpr float kScale = (4.0f / 3.0f) / (16.0f / 9.0f);
+    const bool inGame = *reinterpret_cast<const std::int32_t*>(static_cast<std::uintptr_t>(0x0038F7A8)) == 4;  // g_shellState
+    const float center = (minX + maxX) * 0.5f;
+    if (inGame && center < left + width / 3.0f) {
+        anchor = left;
+    } else if (inGame && center > left + width * 2.0f / 3.0f) {
+        anchor = left + width;
+    } else {
+        anchor = left + width * 0.5f;
+    }
+    return kScale;
+}
+
 // Copies vertices when Xbox-only conventions must be rewritten: screen-space Z and texel-space coordinates.
 const std::uint8_t* adjustVertices(const std::uint8_t* source, UINT count, UINT stride, const FvfLayout& layout,
     const bool linearTextures[4], const UINT textureSizes[4][2]) {
@@ -690,10 +729,13 @@ const std::uint8_t* adjustVertices(const std::uint8_t* source, UINT count, UINT 
     }
 
     g_vertexScratch.assign(source, source + static_cast<std::size_t>(count) * stride);
+    float hudAnchor = 0.0f;
+    const float hudScale = layout.pretransformed ? widescreenHudCorrection(source, count, stride, hudAnchor) : 1.0f;
     for (UINT vertex = 0; vertex < count; ++vertex) {
         std::uint8_t* base = g_vertexScratch.data() + static_cast<std::size_t>(vertex) * stride;
         if (layout.pretransformed) {
             auto* position = reinterpret_cast<float*>(base);
+            position[0] = hudAnchor + (position[0] - hudAnchor) * hudScale;
             // Screen positions are in game pixels; map pixel centers onto the (larger) host target.
             position[0] = (position[0] + 0.5f) * g_targetScaleX - 0.5f;
             position[1] = (position[1] + 0.5f) * g_targetScaleY - 0.5f;
@@ -893,6 +935,28 @@ bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& st
     applyTextureStages(linear, sizes);
     bindPixelShader();
     stride = g_streams[0].stride;
+    if (logFrame != 0 && g_frame == logFrame && layout.pretransformed) {
+        const std::uint8_t* source = xboxPointer(g_streams[0].buffer->Data) + static_cast<std::size_t>(first) * stride;
+        float minX = 1e9f, maxX = -1e9f, minY = 1e9f, maxY = -1e9f;
+        for (UINT vertex = 0; vertex < count; ++vertex) {
+            const auto* position = reinterpret_cast<const float*>(source + static_cast<std::size_t>(vertex) * stride);
+            minX = std::min(minX, position[0]);
+            maxX = std::max(maxX, position[0]);
+            minY = std::min(minY, position[1]);
+            maxY = std::max(maxY, position[1]);
+        }
+        // Game call sites (return addresses into game code) to tell HUD code from world markers.
+        const auto* stack = static_cast<const std::uint32_t*>(_AddressOfReturnAddress());
+        char callers[256] = {};
+        int used = 0;
+        for (int index = 0, found = 0; index < 800 && found < 12; ++index) {
+            if (stack[index] > 0x11000 && stack[index] < 0x2A2E00) {
+                used += snprintf(callers + used, sizeof(callers) - used, " %08X", stack[index]);
+                ++found;
+            }
+        }
+        logf("draw:   2D bounds x %.1f..%.1f y %.1f..%.1f callers%s", minX, maxX, minY, maxY, callers);
+    }
     vertices = adjustVertices(xboxPointer(g_streams[0].buffer->Data) + static_cast<std::size_t>(first) * stride, count, stride, layout, linear, sizes);
     ++g_drawsThisFrame;
     return true;
