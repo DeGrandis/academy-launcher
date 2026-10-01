@@ -79,7 +79,7 @@ python tools/build_mod.py example_academy_ammo                            # buil
 $env:CW_MOD_ROOT = "work/mod_root/example_academy_ammo"; native_port/build-x86/bin/clone_wars.exe
 ```
 
-A mod is a folder under `mods/` with `data/` (files that replace or add `data.zwp` entries) and/or `files/` (loose files on the game disc). `CW_MOD_ROOT` overlays the built folder on the game files without changing them.
+A mod is a folder under `mods/` with any of: `data/` (files that replace or add `data.zwp` entries), `edits.json` (regex edits applied to original `data.zwp` entries, so the mod does not ship copies of game files), `files/` (loose files on the game disc) and `plugin/` (C++ plugin sources). `CW_MOD_ROOT` overlays the built folder on the game files without changing them.
 
 Levels keep caches in `Bins/` (`<map>fil.bin`, `<map>odf.bin`, `<map>anm.bin`). The game replays a level's cache when it exists and records a new one from `data.zwp` when it does not, so a mod gets its own empty `Bins/` and records caches on first load.
 
@@ -127,6 +127,10 @@ Thule Moon Academy is run by a mode script (`ThuleAcademyScript`, created for wo
 - `native_port/runtime/game/GameObjects.h`: typed views for plugins, `GameObject` (player object, position, orientation, team, health) and `ThuleAcademyScript` (current wave and group, wave tables, live enemies, loop count).
 - `symbols/manual.csv`: the Battlezone II-style script API the mode uses (`Script_BuildObjectAt`, `Script_Goto`, `Script_GetMaxHealth`, `Script_SetMaxHealth`, `Script_GetTime`, ...).
 - `mods/academy_tweaks`: example plugin that doubles the player's health and logs wave progress.
+
+## Unlocks
+
+Multiplayer maps/modes, extras and characters unlock through `Profile_IsBonusUnlocked`, a bit mask in the save profile (requirements come from `multiplayerbuttons.cfg` / `Bonus.cfg`). `mods/unlock_all` is a plugin that reports every bonus as unlocked without changing the save, which makes Geonosis Academy (the Jedi arena), Control Zone, Conquest and the bonus extras available.
 
 ## Tests
 

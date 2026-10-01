@@ -95,3 +95,11 @@ global,003968F8,g_thuleAcademyUnits,const char*,13 unit ODF names (index 0 = end
 global,00396938,g_thuleAcademySpawnPoints,const char*,33 spawn point names (enemyspawn1a..4h + BigGuyspawn)
 global,003969C0,g_thuleAcademyGotoPaths,const char*,
 global,00396A60,g_thuleAcademyEffectPaths,const char*,BonusPath/EndPath names
+function,001163B0,Profile_IsBonusUnlocked,bool __thiscall(void* profile; unsigned char bonusId),bit (id-1) of the profile's unlock mask at +0x130; ids above 32 are always unlocked
+function,001165C0,Profile_GetCurrent,void* __cdecl(),g_profiles + g_currentProfile * 0x13C
+function,00062A70,Bonus_LockedMessage,const char* __cdecl(unsigned char bonusId; float scale),"Complete N bonus objectives to unlock"
+function,00062BE0,Bonus_LoadConfig,void __cdecl(),reads Bonus.cfg (bonus items and objective counts)
+function,00072CB0,Mp_FindPlayerForCharacter,int __cdecl(int slot; unsigned char character),returns 9 when the character's bonus (id + 5) is locked
+global,005EB9D8,g_profiles,uint8_t,6 save profiles of 0x13C bytes; +0x130 bonus unlock mask
+global,005EC004,g_currentProfile,int8_t,
+global,003FABC8,g_bonusObjectivesRequired,uint8_t,[33] objectives needed per bonus id (from Bonus.cfg)

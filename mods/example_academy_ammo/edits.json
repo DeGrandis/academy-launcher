@@ -1,0 +1,3 @@
+[
+  {"file": "rep_tank_fighter1_player.odf", "find": "^maxAmmo = 20", "replace": "maxAmmo = 99", "count": 1}
+]

@@ -2,7 +2,8 @@
   "_comment": "Each case boots the game with scripted input (CW_INPUT_SCRIPT), runs for seconds, and checks the last CW_WATCH sample. Expectations: name -> [op, value] with op in ==, !=, <, <=, >, >=. Watch names map to addresses in 'watch'.",
   "routes": {
     "main_menu": "10000:start,13000:a",
-    "thule_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start"
+    "thule_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start",
+    "geonosis_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start"
   },
   "cases": [
     {
@@ -187,6 +188,37 @@
         "academy_tweaks: wave 1 \\(groups 6, level 1"
       ],
       "screenshots": []
+    },
+    {
+      "name": "geonosis_academy_unlocked",
+      "route": "geonosis_academy",
+      "seconds": 55,
+      "env": {
+        "CW_AUDIO": "0"
+      },
+      "mods": [
+        "unlock_all"
+      ],
+      "watch": {
+        "screen": "38f7a8",
+        "game_type": "5ec010:b"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ],
+        "game_type": [
+          "==",
+          3
+        ]
+      },
+      "log_contains": [
+        "unlock_all.dll at"
+      ],
+      "screenshots": [
+        3000
+      ]
     }
   ]
 }

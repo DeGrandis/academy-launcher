@@ -102,6 +102,14 @@ inline const char** const g_thuleAcademyUnits = reinterpret_cast<const char**>(0
 inline const char** const g_thuleAcademySpawnPoints = reinterpret_cast<const char**>(0x00396938);  // 33 spawn point names (enemyspawn1a..4h + BigGuyspawn)
 inline const char** const g_thuleAcademyGotoPaths = reinterpret_cast<const char**>(0x003969C0);
 inline const char** const g_thuleAcademyEffectPaths = reinterpret_cast<const char**>(0x00396A60);  // BonusPath/EndPath names
+inline const auto Profile_IsBonusUnlocked = reinterpret_cast<bool(__fastcall*)(void* profile, void* /*edx*/, unsigned char bonusId)>(0x001163B0);  // bit (id-1) of the profile's unlock mask at +0x130; ids above 32 are always unlocked
+inline const auto Profile_GetCurrent = reinterpret_cast<void*(__cdecl*)()>(0x001165C0);  // g_profiles + g_currentProfile * 0x13C
+inline const auto Bonus_LockedMessage = reinterpret_cast<const char*(__cdecl*)(unsigned char bonusId, float scale)>(0x00062A70);  // Complete N bonus objectives to unlock
+inline const auto Bonus_LoadConfig = reinterpret_cast<void(__cdecl*)()>(0x00062BE0);  // reads Bonus.cfg (bonus items and objective counts)
+inline const auto Mp_FindPlayerForCharacter = reinterpret_cast<int(__cdecl*)(int slot, unsigned char character)>(0x00072CB0);  // returns 9 when the character's bonus (id + 5) is locked
+inline uint8_t* const g_profiles = reinterpret_cast<uint8_t*>(0x005EB9D8);  // 6 save profiles of 0x13C bytes; +0x130 bonus unlock mask
+inline int8_t* const g_currentProfile = reinterpret_cast<int8_t*>(0x005EC004);
+inline uint8_t* const g_bonusObjectivesRequired = reinterpret_cast<uint8_t*>(0x003FABC8);  // [33] objectives needed per bonus id (from Bonus.cfg)
 
 // ---- Generated addresses (symbols/auto)
 namespace addr {

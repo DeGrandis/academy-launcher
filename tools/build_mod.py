@@ -3,7 +3,10 @@
 Usage: python tools/build_mod.py <mod-name> [<mod-name> ...]
 
 Mod layout (mods/<name>/):
-  data/   files that replace or add data.zwp entries by file name (ODF, MSH, XBT, ...)
+  data/       files that replace or add data.zwp entries by file name (ODF, MSH, XBT, ...)
+  edits.json  text edits applied to data.zwp entries, so a mod need not ship copies of game files:
+              [{"file": "bonus.cfg", "find": "<regex>", "replace": "<text>", "count": <expected matches, optional>}]
+              Edits apply to the file as earlier mods (and this mod's data/) left it.
   files/  loose files that replace or add files on the game disc, by relative path (D:\\...)
 
 Several mods are applied in the order given; later mods win. The result goes to
@@ -13,6 +16,8 @@ folder, where the game records fresh level caches on first load.
 Run the game with:  CW_MOD_ROOT=<printed folder> clone_wars.exe
 """
 
+import json
+import re
 import shutil
 import sys
 import tempfile
@@ -22,6 +27,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "zwp"))
 import zwp  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def apply_edits(edits, staging, archive, mod_name):
+    data = None
+    entries = None
+    for edit in edits:
+        target = staging / edit["file"]
+        if target.exists():
+            content = target.read_bytes()
+        else:
+            if data is None:
+                data = archive.read_bytes()
+                entries = {entry.name.lower(): entry for entry in zwp.read_directory(data)}
+            entry = entries.get(edit["file"].lower())
+            if entry is None:
+                sys.exit(f"{mod_name}: edits.json names {edit['file']}, which is not in data.zwp")
+            content = zwp.read_entry(data, entry)
+            target = staging / entry.name
+        text = content.decode("latin-1")
+        updated, matches = re.subn(edit["find"], edit["replace"], text, flags=re.MULTILINE)
+        expected = edit.get("count")
+        if matches == 0 or (expected is not None and matches != expected):
+            sys.exit(f"{mod_name}: edit of {edit['file']} matched {matches} times (expected {expected or 'at least 1'}): {edit['find']}")
+        target.write_bytes(updated.encode("latin-1"))
 
 
 def main(names):
@@ -42,6 +71,9 @@ def main(names):
                 for file in data.rglob("*"):
                     if file.is_file():
                         shutil.copy2(file, staging / file.name)
+            edits = mod / "edits.json"
+            if edits.is_file():
+                apply_edits(json.loads(edits.read_text(encoding="utf-8")), staging, game / "data.zwp", name)
             if (mod / "plugin").is_dir():
                 dll = ROOT / "native_port" / "build-x86" / "bin" / "mods" / f"{name}.dll"
                 if not dll.exists():
