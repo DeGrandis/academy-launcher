@@ -83,7 +83,7 @@ A mod is a folder under `mods/` with `data/` (files that replace or add `data.zw
 
 Levels keep caches in `Bins/` (`<map>fil.bin`, `<map>odf.bin`, `<map>anm.bin`). The game replays a level's cache when it exists and records a new one from `data.zwp` when it does not, so a mod gets its own empty `Bins/` and records caches on first load.
 
-Thule Moon Academy is world `multi5` (caches `mul5*.bin`); its player tank is `rep_tank_fighter1_player.odf`. `work/thule_academy_reads.txt` lists everything it loads (regenerate with `zwp.py reads`).
+Thule Moon Academy is world `multi5` (caches `mul5*.bin`); its player tank is `rep_tank_fighter1_player.odf`. `docs/thule_academy_files.txt` lists everything it loads (regenerate with `zwp.py reads`).
 
 ### Asset formats
 
