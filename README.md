@@ -86,6 +86,25 @@ Levels keep caches in `Bins/` (`<map>fil.bin`, `<map>odf.bin`, `<map>anm.bin`). 
 
 Thule Moon Academy is world `multi5` (caches `mul5*.bin`); its player tank is `rep_tank_fighter1_player.odf`. `work/thule_academy_reads.txt` lists everything it loads (regenerate with `zwp.py reads`).
 
+### Asset formats
+
+| Files | Format | Tool |
+|---|---|---|
+| `.odf` `.pse` `.wld` `.sky` `.cin` `.cfg` `.txt` | text (objects, particle effects, worlds, sky/fog, cinematics) | any text editor |
+| `.xbt` | texture: 32-byte header + mip chain; DXT1, DXT3, or swizzled R5G6B5 / A4R4G4B4 | `tools/assets/xbt.py` (PNG both ways) |
+| `.msh` | Pandemic MSH2 mesh chunks (materials, model hierarchy, strips) | `tools/assets/msh.py` (glTF both ways) |
+| `.col` `.pth` `.aim` `.ani` `.xpu` `.xvu` `.fff` `.sdw` | collision, AI paths, AI map, animation, shaders, fonts, shadows | not converted yet |
+
+```powershell
+python tools/assets/xbt.py decode work/data/rep_tank_fighter_1.xbt tank.png
+python tools/assets/xbt.py encode tank.png mods/<name>/data/rep_tank_fighter_1.xbt --like work/data/rep_tank_fighter_1.xbt
+python tools/assets/msh.py export work/data/rep_tank_fighter.msh tank.gltf --textures work/data
+python tools/assets/msh.py import work/data/rep_tank_fighter.msh tank.gltf mods/<name>/data/rep_tank_fighter.msh
+python tools/assets/render_gltf.py tank.gltf tank.png        # quick preview without Blender
+```
+
+`msh.py import` keeps the template's chunks and rebuilds only the models whose geometry changed in the glTF (an unchanged glTF gives a byte-identical file); new nodes become new static models. Edit the glTF in Blender (File > Import > glTF 2.0) and keep node names. Skinned meshes (`ENVL`/`WGHT`), shadow volumes of rebuilt models, and collision meshes (`*_bsp.msh`, `.col`) are not regenerated.
+
 ### Plugins
 
 A mod can include C++ code: put sources in `mods/<name>/plugin/`. CMake builds each into `native_port/build-x86/bin/mods/<name>.dll`, and `build_mod.py` copies it into the mod's `plugins/` folder. The runtime loads every DLL in `<CW_MOD_ROOT>/plugins` (and `<exe dir>/plugins`) before the game starts and calls its `CwModInit(const CwModApi*)` export (see `native_port/sdk/cw_mod.h`).
