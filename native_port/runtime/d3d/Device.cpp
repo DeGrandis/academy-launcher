@@ -653,6 +653,12 @@ bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& st
         logf("draw: vs=%08lX ps=%08lX first=%u count=%u stream0=%p/%u inputs=%u ins=%u tex0=%p", g_vertexShader, g_pixelShader, first, count,
             static_cast<void*>(g_streams[0].buffer), g_streams[0].stride, shader ? static_cast<UINT>(shader->host.inputs.size()) : 0,
             shader ? static_cast<UINT>(shader->function.size() / 4) : 0, static_cast<void*>(g_textures[0]));
+        for (int stage = 0; stage < 4; ++stage) {
+            if (g_textures[stage] != nullptr) {
+                const TextureLayout layout = describe(reinterpret_cast<const XPixelContainer*>(g_textures[stage]));
+                logf("draw:   tex%d %ux%u fmt=0x%02lX levels=%u", stage, layout.width, layout.height, layout.format, layout.levels);
+            }
+        }
         logf("draw:   fog=%lu mode=%lu start=%g end=%g c109=%g,%g,%g,%g ablend=%lu atest=%lu aref=%lu src=%lu dst=%lu zw=%lu cw=%lX",
             g_rs[RS_FOGENABLE], g_rs[RS_FOGTABLEMODE], asFloat(g_rs[RS_FOGSTART]), asFloat(g_rs[RS_FOGEND]), g_vertexConstants[109][0],
             g_vertexConstants[109][1], g_vertexConstants[109][2], g_vertexConstants[109][3], g_rs[RS_ALPHABLENDENABLE],

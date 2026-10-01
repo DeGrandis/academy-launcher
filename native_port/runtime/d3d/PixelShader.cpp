@@ -150,7 +150,9 @@ std::string textureStage(const Program& p, int stage, DWORD mode, std::string& s
     switch (mode) {
     case ModeProject2D:
     case ModeProject3D:
-        return "    float4 " + t + " = tex2Dproj(s" + s + ", " + coord + ");\n";
+        // Fixed-function vertices with 2D texture coordinates leave q (w) at 0 on the host; the NV2A treats a
+        // missing q as 1, so only divide when q is set.
+        return "    float4 " + t + " = tex2D(s" + s + ", " + coord + ".w != 0 ? " + coord + ".xy / " + coord + ".w : " + coord + ".xy);\n";
     case ModeCube:
         return "    float4 " + t + " = texCUBE(s" + s + ", " + coord + ".xyz);\n";
     case ModePassthru:
