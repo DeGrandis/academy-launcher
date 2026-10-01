@@ -1,0 +1,10 @@
+[
+  {"file": "multi18.wld", "from": "multi5.wld", "find": "Respawntime\\(240\\.000000\\)", "replace": "Respawntime(60.000000)", "count": 1},
+  {"file": "multi18.pth", "from": "multi5.pth"},
+  {"file": "multi18.aim", "from": "multi5.aim"},
+  {"file": "multi18.cin", "from": "multi5.cin"},
+  {"file": "multi18.xbt", "from": "multi5.xbt"},
+  {"file": "multiplayerbuttons.cfg", "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?Descrition\\(\")ACADEMY(\"\\);[^{}]*?)MissionFile\\(\"multi5\\.wld\"\\);([^{}]*\\})", "replace": "\\1ACADEMY\\2MissionFile(\"multi5.wld\");\\3\r\n\\1POWERUP ACADEMY\\2MissionFile(\"multi18.wld\");\\3", "count": 1},
+  {"file": "localize.cfg", "find": "(VarBinary\\(\"Multi17\"\\)\\r?\\n\\s*\\{\\r?\\n\\s*Size\\(\\d+\\);\\r?\\n\\s*Value\\(\"1000000074005600F600E600F600370096003700\"\\);(?:\\r?\\n\\s*Value\\(\"[0-9A-F]+\"\\);)*\\r?\\n\\s*\\})", "replace": "\\1\r\n      VarBinary(\"Multi18\")\r\n      {\r\n        Size(26);\r\n        Value(\"20000000450086005700C600560002000500F600770056002700\");\r\n      }", "count": 1},
+  {"file": "localize.cfg", "find": "(VarBinary\\(\"Multi17\"\\)\\r?\\n\\s*\\{\\r?\\n\\s*Size\\(\\d+\\);\\r?\\n\\s*Value\\(\"3000000025005600C60096006700560002004700860056000200660096007600\"\\);(?:\\r?\\n\\s*Value\\(\"[0-9A-F]+\"\\);)*\\r?\\n\\s*\\})", "replace": "\\1\r\n      VarBinary(\"Multi18\")\r\n      {\r\n        Size(172);\r\n        Value(\"4000000064009600760086004700020047008600560002003400F600E6006600\");\r\n        Value(\"56004600560027001600470056000200770016006700560037000200F600E600\");\r\n        Value(\"02004700860056000200450086005700C60056000200D400F600F600E6000200\");\r\n        Value(\"770086009600C6005600020047008600560002000700F6007700560027005700\");\r\n        Value(\"07000200360086001600E6007600560037000200560067005600270097000200\");\r\n        Value(\"D6009600E600570047005600\");\r\n      }", "count": 1}
+]

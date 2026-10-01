@@ -250,6 +250,36 @@
       ]
     },
     {
+      "name": "powerup_academy_cycle",
+      "route": "thule_academy",
+      "seconds": 62,
+      "env": {
+        "CW_AUDIO": "0"
+      },
+      "mods": [
+        "academy_powerups",
+        "test_powerups_at_spawn"
+      ],
+      "watch": {
+        "screen": "38f7a8"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ]
+      },
+      "log_regex": [
+        "academy_powerups: mission 'multi18.wld' \\(powerup cycle on\\)",
+        "powerup \\d spawns as Invincibility",
+        "powerup \\d spawns as Touch of Death",
+        "powerup \\d spawns as Cloak"
+      ],
+      "screenshots": [
+        1400
+      ]
+    },
+    {
       "name": "thule_academy_1080p",
       "route": "thule_academy",
       "seconds": 30,
