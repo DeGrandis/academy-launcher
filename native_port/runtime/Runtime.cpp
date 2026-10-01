@@ -42,6 +42,40 @@ std::filesystem::path findGameRoot(const std::filesystem::path& exeDirectory) {
     return exeDirectory / "game";
 }
 
+// Host file APIs need absolute paths, so a relative CW_MOD_ROOT is resolved here: against the current directory, else
+// against the exe directory and its parents (bin -> build-x86 -> native_port -> repo root).
+void resolveModRoot(const std::filesystem::path& exeDirectory) {
+    const char* value = std::getenv("CW_MOD_ROOT");
+    if (value == nullptr || *value == '\0') {
+        return;
+    }
+    const std::filesystem::path modRoot(value);
+    std::error_code error;
+    std::filesystem::path resolved;
+    if (modRoot.is_absolute()) {
+        resolved = modRoot;
+    } else if (std::filesystem::is_directory(modRoot, error)) {
+        resolved = std::filesystem::absolute(modRoot, error);
+    } else {
+        for (std::filesystem::path base = exeDirectory; !base.empty(); base = base.parent_path()) {
+            if (std::filesystem::is_directory(base / modRoot, error)) {
+                resolved = base / modRoot;
+                break;
+            }
+            if (base == base.parent_path()) {
+                break;
+            }
+        }
+    }
+    if (resolved.empty() || !std::filesystem::is_directory(resolved, error)) {
+        const std::string message = std::string("CW_MOD_ROOT '") + value + "' not found.\nBuild it with tools/build_mod.py, or give an absolute path.";
+        MessageBoxA(nullptr, message.c_str(), "Clone Wars", MB_OK | MB_ICONERROR);
+        cw::fatal("CW_MOD_ROOT '%s' not found (build it with tools/build_mod.py, or give an absolute path)", value);
+    }
+    resolved = resolved.lexically_normal();
+    _putenv_s("CW_MOD_ROOT", resolved.string().c_str());
+}
+
 LONG CALLBACK logExceptions(EXCEPTION_POINTERS* info) {
     const DWORD code = info->ExceptionRecord->ExceptionCode;
     if (cw::trace::handle(info)) {
@@ -131,6 +165,7 @@ extern "C" __declspec(dllexport) void __cdecl CwRun() {
         cw::fatal("game files not found at '%s' (set CW_GAME_ROOT or edit game_root.txt)", gameRoot.string().c_str());
     }
     cw::logf("Clone Wars native runtime: game root '%s'", gameRoot.string().c_str());
+    resolveModRoot(exeDirectory);
 
     // The XBE header shares the PE header page, and the entry point writes into the certificate.
     DWORD oldProtect;
