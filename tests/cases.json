@@ -3,7 +3,8 @@
   "routes": {
     "main_menu": "10000:start,13000:a",
     "thule_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start",
-    "geonosis_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start"
+    "geonosis_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start",
+    "thule_academy_third_vehicle": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,29200:left,30500:start,32500:start"
   },
   "cases": [
     {
@@ -218,6 +219,33 @@
       ],
       "screenshots": [
         3000
+      ]
+    },
+    {
+      "name": "thule_academy_new_vehicle",
+      "route": "thule_academy_third_vehicle",
+      "seconds": 50,
+      "env": {
+        "CW_AUDIO": "0"
+      },
+      "mods": [
+        "academy_heavy_tank",
+        "academy_tweaks"
+      ],
+      "watch": {
+        "screen": "38f7a8"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ]
+      },
+      "log_regex": [
+        "academy_tweaks: player health 1500 -> 3000"
+      ],
+      "screenshots": [
+        2300
       ]
     }
   ]

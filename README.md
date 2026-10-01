@@ -128,6 +128,10 @@ Thule Moon Academy is run by a mode script (`ThuleAcademyScript`, created for wo
 - `symbols/manual.csv`: the Battlezone II-style script API the mode uses (`Script_BuildObjectAt`, `Script_Goto`, `Script_GetMaxHealth`, `Script_SetMaxHealth`, `Script_GetTime`, ...).
 - `mods/academy_tweaks`: example plugin that doubles the player's health and logs wave progress.
 
+### Adding a vehicle
+
+Each multiplayer map's selectable vehicles are the `PlayerODF("<odf>", "<icon>")` lines of its entry in `multiplayerbuttons.cfg`. `mods/academy_heavy_tank` adds a third Thule Moon Academy vehicle using only `edits.json`: it creates `rep_tank_heavy_custom.odf` as a copy of the player tank with new stats (name, scale, hull, shield, speed, ammo) and appends its `PlayerODF` line. For new art, add the mesh/texture files under the mod's `data/` and point the ODF's `geometryName` (and the icon) at them; new archive entries load like original ones.
+
 ## Unlocks
 
 Multiplayer maps/modes, extras and characters unlock through `Profile_IsBonusUnlocked`, a bit mask in the save profile (requirements come from `multiplayerbuttons.cfg` / `Bonus.cfg`). `mods/unlock_all` is a plugin that reports every bonus as unlocked without changing the save, which makes Geonosis Academy (the Jedi arena), Control Zone, Conquest and the bonus extras available.
