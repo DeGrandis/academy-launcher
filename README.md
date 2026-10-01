@@ -151,11 +151,13 @@ These environment variables affect `clone_wars.exe`:
 
 - `CW_SCREENSHOT_FRAMES=600,1200`: saves `screenshot_<frame>.bmp` files. `CW_SCREENSHOT_EVERY=120` saves one every 120 frames.
 - `CW_INPUT_SCRIPT=10000:start,11400:a,15000:lup:3000`: presses a button at a millisecond offset for 150 ms, or for the optional hold time. Buttons are `start`, `back`, `a`, `b`, `x`, `y`, `black`, `white`, `lt`, `rt`, `up`, `down`, `left`, `right` (d-pad) and `lup`, `ldown`, `lleft`, `lright` (left stick).
-  - Thule Moon Academy: `10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start`
+  - Thule Moon Academy: `2700:start,4250:a,7000:right,7500:a,11000:left,11350:left,12000:down,12500:a,13750:a,14750:a,15750:start,16750:start` (the main menu and map select have fly-in animations, so those gaps cannot be shorter)
 - `CW_WATCH=41b884:f,41b888,5a2448:s,3a2f0c*14*0*70:f`: logs memory values every `CW_WATCH_MS` (default 1000) ms. `a*o1*o2` follows pointers (read the pointer at `a`, add `o1`, read, add `o2`). Types are `i` (int32, default), `f` (float), `b` (byte), `h` (int16), `s` (string), `x` (hex) and `d` (8 hex dwords).
 - `CW_TRACE=2d551a,...`: logs registers at the given addresses.
 - `CW_WATCHDOG_MS=5000`: periodically dumps thread stacks.
 - `CW_AUDIO=0` mutes audio; `CW_AUDIO_VOLUME=0.5` scales it; `CW_AUDIO_MIN_DISTANCE=15` sets where 3D sounds start to fade; `CW_AUDIO_STATS=2000` logs active voices and output levels.
+- `CW_SKIP_INTRO=0` keeps the 5.5 s license screen at startup (skipped by default).
+- `CW_TRACE_EVERY=120` logs every 120th tracepoint hit; `CW_TRACE_DUMP=ecx:0x80` also dumps the memory a register points to.
 - `CW_EXIT_MS=60000`: exits after the given time. `CW_LOG_PATH` and `CW_HDD_ROOT` move the log file and the hard disk folder.
 - `CW_DISABLE_HOOKS=XOnlineReadCachedRecord,...`: skips the named hooks, to compare against the original game code.
 - `CW_WIDESCREEN=0`: use the original 4:3 mode (widescreen 16:9 is the default, using the game's own widescreen support). The game draws its 3D view for 16:9 but lays out the HUD, text and menus for 4:3; the runtime narrows those 2D elements back to their 4:3 shape (HUD pieces stay anchored to their screen edge or the center, menus are centered). `CW_WIDESCREEN_HUD=stretch` keeps the original stretched 2D.
@@ -169,7 +171,7 @@ These environment variables affect `clone_wars.exe`:
 
 The window title shows the current FPS and frame number.
 
-The log is written to `bin/cw_runtime.log`; it can be read while the game is running.
+The log is written to `bin/cw_runtime.log` (each line: thread id and seconds since start); it can be read while the game is running.
 
 Export the Ghidra analysis index:
 

@@ -18,7 +18,8 @@ constexpr std::uint32_t kSkySetVisibilityRange = 0x000BBB20;  // void __cdecl(fl
 constexpr std::uint32_t kSkySetFogRange = 0x000BBB70;         // void __cdecl(float start, float end)
 constexpr float kSteps[] = {1.0f, 1.5f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 12.0f, 16.0f};
 
-constexpr std::uint32_t kConfigGetInt = 0x00226B80;          // int __cdecl(const char* name, int fallback)
+constexpr std::uint32_t kConfigGetInt = 0x00226B80;
+constexpr std::uint32_t kLicenseScreenSeconds = 0x00348C54;  // float 5.5          // int __cdecl(const char* name, int fallback)
 
 void(__cdecl* g_setVisibilityRange)(float) = nullptr;
 int(__cdecl* g_configGetInt)(const char*, int) = nullptr;
@@ -66,6 +67,13 @@ void install() {
     hooks::detour(kSkySetFogRange, reinterpret_cast<const void*>(&setFogRange), reinterpret_cast<void**>(&g_setFogRange),
         "Sky_SetFogRange (view distance)");
     hooks::detour(kConfigGetInt, reinterpret_cast<const void*>(&configGetInt), reinterpret_cast<void**>(&g_configGetInt), "Config_GetInt (no level caches with mods)");
+    // The license/copyright screen ("LIC") stays up for a fixed 5.5 s before the logo movies; the constant is only used
+    // by that screen. CW_SKIP_INTRO=0 keeps it.
+    const char* skipIntro = std::getenv("CW_SKIP_INTRO");
+    if (skipIntro == nullptr || std::strcmp(skipIntro, "0") != 0) {
+        const float zero = 0.0f;
+        hooks::patchBytes(kLicenseScreenSeconds, &zero, sizeof(zero), "license screen duration (skip intro)");
+    }
     logf("options: view distance x%g", g_multiplier);
 }
 

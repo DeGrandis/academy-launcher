@@ -1,16 +1,16 @@
 {
   "_comment": "Each case boots the game with scripted input (CW_INPUT_SCRIPT), runs for seconds, and checks the last CW_WATCH sample. Expectations: name -> [op, value] with op in ==, !=, <, <=, >, >=. Watch names map to addresses in 'watch'.",
   "routes": {
-    "main_menu": "10000:start,13000:a",
-    "thule_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start",
-    "geonosis_academy": "10000:start,13000:a,15500:right,16500:a,20500:left,22500:down,23500:a,26000:a,28000:a,30000:start,32000:start",
-    "thule_academy_third_vehicle": "10000:start,13000:a,15500:right,16500:a,20500:left,21200:left,22500:down,23500:a,26000:a,28000:a,29200:left,30500:start,32500:start"
+    "main_menu": "2700:start,4250:a",
+    "thule_academy": "2700:start,4250:a,7000:right,7500:a,11000:left,11350:left,12000:down,12500:a,13750:a,14750:a,15750:start,16750:start",
+    "geonosis_academy": "2700:start,4250:a,7000:right,7500:a,11000:left,12000:down,12500:a,13750:a,14750:a,15750:start,16750:start",
+    "thule_academy_third_vehicle": "2700:start,4250:a,7000:right,7500:a,11000:left,11350:left,12000:down,12500:a,13750:a,14750:a,15400:left,16100:start,17100:start"
   },
   "cases": [
     {
       "name": "boot_to_main_menu",
       "route": "main_menu",
-      "seconds": 20,
+      "seconds": 10,
       "watch": {
         "screen": "38f7a8"
       },
@@ -21,14 +21,14 @@
         ]
       },
       "screenshots": [
-        1100
+        500
       ]
     },
     {
       "name": "thule_academy_starts",
       "route": "thule_academy",
-      "extra_input": "40000:lup:3000,43500:rt:2000,46000:lleft:1500",
-      "seconds": 55,
+      "extra_input": "24000:lup:3000,27500:rt:2000,30000:lleft:1500",
+      "seconds": 39,
       "watch": {
         "screen": "38f7a8",
         "xlive_error_pending": "5a2860:b",
@@ -55,15 +55,15 @@
         ]
       },
       "screenshots": [
-        2000,
-        2520,
-        2900
+        1100,
+        1400,
+        1700
       ]
     },
     {
       "name": "thule_academy_mod_overlay",
       "route": "thule_academy",
-      "seconds": 55,
+      "seconds": 39,
       "watch": {
         "screen": "38f7a8",
         "xlive_error_pending": "5a2860:b",
@@ -90,7 +90,7 @@
         ]
       },
       "screenshots": [
-        2400
+        1450
       ],
       "mods": [
         "example_academy_ammo"
@@ -99,7 +99,7 @@
     {
       "name": "thule_academy_plugin",
       "route": "thule_academy",
-      "seconds": 55,
+      "seconds": 39,
       "watch": {
         "screen": "38f7a8",
         "xlive_error_pending": "5a2860:b",
@@ -138,7 +138,7 @@
     {
       "name": "thule_academy_audio",
       "route": "thule_academy",
-      "seconds": 50,
+      "seconds": 34,
       "env": {
         "CW_AUDIO_STATS": "2000"
       },
@@ -162,8 +162,8 @@
     {
       "name": "thule_academy_tweaks",
       "route": "thule_academy",
-      "extra_input": "40000:lup:5000",
-      "seconds": 55,
+      "extra_input": "24000:lup:5000",
+      "seconds": 39,
       "env": {
         "CW_AUDIO": "0"
       },
@@ -193,7 +193,7 @@
     {
       "name": "geonosis_academy_unlocked",
       "route": "geonosis_academy",
-      "seconds": 55,
+      "seconds": 39,
       "env": {
         "CW_AUDIO": "0"
       },
@@ -218,13 +218,13 @@
         "unlock_all.dll at"
       ],
       "screenshots": [
-        3000
+        1500
       ]
     },
     {
       "name": "thule_academy_new_vehicle",
       "route": "thule_academy_third_vehicle",
-      "seconds": 50,
+      "seconds": 34,
       "env": {
         "CW_AUDIO": "0"
       },
@@ -245,13 +245,13 @@
         "academy_tweaks: player health 1500 -> 3000"
       ],
       "screenshots": [
-        2300
+        1400
       ]
     },
     {
       "name": "thule_academy_1080p",
       "route": "thule_academy",
-      "seconds": 45,
+      "seconds": 30,
       "env": {
         "CW_AUDIO": "0",
         "CW_RESOLUTION": "1920x1080",
@@ -270,17 +270,17 @@
         "rendering 1920x1080"
       ],
       "screenshots": [
-        2300
+        1400
       ]
     },
     {
       "name": "thule_academy_live_resize",
       "route": "thule_academy",
-      "seconds": 50,
+      "seconds": 34,
       "env": {
         "CW_AUDIO": "0",
         "CW_RENDER_SCALE": "1",
-        "CW_HOTKEY_SCRIPT": "36000:f9,38000:f9,40000:f9,42000:f9,44000:f11,46000:f11"
+        "CW_HOTKEY_SCRIPT": "20000:f9,22000:f9,24000:f9,26000:f9,28000:f11,30000:f11"
       },
       "watch": {
         "screen": "38f7a8"
@@ -298,17 +298,17 @@
         "\\(window size\\)"
       ],
       "screenshots": [
-        2400
+        1500
       ]
     },
     {
       "name": "thule_academy_view_distance",
       "route": "thule_academy",
-      "seconds": 45,
+      "seconds": 30,
       "env": {
         "CW_AUDIO": "0",
         "CW_VIEW_DISTANCE": "4",
-        "CW_HOTKEY_SCRIPT": "40000:f8,41000:f7"
+        "CW_HOTKEY_SCRIPT": "24000:f8,25000:f7"
       },
       "watch": {
         "screen": "38f7a8",
@@ -339,7 +339,7 @@
         "view distance -> x4"
       ],
       "screenshots": [
-        2300
+        1400
       ]
     }
   ]

@@ -177,9 +177,29 @@ bool handle(EXCEPTION_POINTERS* info) {
     }
     Tracepoint& point = entry->second;
     const auto* stack = reinterpret_cast<const DWORD*>(static_cast<std::uintptr_t>(context->Esp));
-    logf("trace %08X #%d: eax=%08lX ebx=%08lX ecx=%08lX edx=%08lX esi=%08lX edi=%08lX ebp=%08lX esp=%08lX | [esp] %08lX %08lX %08lX %08lX %08lX %08lX",
-        static_cast<unsigned>(address), point.hits, context->Eax, context->Ebx, context->Ecx, context->Edx, context->Esi, context->Edi,
-        context->Ebp, context->Esp, stack[0], stack[1], stack[2], stack[3], stack[4], stack[5]);
+    // CW_TRACE_EVERY=n logs only every n-th hit (so long traces sample over time);
+    // CW_TRACE_DUMP=<reg>:<bytes> also dumps the memory a register (eax..edi) points to.
+    static const int every = [] {
+        const char* value = std::getenv("CW_TRACE_EVERY");
+        return value == nullptr ? 1 : std::max(1, std::atoi(value));
+    }();
+    if (point.hits % every == 0) {
+        logf("trace %08X #%d: eax=%08lX ebx=%08lX ecx=%08lX edx=%08lX esi=%08lX edi=%08lX ebp=%08lX esp=%08lX | [esp] %08lX %08lX %08lX %08lX %08lX %08lX",
+            static_cast<unsigned>(address), point.hits, context->Eax, context->Ebx, context->Ecx, context->Edx, context->Esi, context->Edi,
+            context->Ebp, context->Esp, stack[0], stack[1], stack[2], stack[3], stack[4], stack[5]);
+        if (const char* dump = std::getenv("CW_TRACE_DUMP")) {
+            const std::string spec = dump;
+            const std::string reg = spec.substr(0, 3);
+            const DWORD bytes = static_cast<DWORD>(std::strtoul(spec.substr(4).c_str(), nullptr, 0));
+            const DWORD base = reg == "eax" ? context->Eax : reg == "ebx" ? context->Ebx : reg == "ecx" ? context->Ecx : reg == "edx" ? context->Edx
+                : reg == "esi" ? context->Esi : reg == "edi" ? context->Edi : 0;
+            for (DWORD offset = 0; base != 0 && offset < bytes; offset += 32) {
+                char line[160];
+                formatWatch(line, sizeof(line), base + offset, 'd');
+                logf("  +%03lX%s", offset, line);
+            }
+        }
+    }
 
     writeByte(address, point.original);
     if (++point.hits < maxHitsPerTracepoint()) {

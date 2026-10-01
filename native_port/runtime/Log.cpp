@@ -25,11 +25,14 @@ void logv(const char* format, va_list args) {
     char buffer[2048];
     vsnprintf(buffer, sizeof(buffer), format, args);
 
+    static const ULONGLONG start = GetTickCount64();
+    const auto elapsed = static_cast<unsigned long>(GetTickCount64() - start);
     std::lock_guard lock(g_logMutex);
-    std::fprintf(stdout, "[%5lu] %s\n", GetCurrentThreadId(), buffer);
+    // [thread] seconds.milliseconds since the first log line
+    std::fprintf(stdout, "[%5lu] %4lu.%03lu %s\n", GetCurrentThreadId(), elapsed / 1000, elapsed % 1000, buffer);
     std::fflush(stdout);
     if (g_logFile != nullptr) {
-        std::fprintf(g_logFile, "[%5lu] %s\n", GetCurrentThreadId(), buffer);
+        std::fprintf(g_logFile, "[%5lu] %4lu.%03lu %s\n", GetCurrentThreadId(), elapsed / 1000, elapsed % 1000, buffer);
         std::fflush(g_logFile);
     }
 }
