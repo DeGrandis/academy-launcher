@@ -86,6 +86,21 @@ Levels keep caches in `Bins/` (`<map>fil.bin`, `<map>odf.bin`, `<map>anm.bin`). 
 
 Thule Moon Academy is world `multi5` (caches `mul5*.bin`); its player tank is `rep_tank_fighter1_player.odf`. `work/thule_academy_reads.txt` lists everything it loads (regenerate with `zwp.py reads`).
 
+### Plugins
+
+A mod can include C++ code: put sources in `mods/<name>/plugin/`. CMake builds each into `native_port/build-x86/bin/mods/<name>.dll`, and `build_mod.py` copies it into the mod's `plugins/` folder. The runtime loads every DLL in `<CW_MOD_ROOT>/plugins` (and `<exe dir>/plugins`) before the game starts and calls its `CwModInit(const CwModApi*)` export (see `native_port/sdk/cw_mod.h`).
+
+The API offers:
+
+- `detour(address, replacement, &original, name)`: replace a game function and still call the original (MinHook).
+- `midHook(address, handler, name)`: run a handler with read/write access to all registers at any instruction, then continue.
+- `hookVirtual(vtable, slot, replacement, &original, name)`: replace one virtual function for a whole class.
+- `patchBytes(address, bytes, length, name)`.
+
+Use `native_port/runtime/game/GameSymbols.h` for addresses and typed globals. Replace game `__thiscall` functions with `__fastcall(void* self, void* edx, ...)`. `mods/academy_quick_start` is a working example: it detours `Mp_Update` to skip the GET READY wait in Academy and mid-hooks the multiplayer HUD.
+
+`CW_DISABLE_HOOKS=name,...` turns off individual runtime or plugin hooks when you are tracking down a problem, and `CW_HOOK_SELFTEST=<address>` installs a logging mid hook.
+
 ## Tests
 
 ```powershell

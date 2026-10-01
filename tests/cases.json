@@ -93,6 +93,45 @@
       "mods": [
         "example_academy_ammo"
       ]
+    },
+    {
+      "name": "thule_academy_plugin",
+      "route": "thule_academy",
+      "seconds": 55,
+      "watch": {
+        "screen": "38f7a8",
+        "xlive_error_pending": "5a2860:b",
+        "pregame_timer": "41b884:f",
+        "game_type": "5ec010:b",
+        "slot0_state": "5ec32c"
+      },
+      "expect": {
+        "screen": [
+          "==",
+          4
+        ],
+        "xlive_error_pending": [
+          "==",
+          0
+        ],
+        "pregame_timer": [
+          ">",
+          5
+        ],
+        "game_type": [
+          "==",
+          3
+        ]
+      },
+      "screenshots": [],
+      "mods": [
+        "academy_quick_start"
+      ],
+      "log_contains": [
+        "initialized (ok)",
+        "academy_quick_start: skipping GET READY",
+        "academy_quick_start: first multiplayer HUD draw"
+      ]
     }
   ]
 }

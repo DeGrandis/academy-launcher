@@ -82,6 +82,9 @@ def run_case(case, routes):
         actual = last.get(key)
         if actual is None or not OPERATORS[op](actual, expected):
             failures.append(f"{key} = {actual} (expected {op} {expected})")
+    for text in case.get("log_contains", []):
+        if not any(text in line for line in log):
+            failures.append(f"log has no line containing '{text}'")
     if problems:
         failures.append(f"{len(problems)} fault line(s), first: {problems[0].strip()}")
     detail = f"{time.time() - started:.0f}s, last watch: {last}"

@@ -1,6 +1,7 @@
 #include "Hle.h"
 #include "Kernel.h"
 #include "Log.h"
+#include "ModLoader.h"
 #include "Threads.h"
 #include "Trace.h"
 
@@ -53,8 +54,12 @@ LONG CALLBACK logExceptions(EXCEPTION_POINTERS* info) {
         code, info->ExceptionRecord->ExceptionAddress, context->Eax, context->Ebx, context->Ecx, context->Edx,
         context->Esi, context->Edi, context->Ebp, context->Esp);
     if (code == EXCEPTION_ACCESS_VIOLATION && info->ExceptionRecord->NumberParameters >= 2) {
-        cw::logf("  access violation %s address 0x%08lX", info->ExceptionRecord->ExceptionInformation[0] ? "writing" : "reading",
-            static_cast<unsigned long>(info->ExceptionRecord->ExceptionInformation[1]));
+        const auto faultAddress = info->ExceptionRecord->ExceptionInformation[1];
+        MEMORY_BASIC_INFORMATION region{};
+        VirtualQuery(reinterpret_cast<void*>(faultAddress), &region, sizeof(region));
+        cw::logf("  access violation %s address 0x%08lX (region %p+0x%lX state 0x%lX protect 0x%lX type 0x%lX)",
+            info->ExceptionRecord->ExceptionInformation[0] ? "writing" : "reading", static_cast<unsigned long>(faultAddress),
+            region.AllocationBase, static_cast<unsigned long>(region.RegionSize), region.State, region.Protect, region.Type);
     }
     if (code == 0xE06D7363 && info->ExceptionRecord->NumberParameters >= 3) {
         // MSVC x86 ThrowInfo -> CatchableTypeArray -> CatchableType -> TypeDescriptor.name (absolute pointers).
@@ -149,6 +154,7 @@ extern "C" __declspec(dllexport) void __cdecl CwRun() {
     cw::kernel::installThunks(reinterpret_cast<std::uint32_t*>(static_cast<std::uintptr_t>(thunkTable)));
     cw::threads::patchSegmentAccesses();
     cw::hle::installHooks();
+    cw::mods::loadPlugins(gameRoot, exeDirectory);
     cw::trace::installFromEnvironment();
     if (const char* exitAfter = std::getenv("CW_EXIT_MS")) {
         // Automated runs: end the process after a fixed time.

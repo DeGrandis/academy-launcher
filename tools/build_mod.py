@@ -42,6 +42,12 @@ def main(names):
                 for file in data.rglob("*"):
                     if file.is_file():
                         shutil.copy2(file, staging / file.name)
+            if (mod / "plugin").is_dir():
+                dll = ROOT / "native_port" / "build-x86" / "bin" / "mods" / f"{name}.dll"
+                if not dll.exists():
+                    sys.exit(f"{dll} not found: build the port first (cmake --build native_port/build-x86)")
+                (out / "plugins").mkdir(exist_ok=True)
+                shutil.copy2(dll, out / "plugins" / dll.name)
             files = mod / "files"
             if files.is_dir():
                 shutil.copytree(files, out, dirs_exist_ok=True)

@@ -6,6 +6,8 @@ namespace cw::hle {
 
 // Redirects the original function at `address` to `replacement` with a 5-byte jump.
 void hookFunction(std::uint32_t address, const void* replacement, const char* name);
+// True when CW_DISABLE_HOOKS lists `name`.
+bool hookDisabled(const char* name);
 void installHooks();
 
 void installXapiHooks();
