@@ -96,6 +96,11 @@ namespace AcademyLauncher
 
             // Online
             onlineTab.Controls.Add(Ui.Heading("Play online", new Point(20, 16)));
+            onlineTab.Controls.Add(Ui.Caption("Your name", new Point(420, 23)));
+            var nameBox = new TextBox { Location = new Point(492, 20), Width = 170, MaxLength = Game.MaxPlayerName, Text = Game.PlayerName(settings) };
+            nameBox.KeyPress += (sender, e) => { if (!char.IsControl(e.KeyChar) && (e.KeyChar < 0x20 || e.KeyChar >= 0x7F)) e.Handled = true; };
+            nameBox.TextChanged += (sender, e) => { settings.Set("player_name", Game.CleanPlayerName(nameBox.Text)); settings.Save(); };
+            onlineTab.Controls.Add(nameBox);
             onlineTab.Controls.Add(Ui.Paragraph(
                 "Online games use the " + OnlinePreset().Name + " mode, and everyone needs the same launcher version. "
                 + "The host starts System Link in the game; everyone else joins it.", new Point(22, 52), 640));

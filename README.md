@@ -182,6 +182,7 @@ These environment variables affect `clone_wars.exe`:
   `CW_NET_ROOM=<code>` instead of `CW_NET_JOIN`; the relay is in `server/relay`.
 - Settings can also come from a file of `KEY=VALUE` lines: `settings.ini` next to `clone_wars.exe`, or the file named by
   `CW_SETTINGS`. Variables already set in the environment win.
+- `CW_PLAYER_NAME=Rob` sets the name other players see in System Link (lobby, session title "Session by Rob") instead of the save profile's name; up to 15 ASCII characters. The profile keeps its own name.
 - `CW_CAMERA_DISTANCE=1.2` (the default) multiplies every vehicle's chase-camera distance (`[Camera] distance` in its ODF); `1` is the original camera.
 - `CW_VIEW_DISTANCE=4` multiplies every map's view distance (far clip plane, object culling, sky dome) and fog range from its `.sky` file; in game F8 / F7 step it up / down (1, 1.5, 2, 3, 4, 6, 8, 12, 16).
 - `CW_HOTKEY_SCRIPT=36000:f9,40000:f11`: presses those hotkeys (f7, f8, f9, f11) at time offsets (for tests).

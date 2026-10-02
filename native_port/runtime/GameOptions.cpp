@@ -8,6 +8,8 @@
 #include <cstring>
 #include <iterator>
 
+#include <windows.h>
+
 namespace cw::options {
 
 namespace {
@@ -65,9 +67,58 @@ int __cdecl configGetInt(const char* name, int fallback) {
     return g_configGetInt(name, fallback);
 }
 
+// Multiplayer name: System Link names each player after their save profile. Two places read it:
+// - 0xDFEB0 returns the network player name (Xbox Live gamertag when [0x5A2858] == 2, else the current profile record,
+//   whose first field is the wide-string name). The host copies it into its player table (0x542400, 0x40 bytes) when
+//   it starts a game, and a client sends 0x40 bytes of it in its join request.
+// - The Create Game screen (0x139F80) calls the profile getter at 0x13A06F for "Session by <name>" in System Link mode.
+// CW_PLAYER_NAME replaces both; the profile and its save keep their own name.
+constexpr std::uint32_t kNetPlayerName = 0x000DFEB0;     // const wchar_t* __cdecl()
+constexpr std::uint32_t kLiveGamertag = 0x000DF160;      // const wchar_t* __cdecl()
+constexpr std::uint32_t kNetMode = 0x005A2858;           // 1 = System Link, 2 = Xbox Live
+constexpr std::uint32_t kSessionTitleNameCall = 0x0013A06F;  // call Profile_Current
+constexpr std::size_t kMaxPlayerName = 15;
+wchar_t g_playerName[0x20] = {};  // 0x40 bytes, as the join request sends
+
+const wchar_t* __cdecl netPlayerName() {
+    if (*reinterpret_cast<const int*>(kNetMode) == 2) {
+        return reinterpret_cast<const wchar_t*(__cdecl*)()>(kLiveGamertag)();
+    }
+    return g_playerName;
+}
+
+const wchar_t* __cdecl sessionTitleName() {
+    return g_playerName;
+}
+
+void installPlayerName() {
+    const char* value = std::getenv("CW_PLAYER_NAME");
+    if (value == nullptr || *value == '\0') {
+        return;
+    }
+    wchar_t name[64] = {};
+    MultiByteToWideChar(CP_UTF8, 0, value, -1, name, static_cast<int>(std::size(name)) - 1);
+    std::size_t length = 0;
+    for (const wchar_t* c = name; *c != 0 && length < kMaxPlayerName; ++c) {
+        if (*c >= 0x20 && *c < 0x7F) {  // the game's fonts only have ASCII
+            g_playerName[length++] = *c;
+        }
+    }
+    if (length == 0) {
+        return;
+    }
+    hooks::detour(kNetPlayerName, reinterpret_cast<const void*>(&netPlayerName), nullptr, "network player name (CW_PLAYER_NAME)");
+    std::uint8_t call[5] = {0xE8};
+    const std::int32_t relative = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&sessionTitleName) - (kSessionTitleNameCall + 5));
+    std::memcpy(call + 1, &relative, 4);
+    hooks::patchBytes(kSessionTitleNameCall, call, sizeof(call), "session title name (CW_PLAYER_NAME)");
+    logf("options: multiplayer name '%ls'", g_playerName);
+}
+
 } // namespace
 
 void install() {
+    installPlayerName();
     if (const char* value = std::getenv("CW_VIEW_DISTANCE")) {
         g_multiplier = std::clamp(static_cast<float>(std::atof(value)), 0.25f, 64.0f);
     }

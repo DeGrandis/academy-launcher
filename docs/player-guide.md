@@ -45,6 +45,9 @@ game, **F11** toggles fullscreen and **F9** changes the resolution.
 
 Everyone needs the same launcher version. Online games use the **Conquest and Online** mode.
 
+Set **Your name** on the **Online** tab: it is the name other players see in the lobby (it starts as your Windows
+user name). Your save profile keeps its own name.
+
 **With a join code (easiest, no router setup):**
 
 1. The host opens the **Online** tab, picks **Join code** and presses **Host**. The launcher shows a 6-letter code;

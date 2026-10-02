@@ -159,7 +159,29 @@ namespace AcademyLauncher
             options["CW_VIEW_DISTANCE"] = settings.Get("view_distance", "4");
             options["CW_CAMERA_DISTANCE"] = settings.Get("camera_distance", "1.2");
             options["CW_AUDIO_VOLUME"] = settings.Get("volume", "1");
+            options["CW_PLAYER_NAME"] = PlayerName(settings);
             return options;
+        }
+
+        // The game's fonts only have ASCII, and the runtime keeps 15 characters.
+        public const int MaxPlayerName = 15;
+
+        public static string CleanPlayerName(string name)
+        {
+            var clean = new StringBuilder();
+            foreach (char c in (name ?? "").Trim())
+            {
+                if (c >= 0x20 && c < 0x7F && clean.Length < MaxPlayerName) clean.Append(c);
+            }
+            return clean.ToString().Trim();
+        }
+
+        // The multiplayer name: the player's choice, else their Windows user name.
+        public static string PlayerName(Settings settings)
+        {
+            string name = CleanPlayerName(settings.Get("player_name"));
+            if (name.Length == 0) name = CleanPlayerName(Environment.UserName);
+            return name.Length > 0 ? name : "Player";
         }
 
         public static Process Launch(Settings settings, string modRoot, IDictionary<string, string> extra)
