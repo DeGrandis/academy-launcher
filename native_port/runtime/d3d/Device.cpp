@@ -1104,6 +1104,9 @@ HRESULT __stdcall xDirect3D_CreateDevice(UINT adapter, DWORD deviceType, HWND fo
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
     g_window = CreateWindowW(windowClass.lpszClassName, L"Star Wars: The Clone Wars", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, windowClass.hInstance, nullptr);
+    if (const char* fullscreen = std::getenv("CW_FULLSCREEN"); fullscreen != nullptr && std::strcmp(fullscreen, "0") != 0) {
+        toggleBorderless();
+    }
 
     g_d3d = Direct3DCreate9(D3D_SDK_VERSION);
     hostSizeFor(g_resolution, g_hostWidth, g_hostHeight);

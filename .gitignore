@@ -22,3 +22,6 @@ __pycache__/
 
 # Extracted game data and modded archives (derived from the original files)
 /work/
+
+# Launcher build output and release staging
+launcher/out/
