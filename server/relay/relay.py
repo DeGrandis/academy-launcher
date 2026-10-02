@@ -46,11 +46,13 @@ class Member:
 
 
 class Room:
-    __slots__ = ("build", "members")
+    __slots__ = ("build", "members", "packets", "bytes")
 
     def __init__(self, build):
         self.build = build
         self.members = {}  # virtual IP -> Member
+        self.packets = 0  # forwarded since the last stats line
+        self.bytes = 0
 
 
 class Relay(asyncio.DatagramProtocol):
@@ -91,6 +93,7 @@ class Relay(asyncio.DatagramProtocol):
             room = self.rooms.get(room_id)
             players, build = (len(room.members), room.build) if room else (0, 0)
             self.transport.sendto(struct.pack("<IIII", MAGIC_REPLY, room_id, players, build), address)
+            log.info("query from %s:%d for room %08x: %d in room", *address, room_id, players)
         elif magic == MAGIC_KEEPALIVE and len(data) >= 16:
             build, room_id, ip = struct.unpack_from("<III", data, 4)
             self.join(room_id, build, ip, address)
@@ -104,11 +107,15 @@ class Relay(asyncio.DatagramProtocol):
                     if ip != source:
                         self.transport.sendto(data, member.address)
                         self.forwarded += 1
+                        room.packets += 1
+                        room.bytes += len(data)
             else:
                 member = room.members.get(destination)
                 if member is not None:
                     self.transport.sendto(data, member.address)
                     self.forwarded += 1
+                    room.packets += 1
+                    room.bytes += len(data)
 
     def expire(self):
         now = time.monotonic()
@@ -131,11 +138,16 @@ async def main():
     loop = asyncio.get_running_loop()
     transport, relay = await loop.create_datagram_endpoint(Relay, local_addr=("0.0.0.0", PORT))
     log.info("relay listening on UDP %d", PORT)
+    interval = 2.0
     try:
         while True:
-            await asyncio.sleep(5)
+            await asyncio.sleep(interval)
             relay.expire()
-            log.debug("%d rooms, %d datagrams forwarded", len(relay.rooms), relay.forwarded)
+            # Debug: one traffic line per room.
+            for room_id, room in relay.rooms.items():
+                log.debug("room %08x: %d players (%s), %.0f packets/s, %.1f KB/s", room_id, len(room.members),
+                          ", ".join(ip_text(ip) for ip in room.members), room.packets / interval, room.bytes / interval / 1024)
+                room.packets = room.bytes = 0
     finally:
         transport.close()
 
