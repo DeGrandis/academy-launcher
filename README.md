@@ -168,7 +168,12 @@ These environment variables affect `clone_wars.exe`:
   its own `CW_NET_PORT` and point the second at the first (`CW_NET_JOIN=127.0.0.1:3074`). `CW_NET_IP` picks this game's
   virtual address (default random 10.x.y.z), `CW_NET_LAN=1` also searches the local network, `CW_NET_LOG=1` logs every
   packet. Multiplayer is input lockstep: everyone needs the same gameplay mods (data and plugins); visual settings
-  (resolution, view and camera distance, HUD) may differ.
+  (resolution, view and camera distance, HUD) may differ. Games only see games with the same build fingerprint
+  (`CW_NET_BUILD`, hex; the launcher derives it from the version and mod set, otherwise it comes from `VERSION` and the
+  `CW_MOD_ROOT` folder name). Without port forwarding, everyone sets `CW_NET_RELAY=<relay>:3074` and the same
+  `CW_NET_ROOM=<code>` instead of `CW_NET_JOIN`; the relay is in `server/relay`.
+- Settings can also come from a file of `KEY=VALUE` lines: `settings.ini` next to `clone_wars.exe`, or the file named by
+  `CW_SETTINGS`. Variables already set in the environment win.
 - `CW_CAMERA_DISTANCE=1.2` (the default) multiplies every vehicle's chase-camera distance (`[Camera] distance` in its ODF); `1` is the original camera.
 - `CW_VIEW_DISTANCE=4` multiplies every map's view distance (far clip plane, object culling, sky dome) and fog range from its `.sky` file; in game F8 / F7 step it up / down (1, 1.5, 2, 3, 4, 6, 8, 12, 16).
 - `CW_HOTKEY_SCRIPT=36000:f9,40000:f11`: presses those hotkeys (f7, f8, f9, f11) at time offsets (for tests).

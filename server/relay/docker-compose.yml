@@ -1,0 +1,20 @@
+# Academy relay. On the server: docker compose up -d --build
+# Open UDP 3074 in the EC2 security group; point the relay's DNS name (an A record) at the instance.
+services:
+  relay:
+    build: .
+    image: academy-relay
+    restart: unless-stopped
+    ports:
+      - "3074:3074/udp"
+    environment:
+      RELAY_PORT: "3074"
+      RELAY_EXPIRE: "30"
+      RELAY_MAX_ROOMS: "1000"
+      RELAY_MAX_MEMBERS: "8"
+      RELAY_LOG: "info"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -7,7 +7,8 @@
 // - Each game has a virtual IPv4 address (10.x.y.z; CW_NET_IP to choose) that it sees as its own (XNetGetTitleXnAddr)
 //   and that peers see as the sender. The game identifies peers by IP only, so every game needs a distinct one.
 // - Virtual sockets keep the game's ports (1000 game, 1001 discovery, 1002 voice) and queue received packets; a real
-//   datagram carries a header [magic, source IP, destination IP, source port, destination port] then the payload.
+//   datagram carries a header [magic, build, room, source IP, destination IP, source port, destination port] then the
+//   payload. Games only talk to games with the same build fingerprint (version + gameplay mods): others are dropped.
 // - Broadcasts (255.255.255.255, used for discovery) go to every peer known so far, to the CW_NET_JOIN addresses, and
 //   with CW_NET_LAN=1 also as a real LAN broadcast. Peers are learned from what arrives (virtual IP -> real address).
 // - Xbox security (XNADDR/XNKID/XNKEY, XNetConnect) is reduced to "an XNADDR holds the virtual IP" and "connected".
@@ -19,6 +20,13 @@
 //   CW_NET_IP=10.0.0.2       this game's virtual IP (default: random 10.x.y.z)
 //   CW_NET_LAN=1             also broadcast discovery on the local network
 //   CW_NET_LOG=1             log every packet
+//   CW_NET_BUILD=1234abcd    build fingerprint (hex; the launcher derives it from the version and the mod set)
+//   CW_NET_RELAY=host:port   send everything through a relay (server/relay) instead of directly
+//   CW_NET_ROOM=CODE         the relay room (join code) to use
+//
+// Control datagrams (no payload): a query [CWNQ, room] is answered [CWNR, room, players, build] by a game (direct) or
+// by the relay (for a room), so the launcher can check a join before starting; [CWNK, build, room, ip] keeps a relay
+// room membership (and the NAT mapping) alive.
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -29,6 +37,8 @@
 #include "Log.h"
 
 #include <algorithm>
+#include <cctype>
+#include <filesystem>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -72,7 +82,10 @@ constexpr std::uint32_t kXNetGetTitleXnAddr = 0x002A2F6A;
 constexpr std::uint32_t kXNetGetEthernetLinkStatus = 0x0015E2E0;
 constexpr std::uint32_t kXOnlineStartup = 0x002B57CC;  // HRESULT __stdcall(params*)
 
-constexpr std::uint32_t kMagic = 0x314E5743;  // "CWN1"
+constexpr std::uint32_t kMagic = 0x324E5743;      // "CWN2"
+constexpr std::uint32_t kQuery = 0x514E5743;      // "CWNQ"
+constexpr std::uint32_t kReply = 0x524E5743;      // "CWNR"
+constexpr std::uint32_t kKeepAlive = 0x4B4E5743;  // "CWNK"
 constexpr std::uint32_t kBroadcast = 0xFFFFFFFF;
 constexpr int kWouldBlock = 10035;  // WSAEWOULDBLOCK
 constexpr int kNotSocket = 10038;   // WSAENOTSOCK
@@ -81,6 +94,8 @@ constexpr int kMaxDatagram = 1500;
 #pragma pack(push, 1)
 struct Header {
     std::uint32_t magic;
+    std::uint32_t build;
+    std::uint32_t room;      // relay room (FNV-1a of the join code); 0 when direct
     std::uint32_t sourceIp;  // network byte order, as the game sees it
     std::uint32_t destinationIp;
     std::uint16_t sourcePort;  // network byte order
@@ -131,7 +146,11 @@ SOCKET g_real = INVALID_SOCKET;
 std::uint16_t g_realPort = 0;           // host byte order
 std::uint32_t g_ip = 0;                 // network byte order
 std::map<std::uint32_t, sockaddr_in> g_peers;  // virtual IP -> real address
-std::vector<sockaddr_in> g_seeds;       // CW_NET_JOIN addresses
+std::vector<sockaddr_in> g_seeds;       // CW_NET_JOIN addresses, or the relay
+std::uint32_t g_build = 0;
+std::uint32_t g_room = 0;
+bool g_relay = false;
+std::map<std::uint32_t, bool> g_mismatched;  // source IPs already reported with another build
 std::map<std::uint32_t, VirtualSocket> g_sockets;  // handle -> socket
 std::uint32_t g_nextHandle = 0x100;
 std::uint16_t g_nextEphemeral = 50000;
@@ -186,12 +205,30 @@ void pump() {
         if (received < 0) {
             return;  // WSAEWOULDBLOCK (or a ICMP port-unreachable error from an earlier send); nothing more for now
         }
+        if (received < 4) {
+            continue;
+        }
+        std::uint32_t magic;
+        std::memcpy(&magic, buffer, 4);
+        if (magic == kQuery && !g_relay) {
+            const std::uint32_t reply[4] = {kReply, 0, 1, g_build};
+            sendto(g_real, reinterpret_cast<const char*>(reply), sizeof(reply), 0, reinterpret_cast<const sockaddr*>(&from), sizeof(from));
+            continue;
+        }
         if (received < static_cast<int>(sizeof(Header))) {
             continue;
         }
         Header header;
         std::memcpy(&header, buffer, sizeof(header));
-        if (header.magic != kMagic || header.sourceIp == g_ip) {
+        if (header.magic != kMagic || header.sourceIp == g_ip || header.room != g_room) {
+            continue;
+        }
+        if (header.build != g_build) {
+            if (!g_mismatched[header.sourceIp]) {
+                g_mismatched[header.sourceIp] = true;
+                logf("net: ignoring %s at %s: different version or mods (build %08X, ours %08X)", ipText(header.sourceIp).c_str(),
+                    addressText(from).c_str(), header.build, g_build);
+            }
             continue;
         }
         if (header.destinationIp != g_ip && header.destinationIp != kBroadcast) {
@@ -352,7 +389,7 @@ int __stdcall xSendTo(std::uint32_t handle, const char* buffer, int length, int,
         socket->port = htons(g_nextEphemeral++);
     }
     length = std::min(length, kMaxDatagram);
-    const Header header{kMagic, g_ip, to->sin_addr.s_addr, socket->port, to->sin_port};
+    const Header header{kMagic, g_build, g_room, g_ip, to->sin_addr.s_addr, socket->port, to->sin_port};
     if (to->sin_addr.s_addr == kBroadcast || to->sin_addr.s_addr == INADDR_ANY) {
         Header broadcast = header;
         broadcast.destinationIp = kBroadcast;
@@ -486,6 +523,28 @@ unsigned __stdcall xXNetGetEthernetLinkStatus() {
     return g_enabled ? 0x01 | 0x02 | 0x08 : 0;  // ACTIVE | 100MBPS | FULL_DUPLEX
 }
 
+// FNV-1a over an upper-cased string (join codes are case-insensitive).
+std::uint32_t fingerprint(const char* text) {
+    std::uint32_t hash = 2166136261u;
+    for (; *text != 0; ++text) {
+        hash = (hash ^ static_cast<std::uint8_t>(std::toupper(static_cast<unsigned char>(*text)))) * 16777619u;
+    }
+    return hash;
+}
+
+// Relay mode: announce this game in its room every few seconds, also while the game sends nothing (an idle host in
+// its lobby), so the relay keeps the membership and the NAT keeps the mapping.
+DWORD WINAPI keepAlive(LPVOID) {
+    for (;;) {
+        {
+            std::lock_guard lock(g_mutex);
+            const std::uint32_t packet[4] = {kKeepAlive, g_build, g_room, g_ip};
+            sendto(g_real, reinterpret_cast<const char*>(packet), sizeof(packet), 0, reinterpret_cast<const sockaddr*>(&g_seeds[0]), sizeof(g_seeds[0]));
+        }
+        Sleep(5000);
+    }
+}
+
 void configure() {
     const char* enabled = std::getenv("CW_NET");
     g_enabled = enabled != nullptr && std::strcmp(enabled, "0") != 0;
@@ -523,7 +582,27 @@ void configure() {
             static_cast<std::uint8_t>(2 + random() % 250)};
         std::memcpy(&g_ip, bytes, 4);
     }
-    if (const char* join = std::getenv("CW_NET_JOIN")) {
+    g_build = fingerprint(CW_VERSION);
+    if (const char* build = std::getenv("CW_NET_BUILD")) {
+        g_build = static_cast<std::uint32_t>(std::strtoul(build, nullptr, 16));
+    } else if (const char* modRoot = std::getenv("CW_MOD_ROOT")) {
+        g_build ^= fingerprint(std::filesystem::path(modRoot).filename().string().c_str());
+    }
+    if (const char* relay = std::getenv("CW_NET_RELAY")) {
+        sockaddr_in address{};
+        if (parseAddress(relay, 3074, address)) {
+            g_relay = true;
+            g_lan = false;
+            g_seeds.push_back(address);
+            const char* room = std::getenv("CW_NET_ROOM");
+            g_room = fingerprint(room != nullptr ? room : "");
+            logf("net: using relay %s, room '%s'", addressText(address).c_str(), room != nullptr ? room : "");
+            CreateThread(nullptr, 0, &keepAlive, nullptr, 0, nullptr);
+        } else {
+            logf("net: cannot resolve relay '%s'", relay);
+        }
+    }
+    if (const char* join = g_relay ? nullptr : std::getenv("CW_NET_JOIN")) {
         std::string list = join;
         std::size_t position = 0;
         while (position <= list.size()) {
@@ -536,7 +615,8 @@ void configure() {
             position = end + 1;
         }
     }
-    logf("net: virtual network on, this game is %s, real UDP port %u%s", ipText(g_ip).c_str(), g_realPort, g_lan ? ", LAN broadcast on" : "");
+    logf("net: virtual network on, this game is %s, real UDP port %u, build %08X%s", ipText(g_ip).c_str(), g_realPort, g_build,
+        g_lan ? ", LAN broadcast on" : "");
 }
 
 } // namespace

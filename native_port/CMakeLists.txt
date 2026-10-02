@@ -9,6 +9,10 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Static CRT: players need no Visual C++ redistributable (the plugin API passes no CRT objects across modules).
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+file(STRINGS "${CMAKE_SOURCE_DIR}/../VERSION" CW_VERSION LIMIT_COUNT 1)
 
 set(CW_GAME_ROOT "${CMAKE_SOURCE_DIR}/../extracted_iso" CACHE PATH "Directory containing the extracted game files (default.xbe, data.zwp)")
 set(CW_OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin")
@@ -19,7 +23,7 @@ endforeach()
 
 # C4100: kernel/HLE entry points must keep the Xbox ABI signature even when a parameter is unused.
 add_compile_options(/W4 /permissive- /utf-8 /wd4100)
-add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX _CRT_SECURE_NO_WARNINGS)
+add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX _CRT_SECURE_NO_WARNINGS CW_VERSION="${CW_VERSION}")
 
 add_executable(xbe2exe tools/xbe2exe/main.cpp)
 
@@ -61,17 +65,25 @@ target_include_directories(cw_runtime PRIVATE runtime "${minhook_SOURCE_DIR}/src
 target_link_libraries(cw_runtime PRIVATE ntdll d3d9 d3dcompiler Xinput9_1_0 winmm xaudio2 ole32 ws2_32 minhook)
 target_link_options(cw_runtime PRIVATE /SAFESEH:NO)
 
-set(CW_GAME_EXE "${CW_OUTPUT_DIR}/clone_wars.exe")
-add_custom_command(
-    OUTPUT "${CW_GAME_EXE}"
-    COMMAND xbe2exe "${CW_GAME_ROOT}/default.xbe" "${CW_GAME_EXE}"
-    DEPENDS xbe2exe "${CW_GAME_ROOT}/default.xbe"
-    COMMENT "Converting default.xbe into clone_wars.exe"
-    VERBATIM
-)
-add_custom_target(clone_wars ALL DEPENDS "${CW_GAME_EXE}" cw_runtime)
-
-file(WRITE "${CW_OUTPUT_DIR}/game_root.txt" "${CW_GAME_ROOT}\n")
+# Developer builds convert the local game files; release builds (CI, no game files) ship xbe2exe and the launcher
+# runs it on the player's own copy.
+add_custom_target(clone_wars ALL DEPENDS cw_runtime xbe2exe)
+if (EXISTS "${CW_GAME_ROOT}/default.xbe")
+    set(CW_GAME_EXE "${CW_OUTPUT_DIR}/clone_wars.exe")
+    add_custom_command(
+        OUTPUT "${CW_GAME_EXE}"
+        COMMAND xbe2exe "${CW_GAME_ROOT}/default.xbe" "${CW_GAME_EXE}"
+        DEPENDS xbe2exe "${CW_GAME_ROOT}/default.xbe"
+        COMMENT "Converting default.xbe into clone_wars.exe"
+        VERBATIM
+    )
+    add_custom_target(clone_wars_exe ALL DEPENDS "${CW_GAME_EXE}")
+    add_dependencies(clone_wars clone_wars_exe)
+    file(WRITE "${CW_OUTPUT_DIR}/game_root.txt" "${CW_GAME_ROOT}
+")
+else()
+    message(STATUS "No ${CW_GAME_ROOT}/default.xbe: building the runtime, plugins and xbe2exe only")
+endif()
 
 # Plugins: every mods/<name>/plugin folder builds <name>.dll into bin/mods (tools/build_mod.py copies it into the mod).
 file(GLOB CW_PLUGIN_DIRS LIST_DIRECTORIES true "${CMAKE_SOURCE_DIR}/../mods/*/plugin")

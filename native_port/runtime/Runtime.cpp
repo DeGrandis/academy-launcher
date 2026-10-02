@@ -76,6 +76,27 @@ void resolveModRoot(const std::filesystem::path& exeDirectory) {
     _putenv_s("CW_MOD_ROOT", resolved.string().c_str());
 }
 
+// Settings file (CW_SETTINGS, else settings.ini next to the exe): KEY=VALUE lines, '#' comments. The launcher writes
+// it; a variable already in the environment wins, so a command line can still override any setting.
+void loadSettings(const std::filesystem::path& exeDirectory) {
+    const char* explicitPath = std::getenv("CW_SETTINGS");
+    std::ifstream file(explicitPath != nullptr ? std::filesystem::path(explicitPath) : exeDirectory / "settings.ini");
+    std::string line;
+    while (file && std::getline(file, line)) {
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        const std::size_t equals = line.find('=');
+        if (line.empty() || line[0] == '#' || line[0] == ';' || equals == std::string::npos || equals == 0) {
+            continue;
+        }
+        const std::string key = line.substr(0, equals);
+        if (std::getenv(key.c_str()) == nullptr) {
+            _putenv_s(key.c_str(), line.substr(equals + 1).c_str());
+        }
+    }
+}
+
 LONG CALLBACK logExceptions(EXCEPTION_POINTERS* info) {
     const DWORD code = info->ExceptionRecord->ExceptionCode;
     if (cw::trace::handle(info)) {
@@ -157,6 +178,7 @@ LONG WINAPI logUnhandled(EXCEPTION_POINTERS* info) {
 
 extern "C" __declspec(dllexport) void __cdecl CwRun() {
     const std::filesystem::path exeDirectory = executableDirectory();
+    loadSettings(exeDirectory);
     const char* logPath = std::getenv("CW_LOG_PATH");
     cw::logInit(logPath != nullptr ? std::filesystem::path(logPath).c_str() : (exeDirectory / "cw_runtime.log").c_str());
 
@@ -164,7 +186,7 @@ extern "C" __declspec(dllexport) void __cdecl CwRun() {
     if (!std::filesystem::exists(gameRoot / "default.xbe")) {
         cw::fatal("game files not found at '%s' (set CW_GAME_ROOT or edit game_root.txt)", gameRoot.string().c_str());
     }
-    cw::logf("Clone Wars native runtime: game root '%s'", gameRoot.string().c_str());
+    cw::logf("Clone Wars native runtime %s: game root '%s'", CW_VERSION, gameRoot.string().c_str());
     resolveModRoot(exeDirectory);
 
     // The XBE header shares the PE header page, and the entry point writes into the certificate.
