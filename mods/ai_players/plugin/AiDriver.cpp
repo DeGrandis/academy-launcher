@@ -51,6 +51,10 @@ constexpr float kOvershootFraction = 0.6f;
 constexpr float kTroopRepeat = 30.0f;
 constexpr int kMaxRoutePoints = 64;
 constexpr float kPi = 3.14159265f;
+constexpr float kLookahead = 25.0f;       // steer at the route this far ahead of the tank's closest point on it
+constexpr float kPivotAngle = 1.0f;       // radians off course beyond which the tank pivots slowly
+constexpr float kPivotThrottle = 0.12f;
+constexpr float kRespawnJump = 150.0f;    // a move this big between two frames means the tank respawned
 
 struct Zone {
     float position[3];
@@ -73,10 +77,13 @@ struct SpawnPoint {
 
 struct Brain {
     bool started = false;
+    const std::uint8_t* object = nullptr;  // the tank last frame
+    float lastPosition[3] = {};
     int target = -1;
     float route[kMaxRoutePoints][3];
     int routeLength = 0;
-    int routeIndex = 0;
+    int routeIndex = 0;       // waypoint the tank is driving towards
+    float segmentStart[3];    // where the current leg started (the previous waypoint, or where it joined)
     bool inPlace = false;
     int lastBuilding = -2;
     // progress / stuck detection
@@ -136,13 +143,39 @@ int priority(const Zone* candidate, int team) {
     return candidate->owner == team ? 0 : (candidate->owner < 0 ? 1 : 2);
 }
 
-int chooseTarget(const float* from, int team) {
+// Another player on the same team has this outpost covered: a computer teammate is heading there, or an ally
+// (a person) is standing in it or claiming it.
+// yieldOnly: for the outpost this player is already heading to, only give way to people and lower-numbered computer
+// players, so two computer teammates never both back off the same one.
+bool takenByAlly(int index, int slot, int team, bool yieldOnly = false) {
+    const Zone* candidate = zone(index);
+    for (int other = 0; other < kSlots; ++other) {
+        std::uint8_t* object = other != slot ? playerObject(other) : nullptr;
+        if (object == nullptr || *reinterpret_cast<const std::int32_t*>(object + 0xC0) != team) {
+            continue;
+        }
+        if (g_brains[other].started) {
+            if (g_brains[other].target == index && (!yieldOnly || other < slot)) {
+                return true;
+            }
+            continue;
+        }
+        float position[3];
+        worldPosition(object, position);
+        if (candidate->claimer == other || distance2d(position, candidate->position) < candidate->radius) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int chooseTarget(const float* from, int team, int slot, bool shareWithAllies = false) {
     int best = -1;
     int bestPriority = 0;
     float bestDistance = 0.0f;
     for (int index = 0; index < zoneCount(); ++index) {
         const int rank = priority(zone(index), team);
-        if (rank < 0) {
+        if (rank < 0 || (!shareWithAllies && takenByAlly(index, slot, team))) {
             continue;
         }
         const float distance = distance2d(zone(index)->position, from);
@@ -198,7 +231,50 @@ void planRoute(Brain& brain, int slot, const Zone* target, const float* from, in
             brain.routeIndex = index;
         }
     }
+    std::memcpy(brain.segmentStart, from, sizeof(brain.segmentStart));
     g_api->log("ai_players: player %d following %s (%d points, joining at %d)", slot + 1, name, brain.routeLength, brain.routeIndex + 1);
+}
+
+// Pure pursuit along the route: the point kLookahead further along the route than the tank's closest point on the
+// current leg, so it follows the line between waypoints (along bridges) instead of cutting corners. Moves on to the
+// next leg once the tank is past the end of this one.
+void routeLookahead(Brain& brain, const float* position, float* out) {
+    for (;;) {
+        const float* a = brain.segmentStart;
+        const float* b = brain.route[brain.routeIndex];
+        const float dx = b[0] - a[0];
+        const float dz = b[2] - a[2];
+        const float length = std::sqrt(dx * dx + dz * dz);
+        float along = length > 0.01f ? ((position[0] - a[0]) * dx + (position[2] - a[2]) * dz) / length : length;
+        along = along < 0.0f ? 0.0f : along;
+        if ((along >= length || distance2d(position, b) < kWaypointReached) && brain.routeIndex + 1 < brain.routeLength) {
+            std::memcpy(brain.segmentStart, b, sizeof(brain.segmentStart));
+            ++brain.routeIndex;
+            continue;
+        }
+        // Walk kLookahead along the route from the closest point, onto later legs if needed.
+        float remaining = kLookahead;
+        float from = along;
+        const float* start = a;
+        int index = brain.routeIndex;
+        for (;;) {
+            const float* end = brain.route[index];
+            const float legX = end[0] - start[0];
+            const float legZ = end[2] - start[2];
+            const float legLength = std::sqrt(legX * legX + legZ * legZ);
+            if (from + remaining <= legLength || index + 1 >= brain.routeLength) {
+                const float t = legLength > 0.01f ? (from + remaining < legLength ? from + remaining : legLength) / legLength : 1.0f;
+                out[0] = start[0] + legX * t;
+                out[1] = start[1] + (end[1] - start[1]) * t;
+                out[2] = start[2] + legZ * t;
+                return;
+            }
+            remaining -= legLength - from;
+            from = 0.0f;
+            start = end;
+            ++index;
+        }
+    }
 }
 
 // Left stick towards `point`, relative to the tank's heading.
@@ -209,8 +285,10 @@ void steer(CwPad* pad, const std::uint8_t* object, const float* position, const 
     float error = wanted - heading;
     while (error > kPi) error -= 2 * kPi;
     while (error < -kPi) error += 2 * kPi;
-    const float x = std::sin(error);
-    const float y = std::cos(error) < 0.3f ? 0.3f : std::cos(error);
+    // Slow down to turn: full throttle only when lined up, a crawl while pivoting, so it doesn't arc off bridges.
+    const float x = std::fabs(error) > kPi / 2 ? (error > 0 ? 1.0f : -1.0f) : std::sin(error);
+    const float lined = std::cos(error) > 0.0f ? std::cos(error) : 0.0f;
+    const float y = std::fabs(error) > kPivotAngle ? kPivotThrottle : lined * lined;
     pad->thumbLX = static_cast<std::int16_t>(x * 32767.0f);
     pad->thumbLY = static_cast<std::int16_t>(y * 32767.0f);
 }
@@ -247,18 +325,36 @@ void think(Brain& brain, int slot, std::uint8_t* object, CwPad* pad) {
     worldPosition(object, position);
     troopCommands(brain, slot, team, pad);
 
+    // A new tank (respawn) or a jump across the map: start over from here.
+    if (object != brain.object || distance2d(position, brain.lastPosition) > kRespawnJump) {
+        if (brain.object != nullptr) {
+            g_api->log("ai_players: player %d respawned; picking a new outpost", slot + 1);
+        }
+        brain.object = object;
+        brain.target = -1;
+        brain.inPlace = false;
+    }
+    std::memcpy(brain.lastPosition, position, sizeof(brain.lastPosition));
+
     if (brain.target >= 0 && held(zone(brain.target), team)) {
         g_api->log("ai_players: player %d: zone %d claimed and fully built", slot + 1, zone(brain.target)->id);
         brain.target = -1;
     }
     if (brain.target >= 0 && !brain.inPlace) {
-        const int better = chooseTarget(position, team);
-        if (better >= 0 && better != brain.target && priority(zone(better), team) < priority(zone(brain.target), team)) {
+        // While travelling: let an ally have it if they got there first, and switch to something more urgent.
+        const int better = chooseTarget(position, team, slot);
+        if (takenByAlly(brain.target, slot, team, true) && better >= 0) {
+            g_api->log("ai_players: player %d leaves zone %d to an ally", slot + 1, zone(brain.target)->id);
+            brain.target = -1;
+        } else if (better >= 0 && better != brain.target && priority(zone(better), team) < priority(zone(brain.target), team)) {
             brain.target = -1;
         }
     }
     if (brain.target < 0) {
-        brain.target = chooseTarget(position, team);
+        brain.target = chooseTarget(position, team, slot);
+        if (brain.target < 0) {
+            brain.target = chooseTarget(position, team, slot, true);  // everything left is covered: help out anyway
+        }
         if (brain.target < 0) {
             return;  // every outpost is ours and built
         }
@@ -293,10 +389,10 @@ void think(Brain& brain, int slot, std::uint8_t* object, CwPad* pad) {
     // On the way: the map's route.
     if (distance > target->radius && brain.routeIndex < brain.routeLength) {
         const int previous = brain.routeIndex;
-        while (brain.routeIndex < brain.routeLength && distance2d(position, brain.route[brain.routeIndex]) < kWaypointReached) {
-            ++brain.routeIndex;
-        }
-        if (brain.routeIndex < brain.routeLength) {
+        float lookahead[3];
+        routeLookahead(brain, position, lookahead);
+        const bool lastReached = brain.routeIndex + 1 >= brain.routeLength && distance2d(position, brain.route[brain.routeIndex]) < kWaypointReached;
+        if (!lastReached) {
             const float leg = distance2d(position, brain.route[brain.routeIndex]);
             if (brain.routeIndex != previous || leg < brain.best - kStuckProgress) {
                 brain.best = leg;
@@ -304,14 +400,16 @@ void think(Brain& brain, int slot, std::uint8_t* object, CwPad* pad) {
             } else if (g_now - brain.progressAt > kStuckSeconds) {
                 g_api->log("ai_players: player %d stuck %.0f short of route point %d of %d; skipping it", slot + 1, leg, brain.routeIndex + 1,
                     brain.routeLength);
+                std::memcpy(brain.segmentStart, position, sizeof(brain.segmentStart));
                 ++brain.routeIndex;
                 brain.best = 1e9f;
                 brain.progressAt = g_now;
                 return;
             }
-            steer(pad, object, position, brain.route[brain.routeIndex]);
+            steer(pad, object, position, lookahead);
             return;
         }
+        brain.routeIndex = brain.routeLength;  // route done
     }
 
     // Into the claim circle: through the centre, and round the outpost when blocked.
