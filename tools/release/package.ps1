@@ -26,6 +26,8 @@ if (Test-Path $out) { Remove-Item -Recurse -Force $out }
 New-Item -ItemType Directory -Force "$stage\runtime", "$stage\mods" | Out-Null
 Copy-Item "$repo\launcher\out\AcademyLauncher.exe", "$repo\launcher\out\academy-tool.exe", "$repo\launcher\defaults.ini", "$repo\VERSION" $stage
 Copy-Item "$repo\docs\player-guide.md" "$stage\README.md"
+Copy-Item "$repo\LICENSE" "$stage\LICENSE.txt"
+Copy-Item "$repo\THIRD_PARTY_NOTICES.md" $stage
 Copy-Item "$bin\cw_runtime.dll", "$bin\xbe2exe.exe" "$stage\runtime"
 Copy-Item "$repo\mods\presets.json" "$stage\mods"
 

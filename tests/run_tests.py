@@ -44,6 +44,12 @@ def run_case(case, routes):
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
     shutil.copytree(FIXTURE_HDD, out / "hdd")
+    # The save's dashboard images are the game's own icons, so the fixture leaves them out; copy them from the game.
+    game = Path(os.environ.get("CW_GAME_ROOT", ROOT / "extracted_iso"))
+    save = out / "hdd" / "E" / "UDATA" / "4c410004"
+    for image, source in (("TitleImage.xbx", "gameicon.xpr"), ("SaveImage.xbx", "saveicon.xpr")):
+        if (game / source).exists():
+            shutil.copyfile(game / source, save / image)
 
     watch_spec = ",".join(case.get("watch", {}).values())
     names_by_address = {spec.split(":")[0].upper().lstrip("0"): name for name, spec in case.get("watch", {}).items()}

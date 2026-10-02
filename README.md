@@ -1,6 +1,35 @@
-# Star Wars: The Clone Wars Native Port Workspace
+# Academy Launcher
 
-This workspace is being used to reverse engineer the original Xbox release into a compilable, modifiable, and extendable native Windows port.
+Play **Star Wars: The Clone Wars** (original Xbox, 2002) natively on Windows, with mods for Thule Moon Academy and
+Conquest, AI players, widescreen and high resolutions, and online play with friends.
+
+**You need your own copy of the game.** The launcher turns a disc image (`.iso`) that you made from your own disc
+(North American release) into a PC game on your machine. No game files are included here or in any release, and
+the launcher never downloads them.
+
+## Play
+
+1. Download `AcademyLauncherSetup-<version>.exe` from [Releases](../../releases/latest) and run it. Windows may warn
+   that the installer is unsigned: choose **More info > Run anyway**.
+2. Start Academy Launcher and choose your `.iso` (or a folder with the extracted game).
+3. Pick a mode and press **PLAY**. For online games, use the **Online** tab: host for a join code, or join with one.
+
+Windows 10 or 11 and any DirectX 9 graphics card; nothing else to install. The [player guide](docs/player-guide.md)
+covers controls, online play and troubleshooting.
+
+## Legal
+
+This is an unofficial fan project. It is not affiliated with, endorsed or sponsored by Lucasfilm, Disney, LucasArts,
+Pandemic Studios or Microsoft. Star Wars and related names are trademarks of their owners. The code here is original
+work under the [MIT license](LICENSE); third-party components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The game's code and data are not part of this repository: the port runs the original game code from the player's own
+copy, and the reverse-engineering notes (symbol names, addresses, file formats) describe how it works.
+
+---
+
+# Developer guide
+
+This repository reverse engineers the original Xbox release into a native, moddable Windows port.
 
 ## How it works
 
@@ -131,7 +160,7 @@ Use `native_port/runtime/game/GameSymbols.h` for addresses and typed globals. Re
 
 Thule Moon Academy is run by a mode script (`ThuleAcademyScript`, created for world `multi5` and stored in `g_missionScript`). It plays 26 waves from tables built for the number of players (`g_mpPlayerCount`, 1..4), then repeats them with a higher Academy level. Each wave is a list of groups; a group spawns `(unit ODF, spawn point)` pairs after a delay, can wait until every enemy is dead, and can play a voice cue or a bonus-path effect. Each finished wave raises `g_academyLevel`, which scales enemy health (x1.5 for every 20 levels). A `GLADIATOR` entry starts the player-vs-player elimination round.
 
-- `docs/academy_waves.md` / `.json`: every wave for 1-4 players (regenerate with `python tools/re/academy_waves.py --markdown docs/academy_waves.md --json docs/academy_waves.json`).
+- `docs/academy_waves.md`: how the Academy waves work. The full wave tables for 1-4 players come from your own game files: `python tools/re/academy_waves.py --markdown work/academy_waves.md --json work/academy_waves.json`.
 - `native_port/runtime/game/GameObjects.h`: typed views for plugins, `GameObject` (player object, position, orientation, team, health) and `ThuleAcademyScript` (current wave and group, wave tables, live enemies, loop count).
 - `symbols/manual.csv`: the Battlezone II-style script API the mode uses (`Script_BuildObjectAt`, `Script_Goto`, `Script_GetMaxHealth`, `Script_SetMaxHealth`, `Script_GetTime`, ...).
 - `mods/academy_tweaks`: example plugin that doubles the player's health and logs wave progress.

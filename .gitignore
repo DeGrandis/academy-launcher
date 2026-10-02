@@ -28,3 +28,6 @@ launcher/out/
 
 # Generated from the game files by tools/map/make_flat_conquest.py
 mods/flat_conquest/data/
+
+# Editor settings (local paths)
+.vscode/
