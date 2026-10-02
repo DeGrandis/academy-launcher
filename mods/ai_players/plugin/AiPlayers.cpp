@@ -15,7 +15,9 @@
 #include "game/GameSymbols.h"
 
 #include <cstdint>
+#include <cstring>
 #include <cwchar>
+#include <intrin.h>
 
 namespace {
 
@@ -141,6 +143,41 @@ void __cdecl beginMission(const char* mission, const char* directory) {
     g_originalBeginMission(mission, directory);
 }
 
+// Computer players get no screen of their own: the split-screen layout and the per-player HUD loop ask
+// IsLocalPlayer(slot) (0x739F0, bool __cdecl(int slot)) from the render code (0xEE000-0xF0000); for a computer slot
+// that answer is "no", so player 1 keeps the whole screen. Everywhere else (controls, match logic) it stays a local
+// player.
+constexpr std::uint32_t kIsLocalPlayer = 0x000739F0;
+constexpr std::uintptr_t kRenderCodeStart = 0x000EE000;
+constexpr std::uintptr_t kRenderCodeEnd = 0x000F0000;
+bool(__cdecl* g_originalIsLocalPlayer)(int) = nullptr;
+
+// The 3D views are laid out by ViewRectForPlayer (0xEDD50; stack: camera, index among the players with a screen,
+// number of such players, ...), whose count in the 3D pass is worked out separately; take the computer players
+// out of it there (a count of 1 or less is the full screen).
+constexpr std::uint32_t kViewRectForPlayer = 0x000EDD50;
+
+void __cdecl viewRectForPlayer(CwRegisters* registers) {
+    if (inLobby()) {
+        return;
+    }
+    int computers = 0;
+    for (int slot = 1; slot < kSlots; ++slot) {
+        computers += g_plugged[slot] ? 1 : 0;
+    }
+    auto& count = *reinterpret_cast<std::int32_t*>(static_cast<std::uintptr_t>(registers->esp + 4 + 0xC));
+    if (computers > 0 && count > 1) {
+        count = count - computers < 1 ? 1 : count - computers;
+    }
+}
+
+bool __cdecl isLocalPlayer(int slot) {
+    const auto caller = reinterpret_cast<std::uintptr_t>(_ReturnAddress());
+    if (slot > 0 && slot < kSlots && g_plugged[slot] && !inLobby() && caller >= kRenderCodeStart && caller < kRenderCodeEnd) {
+        return false;
+    }
+    return g_originalIsLocalPlayer(slot);
+}
 } // namespace
 
 extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
@@ -157,6 +194,9 @@ extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
                reinterpret_cast<void**>(&g_originalOpen), "Lobby open (ai_players)")
         && api->midHook(kPanelNameReady, &panelNameReady, "Lobby panel name (ai_players)")
         && api->midHook(kPanelHeaderReady, &panelHeaderReady, "Lobby panel header (ai_players)")
+        && api->detour(kIsLocalPlayer, reinterpret_cast<const void*>(&isLocalPlayer), reinterpret_cast<void**>(&g_originalIsLocalPlayer),
+               "IsLocalPlayer (ai_players: no screen for computer players)")
+        && api->midHook(kViewRectForPlayer, &viewRectForPlayer, "ViewRectForPlayer (ai_players: full screen)")
         && api->detour(reinterpret_cast<std::uint32_t>(cw::game::Batch_BeginMission), reinterpret_cast<const void*>(&beginMission),
                reinterpret_cast<void**>(&g_originalBeginMission), "Batch_BeginMission (ai_players)");
 }

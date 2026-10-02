@@ -5,6 +5,7 @@
 #include "GameOptions.h"
 #include "Hle.h"
 #include "Log.h"
+#include "Threads.h"
 
 #include <timeapi.h>
 #include <intrin.h>
@@ -1435,6 +1436,14 @@ void applyHostViewport() {
 
 void __stdcall xSetViewport(const D3DVIEWPORT9* viewport) {
     std::lock_guard lock(g_lock);
+    static const bool logViewports = std::getenv("CW_VIEWPORT_LOG") != nullptr;
+    if (logViewports && (viewport->X != g_viewport.X || viewport->Y != g_viewport.Y || viewport->Width != g_viewport.Width ||
+                            viewport->Height != g_viewport.Height)) {
+        logf("d3d: SetViewport %lu,%lu %lux%lu from %p", viewport->X, viewport->Y, viewport->Width, viewport->Height, _ReturnAddress());
+        std::uintptr_t frame = 0;
+        __asm mov frame, ebp
+        threads::logCallChainFrom("  viewport", frame);
+    }
     g_viewport = *viewport;
     applyHostViewport();
 }
