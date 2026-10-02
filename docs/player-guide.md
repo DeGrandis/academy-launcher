@@ -30,10 +30,13 @@ The launcher checks the game is the supported release, then gets it ready. You o
 
 On the **Play** tab, pick a mode and press **PLAY**:
 
-- **Academy+**: Thule Moon Academy with extra vehicles (the gunship flies), the Thule Power mode (a powerup in the
-  middle that changes every 60 seconds) and continuous enemy waves.
-- **Conquest and Online**: Conquest with AI players and new vehicles for both sides. In the lobby, press **RB** (or
-  **R** on the keyboard) to move to an empty slot and make it an AI player, then set its team.
+- **Game + all mods**: everything unlocked, plus:
+  - Thule Moon Academy with extra vehicles (the gunship flies) and the **Thule Power** map (a powerup in the middle
+    that changes every 60 seconds); in single player, reworked enemy waves.
+  - Conquest with AI players and new vehicles for both sides. In the lobby, press **RB** (or **R** on the keyboard)
+    to move to an empty slot and make it an AI player, then set its team. Conquest can also be started alone.
+  - All of it online too: in System Link, **Academy** offers Thule Moon and Thule Power, and Conquest has the new
+    vehicles.
 - **Original game**: no mods.
 
 The first time you play a mode, the launcher builds its mods (a few seconds).
@@ -43,7 +46,7 @@ game, **F11** toggles fullscreen and **F9** changes the resolution.
 
 ## Playing online
 
-Everyone needs the same launcher version. Online games use the **Conquest and Online** mode.
+Everyone needs the same launcher version. Online games use the **Game + all mods** mode.
 
 Set **Your name** on the **Online** tab: it is the name other players see in the lobby (it starts as your Windows
 user name). Your save profile keeps its own name.

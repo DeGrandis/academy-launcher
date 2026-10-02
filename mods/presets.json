@@ -1,17 +1,11 @@
 {
   "presets": [
     {
-      "id": "academy",
-      "name": "Academy+",
-      "description": "Thule Moon Academy with the gunship and CIS vehicles, the Thule Power mode (a powerup in the middle that changes every 60 s) and continuous enemy waves. Everything unlocked.",
-      "mods": ["unlock_all", "academy_vehicles", "academy_powerups", "academy_waves"]
-    },
-    {
-      "id": "online",
-      "name": "Conquest and Online",
-      "description": "Conquest and multiplayer with AI players (pick AI in the lobby with RB), CIS spider walkers and wheeled tank, Republic walker and transport, new specials. Everything unlocked. Use this for online games: everyone needs the same preset.",
+      "id": "full",
+      "name": "Game + all mods",
+      "description": "Everything unlocked. Thule Moon Academy with the gunship and CIS vehicles, the Thule Power mode (a powerup in the middle that changes every 60 s) and reworked waves. Conquest with AI players (pick AI in the lobby with RB), CIS spider walkers and wheeled tank, Republic walker and transport, new specials. Online games use this mode: everyone needs the same launcher version.",
       "online": true,
-      "mods": ["unlock_all", "ai_players", "cis_spiders", "cis_bosses", "rep_vehicles"]
+      "mods": ["unlock_all", "academy_vehicles", "academy_powerups", "academy_waves", "mp_solo", "ai_players", "cis_spiders", "cis_bosses", "rep_vehicles"]
     },
     {
       "id": "original",

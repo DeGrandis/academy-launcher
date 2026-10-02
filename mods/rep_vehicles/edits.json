@@ -19,5 +19,6 @@
   {"file": "rep_tank_gtrans_multi.odf", "find": "\\[Weapons\\]\\r\\n", "replace": "[Weapons]\r\nweaponObj3 = \"hp_cannon_1\" \"REP_missile_fighter1_xblive\" 1 2 0\r\nweaponObj4 = \"hp_cannon_2\" \"REP_missile_fighter1_xblive\" 1 2 1\r\n", "count": 1, "tag": "weapons"},
   {"file": "rep_tank_gtrans_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nmaxAmmoSecondary = 15\r\naddAmmoSecondary = 0.05\r\nminAmmoSpecial = 1.0\r\nmaxAmmoSpecial = 3.0\r\naddAmmoSpecial = 0.2\r\n", "count": 1, "tag": "weapons"},
   {"file": "rep_tank_gtrans_multi.odf", "find": "secondaryWeaponType = \\d+", "replace": "secondaryWeaponType = 6", "count": 1, "tag": "weapons"},
-  {"file": "rep_tank_gtrans_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 7", "count": 1, "tag": "weapons"}
+  {"file": "rep_tank_gtrans_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 7", "count": 1, "tag": "weapons"},
+  {"file": "onlinebuttons.cfg", "tag": "online", "find": "(?m)^(\\s+PlayerODF\\(\"rep_walk_assault_xblive\",\"REP_walk_assault_icon\\.tga\",1\\);)", "replace": "\\1\n  \tPlayerODF(\"REP_walk_sixleg_multi\",\"rep_walk_sixleg_icon.tga\",1);\n  \tPlayerODF(\"REP_tank_gtrans_multi\",\"rep_tank_gtrans_icon.tga\",1);", "count": 4}
 ]

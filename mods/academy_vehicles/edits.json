@@ -1,8 +1,5 @@
 [
-  {"file": "multiplayerbuttons.cfg",
-   "find": "(MissionFile\\(\"multi5\\.wld\"\\);[\\s\\S]*?PlayerODF\\(\"REP_walk_assault_multi\",\"REP_walk_assault_icon\\.tga\"\\);)",
-   "replace": "\\1\r\n\tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_fighter_multi\",\"CIS_tank_fighter_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_assault_multi\",\"CIS_tank_assault_icon.tga\");\r\n\tPlayerODF(\"REP_fly_gunship_player\",\"rep_gunship.tga\");", "count": 1},
-  {"file": "rep_fly_gunship_player.odf",
-   "find": "maxAmmoSpecial = 6\\.0(\\s+)addAmmoSpecial = 0\\.1",
-   "replace": "maxAmmoSpecial = 12.0\\1addAmmoSpecial = 0.2", "count": 1}
+  {"file": "multiplayerbuttons.cfg", "find": "(MissionFile\\(\"multi5\\.wld\"\\);[\\s\\S]*?PlayerODF\\(\"REP_walk_assault_multi\",\"REP_walk_assault_icon\\.tga\"\\);)", "replace": "\\1\r\n\tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_fighter_multi\",\"CIS_tank_fighter_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_assault_multi\",\"CIS_tank_assault_icon.tga\");\r\n\tPlayerODF(\"REP_fly_gunship_player\",\"rep_gunship.tga\");", "count": 1},
+  {"file": "rep_fly_gunship_player.odf", "find": "maxAmmoSpecial = 6\\.0(\\s+)addAmmoSpecial = 0\\.1", "replace": "maxAmmoSpecial = 12.0\\1addAmmoSpecial = 0.2", "count": 1},
+  {"file": "onlinebuttons.cfg", "tag": "online", "find": "(MissionFile\\(\"AC1\\.wld\"\\);[^{}]*\\})", "replace": "\\1\n\n  Mission()\n  {\n\tTitle(\"Thule Moon\");\n\tDescrition(\"ACADEMY\");\n\tButtonTexture(\"asteroid1_button.tga\");\n\tMissionFile(\"multi5.wld\");\n\tMode(\"Academy\");\n\tScoreLimit(0, 0);\n\tTimeLimit(0, 0);\n\tTeams(0, 0);\n\tPowerups(1, 0);\n\tPlayerODF(\"REP_tank_fighter1_player\",\"REP_tank_fighter1_icon.tga\");\n\tPlayerODF(\"REP_walk_assault_multi\",\"REP_walk_assault_icon.tga\");\n\tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\");\n\tPlayerODF(\"CIS_tank_fighter_multi\",\"CIS_tank_fighter_icon.tga\");\n\tPlayerODF(\"CIS_tank_assault_multi\",\"CIS_tank_assault_icon.tga\");\n\tPlayerODF(\"REP_fly_gunship_player\",\"rep_gunship.tga\");\n  }", "count": 1}
 ]

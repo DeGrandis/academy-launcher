@@ -40,7 +40,8 @@ constexpr std::int32_t kFactoryZone = 2;
 constexpr std::uint32_t kPathFind = 0x000AD320;
 constexpr std::uint32_t kSpawnPointCount = 0x0041B870;
 constexpr std::uint32_t kSpawnPoints = 0x0041BA50;
-const char* const kConquestMaps[] = {"multi6", "multi8", "multi10", "multi12", "multi19"};  // multi19: flat_conquest test map
+const char* const kConquestMaps[] = {"multi6", "multi8", "multi10", "multi12", "multi19",  // multi19: flat_conquest test map
+                                     "cq1", "cq2", "cq3", "cq4", "cq5"};  // online (System Link) Conquest maps
 
 constexpr float kWaypointReached = 20.0f;
 constexpr float kStuckSeconds = 6.0f;

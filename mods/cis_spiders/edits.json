@@ -13,5 +13,6 @@
   {"file": "cis_walk_assault_multi.odf", "find": "\\[Weapons\\]\\r\\n", "replace": "[Weapons]\r\nweaponObj3 = \"hp_cannon_1\" \"CIS_missile_wheeled_multi\" 1 1 0\r\n", "count": 1, "tag": "weapons"},
   {"file": "cis_walk_assault_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nmaxAmmoSecondary = 10\r\naddAmmoSecondary = 0.1\r\n", "count": 1, "tag": "weapons"},
   {"file": "cis_walk_assault_multi.odf", "find": "secondaryWeaponType = \\d+", "replace": "secondaryWeaponType = 6", "count": 1, "tag": "weapons"},
-  {"file": "cis_walk_assault_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 3", "count": 1, "tag": "weapons"}
+  {"file": "cis_walk_assault_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 3", "count": 1, "tag": "weapons"},
+  {"file": "onlinebuttons.cfg", "tag": "online", "find": "(?m)^(\\s+PlayerODF\\(\"CIS_tank_assault_multi_conquest\",\"CIS_tank_assault_icon\\.tga\",2\\);)", "replace": "\\1\n  \tPlayerODF(\"CIS_walk_assault_multi\",\"cis_walk_assault_icon.tga\",2);", "count": 4}
 ]
