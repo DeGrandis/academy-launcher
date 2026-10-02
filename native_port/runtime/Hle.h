@@ -13,6 +13,11 @@ void installHooks();
 void installXapiHooks();
 void installD3DHooks();
 void installInputHooks();
+// Virtual gamepad on port 1-3; pad is an Xbox gamepad state (CwPad layout), nullptr unplugs it.
+void setVirtualPad(std::uint32_t port, const void* pad);
+// Called with every gamepad state (CwPad layout) the game reads; may change it.
+using PadFilter = void(__cdecl*)(std::uint32_t port, void* pad);
+void setPadFilter(PadFilter filter);
 void installAudioHooks();
 
 } // namespace cw::hle

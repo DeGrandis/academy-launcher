@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <string>
 
 namespace cw::d3d {
@@ -59,8 +60,20 @@ enum XboxButton : WORD {
 };
 enum XboxAnalog { kA, kB, kX, kY, kBlack, kWhite, kLeftTrigger, kRightTrigger };
 
-DWORD g_packetNumber = 0;
-XboxGamepad g_lastState{};
+constexpr int kPorts = 4;
+DWORD g_packetNumber[kPorts] = {};
+XboxGamepad g_lastState[kPorts] = {};
+
+// Virtual pads (setVirtualPad): ports a plugin drives. The device-type block's first two dwords are the connected
+// and "changed since last XGetDeviceChanges" port masks.
+std::mutex g_virtualMutex;
+PadFilter g_padFilter = nullptr;
+bool g_virtualPresent[kPorts] = {};
+XboxGamepad g_virtualState[kPorts] = {};
+
+volatile DWORD* gamepadDeviceMasks() {
+    return reinterpret_cast<volatile DWORD*>(static_cast<std::uintptr_t>(kGamepadDeviceType));
+}
 
 // CW_INPUT_SCRIPT="ms:button[:holdms],..." presses a button at each time offset, for 150 ms unless a hold time is given.
 // Buttons: start, back, a, b, x, y, black, white, lt, rt, up, down, left, right (d-pad), lup, ldown, lleft, lright (left stick),
@@ -147,6 +160,8 @@ void readKeyboardAndMouse(XboxGamepad& pad) {
     analog(keyDown('Y'), kY);
     analog(keyDown('Q'), kLeftTrigger);
     analog(keyDown('E'), kRightTrigger);
+    analog(keyDown('R'), kBlack);  // host right shoulder
+    analog(keyDown('F'), kWhite);  // host left shoulder
     if (pad.buttons & kDpadUp) pad.thumbLY = 32767;
     if (pad.buttons & kDpadDown) pad.thumbLY = -32768;
     if (pad.buttons & kDpadLeft) pad.thumbLX = -32768;
@@ -198,11 +213,18 @@ DWORD portOf(HANDLE device) {
 
 void __stdcall xXInitDevices(DWORD preallocTypeCount, void* preallocTypes) {
     // Mark a gamepad as inserted in port 0; XGetDeviceChanges reports it as a new insertion.
-    auto* gamepads = reinterpret_cast<volatile DWORD*>(static_cast<std::uintptr_t>(kGamepadDeviceType));
-    gamepads[0] = 1;
-    gamepads[1] = 1;
+    DWORD mask = 1;
+    {
+        std::lock_guard lock(g_virtualMutex);
+        for (int port = 1; port < kPorts; ++port) {
+            mask |= g_virtualPresent[port] ? 1u << port : 0u;
+        }
+    }
+    auto* gamepads = gamepadDeviceMasks();
+    gamepads[0] = mask;
+    gamepads[1] = mask;
     gamepads[2] = 0;
-    logf("input: XInitDevices -> gamepad attached on port 1 (keyboard/mouse/XInput)");
+    logf("input: XInitDevices -> gamepads attached (port mask %lX; port 1 = keyboard/mouse/XInput)", mask);
 }
 
 HANDLE __stdcall xXInputOpen(void* deviceType, DWORD port, DWORD slot, void* pollingParameters) {
@@ -228,17 +250,33 @@ DWORD __stdcall xXInputGetCapabilities(HANDLE device, XboxCapabilities* capabili
 
 DWORD __stdcall xXInputGetState(HANDLE device, XboxInputState* state) {
     const DWORD port = portOf(device);
+    if (port >= kPorts) {
+        return kErrorDeviceNotConnected;
+    }
     XboxGamepad pad{};
-    readHostController(port, pad);
+    bool isVirtual = false;
+    {
+        std::lock_guard lock(g_virtualMutex);
+        if (g_virtualPresent[port]) {
+            pad = g_virtualState[port];
+            isVirtual = true;
+        }
+    }
+    if (!isVirtual) {
+        readHostController(port, pad);
+    }
     if (port == 0) {
         readKeyboardAndMouse(pad);
         applyScriptedInput(pad);
     }
-    if (std::memcmp(&pad, &g_lastState, sizeof(pad)) != 0) {
-        g_lastState = pad;
-        ++g_packetNumber;
+    if (const PadFilter filter = g_padFilter) {
+        filter(port, &pad);
     }
-    state->packetNumber = g_packetNumber;
+    if (std::memcmp(&pad, &g_lastState[port], sizeof(pad)) != 0) {
+        g_lastState[port] = pad;
+        ++g_packetNumber[port];
+    }
+    state->packetNumber = g_packetNumber[port];
     state->gamepad = pad;
     return ERROR_SUCCESS;
 }
@@ -254,6 +292,30 @@ DWORD __stdcall xXInputSetState(HANDLE device, XboxFeedback* feedback) {
 }
 
 } // namespace
+
+void setVirtualPad(std::uint32_t port, const void* pad) {
+    if (port == 0 || port >= kPorts) {
+        return;
+    }
+    static_assert(sizeof(XboxGamepad) == 18, "CwPad layout");
+    std::lock_guard lock(g_virtualMutex);
+    const bool wasPresent = g_virtualPresent[port];
+    g_virtualPresent[port] = pad != nullptr;
+    if (pad != nullptr) {
+        std::memcpy(&g_virtualState[port], pad, sizeof(XboxGamepad));
+    }
+    if (wasPresent != g_virtualPresent[port]) {
+        // Plugged in or out: update the connected mask and flag the change for XGetDeviceChanges.
+        auto* gamepads = gamepadDeviceMasks();
+        gamepads[0] = pad != nullptr ? (gamepads[0] | (1u << port)) : (gamepads[0] & ~(1u << port));
+        gamepads[1] |= 1u << port;
+        logf("input: virtual gamepad %s port %u", pad != nullptr ? "plugged into" : "unplugged from", port + 1);
+    }
+}
+
+void setPadFilter(PadFilter filter) {
+    g_padFilter = filter;
+}
 
 void installInputHooks() {
     hookFunction(0x0032BDF8, reinterpret_cast<const void*>(&xXInitDevices), "XInitDevices");

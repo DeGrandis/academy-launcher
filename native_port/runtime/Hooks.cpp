@@ -12,6 +12,7 @@ extern "C" {
 }
 
 #include <cstring>
+#include <map>
 #include <mutex>
 
 namespace cw::hooks {
@@ -74,7 +75,14 @@ bool detour(std::uint32_t target, const void* replacement, void** original, cons
     }
     initialize();
     std::lock_guard lock(g_mutex);
+    // A game function can be detoured by several plugins: a later detour hooks the previous replacement instead, so
+    // calls run newest first and each "original" leads to the one before it, ending at the game code.
+    static std::map<std::uint32_t, const void*> replacements;
     auto* address = reinterpret_cast<void*>(static_cast<std::uintptr_t>(target));
+    if (const auto previous = replacements.find(target); previous != replacements.end()) {
+        address = const_cast<void*>(previous->second);
+        logf("hooks: %s @ %08X is already detoured; chaining after %p", name, target, address);
+    }
     MH_STATUS status = MH_CreateHook(address, const_cast<void*>(replacement), original);
     if (status == MH_OK) {
         status = MH_EnableHook(address);
@@ -83,6 +91,7 @@ bool detour(std::uint32_t target, const void* replacement, void** original, cons
         logf("hooks: detour %s @ %08X failed: %s", name, target, MH_StatusToString(status));
         return false;
     }
+    replacements[target] = replacement;
     logf("hooks: detour %s @ %08X (original %p)", name, target, original != nullptr ? *original : nullptr);
     return true;
 }

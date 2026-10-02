@@ -1,5 +1,6 @@
 #include "ModLoader.h"
 
+#include "Hle.h"
 #include "Hooks.h"
 #include "Log.h"
 
@@ -43,7 +44,16 @@ int __cdecl apiPatchBytes(uint32_t address, const void* bytes, uint32_t length, 
     return hooks::patchBytes(address, bytes, length, name) ? 1 : 0;
 }
 
+void __cdecl apiSetVirtualPad(uint32_t port, const CwPad* pad) {
+    hle::setVirtualPad(port, pad);
+}
+
+void __cdecl apiSetPadFilter(void(__cdecl* filter)(uint32_t port, CwPad* pad)) {
+    hle::setPadFilter(reinterpret_cast<hle::PadFilter>(filter));
+}
+
 static_assert(sizeof(CwRegisters) == sizeof(hooks::Registers), "plugin register layout must match the runtime's");
+static_assert(sizeof(CwPad) == 18, "CwPad must match the Xbox gamepad layout");
 
 void loadFrom(const std::filesystem::path& directory, const CwModApi& api) {
     std::error_code error;
@@ -95,6 +105,8 @@ void loadPlugins(const std::filesystem::path& gameRoot, const std::filesystem::p
     api.patchBytes = &apiPatchBytes;
     api.gameRoot = g_gameRoot.c_str();
     api.modRoot = g_modRoot.c_str();
+    api.setVirtualPad = &apiSetVirtualPad;
+    api.setPadFilter = &apiSetPadFilter;
     hooks::initialize();
     if (const char* address = std::getenv("CW_HOOK_SELFTEST")) {
         // Debugging aid: a runtime-side mid hook at the given address.
