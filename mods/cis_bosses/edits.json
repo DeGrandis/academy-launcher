@@ -2,22 +2,5 @@
   {"file": "cis_tank_assault_multi_conquest.odf", "find": "\\[Weapons\\]\\r\\n", "replace": "[Weapons]\r\nweaponObj4 = \"hp_cannon_1\" \"REP_shield_walk_player\" 2 1 0\r\n", "count": 1},
   {"file": "cis_tank_assault_multi_conquest.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nminAmmoSpecial = 5\r\nmaxAmmoSpecial = 5\r\naddAmmoSpecial = 0.25\r\n", "count": 1},
   {"file": "cis_tank_assault_multi_conquest.odf", "find": "specialWeaponType = 0", "replace": "specialWeaponType = 4", "count": 1},
-  {"file": "cis_boss_cydon_multi.odf", "from": "cis_boss_cydon.odf", "find": "weaponObj3 = \"hp_missle_1\" \"CIS_missile_cydon\" 0 1 0", "replace": "weaponObj3 = \"hp_missle_1\" \"CIS_missile_cydon\" 1 1 0", "count": 1},
-  {"file": "cis_boss_cydon_multi.odf", "find": "maxHull = \\d+", "replace": "maxHull = 2500", "count": 1},
-  {"file": "cis_boss_cydon_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nmaxAmmoSecondary = 12\r\naddAmmoSecondary = 0.1\r\n", "count": 1},
-  {"file": "cis_boss_cydon_multi.odf", "find": "(\\S)\\s*\\Z", "replace": "\\1\r\n\r\n[Player]\r\nlockRangeNormal = 500\r\nlockRangeZoomed = 800\r\nlockAngleNormal = -0.3 0.3 -1.5 1.5\r\nlockAngleZoomed = -0.1 0.1 -1.5 1.5\r\n\r\n[Interface]\r\n//1-grenade, 2-mortar, 3-beam, 4-shield, 5-sonic, 6-missile, 7-boost\r\nicon = \"cis_fightertank.tga\"\r\nsecondaryWeaponType = 6\r\nspecialWeaponType = 0\r\n", "count": 1},
-  {"file": "cis_boss_dapprentice_multi.odf", "from": "cis_boss_dapprentice.odf", "find": "maxHull = \\d+", "replace": "maxHull = 1500", "count": 1},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nmaxAmmoSecondary = 15\r\naddAmmoSecondary = 0.1\r\n", "count": 1},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "(\\S)\\s*\\Z", "replace": "\\1\r\n\r\n[Player]\r\nlockRangeNormal = 500\r\nlockRangeZoomed = 800\r\nlockAngleNormal = -0.3 0.3 -1.5 1.5\r\nlockAngleZoomed = -0.1 0.1 -1.5 1.5\r\n\r\n[Interface]\r\n//1-grenade, 2-mortar, 3-beam, 4-shield, 5-sonic, 6-missile, 7-boost\r\nicon = \"cis_fightertank.tga\"\r\nsecondaryWeaponType = 6\r\nspecialWeaponType = 0\r\n", "count": 1},
-  {"file": "multiplayerbuttons.cfg", "find": "(PlayerODF\\(\"CIS_tank_assault_multi_conquest\",\"CIS_tank_assault_icon\\.tga\",2\\);)", "replace": "\\1\r\n  \tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\",2);\r\n  \tPlayerODF(\"CIS_boss_cydon_multi\",\"cis_boss_cydon_icon.tga\",2);\r\n  \tPlayerODF(\"CIS_boss_dapprentice_multi\",\"cis_boss_dapprentice_icon.tga\",2);", "count": 4},
-  {"file": "cis_boss_cydon_multi.odf", "find": "(?m)^distance = [\\d.]+", "replace": "distance = 61.11", "count": 1, "tag": "camera"},
-  {"file": "cis_boss_cydon_multi.odf", "find": "(?m)^offsetY = [\\d.]+", "replace": "offsetY = 9.22", "count": 1, "tag": "camera"},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "(?m)^distance = [\\d.]+", "replace": "distance = 26.67", "count": 1, "tag": "camera"},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "(?m)^offsetY = [\\d.]+", "replace": "offsetY = 3.24", "count": 1, "tag": "camera"},
-  {"file": "cis_boss_cydon_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nminAmmoSpecial = 1.0\r\nmaxAmmoSpecial = 3.0\r\naddAmmoSpecial = 0.2\r\n", "count": 1, "tag": "weapons"},
-  {"file": "cis_boss_cydon_multi.odf", "find": "secondaryWeaponType = \\d+", "replace": "secondaryWeaponType = 6", "count": 1, "tag": "weapons"},
-  {"file": "cis_boss_cydon_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 7", "count": 1, "tag": "weapons"},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nminAmmoSpecial = 1.0\r\nmaxAmmoSpecial = 3.0\r\naddAmmoSpecial = 0.2\r\n", "count": 1, "tag": "weapons"},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "secondaryWeaponType = \\d+", "replace": "secondaryWeaponType = 6", "count": 1, "tag": "weapons"},
-  {"file": "cis_boss_dapprentice_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 7", "count": 1, "tag": "weapons"}
+  {"file": "multiplayerbuttons.cfg", "find": "(PlayerODF\\(\"CIS_tank_assault_multi_conquest\",\"CIS_tank_assault_icon\\.tga\",2\\);)", "replace": "\\1\r\n  \tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\",2);", "count": 4}
 ]
