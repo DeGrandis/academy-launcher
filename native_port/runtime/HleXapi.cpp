@@ -30,16 +30,6 @@ int __cdecl xVoiceCodecCpuCheck() {
     return 0;
 }
 
-// XNetStartup programs the NV Ethernet controller; report "no network" like an unplugged console.
-int __stdcall xXNetStartup(const void* parameters) {
-    logf("network: XNetStartup -> WSASYSNOTREADY (offline)");
-    return 10091;
-}
-
-int __stdcall xWSAStartup(WORD version, void* data) {
-    return 10091;
-}
-
 // The main menu reads a cached Xbox Live record (XONLINES wrapper over the global XOnline object at 0x5F7548). With the
 // network offline that object is never created, so the real function fails with 0x80150005 (not initialized); the menu
 // then posts an "XLive error" that is never cleared, and the multiplayer pre-game countdown waits on it forever
@@ -74,8 +64,6 @@ void installXapiHooks() {
     hookFunction(0x001608AE, reinterpret_cast<const void*>(&xXMountUtilityDrive), "XMountUtilityDrive");
     hookFunction(0x00262860, reinterpret_cast<const void*>(&xMovieOpen), "MoviePlayer::Open");
     hookFunction(0x00273A60, reinterpret_cast<const void*>(&xVoiceCodecCpuCheck), "VoiceCodecCpuCheck");
-    hookFunction(0x002A32A7, reinterpret_cast<const void*>(&xXNetStartup), "XNetStartup");
-    hookFunction(0x002A32BE, reinterpret_cast<const void*>(&xWSAStartup), "WSAStartup");
     hookFunction(reinterpret_cast<std::uint32_t>(game::XOnline_ReadCachedRecord), reinterpret_cast<const void*>(&xXOnlineReadCachedRecord), "XOnlineReadCachedRecord");
     hookFunction(0x00160DE9, reinterpret_cast<const void*>(&xQueryPerformanceFrequency), "QueryPerformanceFrequency");
 }

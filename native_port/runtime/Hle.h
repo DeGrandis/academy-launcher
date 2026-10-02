@@ -19,5 +19,7 @@ void setVirtualPad(std::uint32_t port, const void* pad);
 using PadFilter = void(__cdecl*)(std::uint32_t port, void* pad);
 void setPadFilter(PadFilter filter);
 void installAudioHooks();
+// System Link networking (XNetStartup, Winsock, XNet); offline unless CW_NET is set.
+void installNetHooks();
 
 } // namespace cw::hle

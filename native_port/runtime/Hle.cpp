@@ -36,6 +36,7 @@ void installHooks() {
     installD3DHooks();
     installInputHooks();
     installAudioHooks();
+    installNetHooks();
     FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 }
 
