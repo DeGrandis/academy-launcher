@@ -24,7 +24,15 @@ cmake --build native_port/build-x86 --config Debug
 native_port/build-x86/bin/clone_wars.exe
 ```
 
-The build must be 32-bit (`-A Win32`). By default the game data is read from `extracted_iso/`; override it with `CW_GAME_ROOT`. Save data goes to `native_port/build-x86/bin/hdd/`.
+The build must be 32-bit (`-A Win32`). By default the game data is read from `extracted_iso/`; override it with `CW_GAME_ROOT`. Save data goes to `native_port/build-x86/bin/hdd/`. Without `extracted_iso/default.xbe` (as in CI), the build skips `clone_wars.exe` and makes the runtime, plugins and `xbe2exe` only.
+
+## Academy Launcher
+
+`launcher/` is the player-facing app: it imports a player's own ISO, builds the mod presets (`mods/presets.json`), and
+runs the game, including online play through the relay in `server/relay/`. Build it with `launcher/build.ps1`; run
+`launcher/out/AcademyLauncher.exe` from the repository to use this build's runtime and plugins. Releases come from
+`tools/release/package.ps1` and the GitHub Actions workflows. See [docs/player-guide.md](docs/player-guide.md) and
+[docs/release-guide.md](docs/release-guide.md).
 
 ## Controls
 

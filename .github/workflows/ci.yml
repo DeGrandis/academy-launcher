@@ -1,0 +1,68 @@
+# Builds everything that does not need the game (runtime, plugins, xbe2exe, launcher), stages a release without the
+# installer, and tests the relay. The game-smoke job runs the regression tests on a self-hosted runner that has the
+# game files; it only runs when the repository variable HAS_GAME_RUNNER is "true".
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build runtime, plugins and xbe2exe
+        run: |
+          cmake -S native_port -B native_port/build-x86 -A Win32
+          cmake --build native_port/build-x86 --config Release --target clone_wars
+
+      - name: Build launcher
+        shell: pwsh
+        run: ./launcher/build.ps1
+
+      - name: Check tools
+        run: python -m py_compile tools/build_mod.py tools/zwp/zwp.py server/relay/relay.py server/relay/test_relay.py
+
+      - name: Stage release (no installer)
+        shell: pwsh
+        run: ./tools/release/package.ps1 -SkipBuild
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: academy-launcher-${{ github.sha }}
+          path: work/release/
+          retention-days: 7
+
+  relay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build relay image
+        run: docker build -t academy-relay server/relay
+      - name: Test relay
+        run: |
+          docker run -d --name relay -p 3074:3074/udp academy-relay
+          sleep 2
+          python3 server/relay/test_relay.py 127.0.0.1 3074
+          docker logs relay
+
+  game-smoke:
+    if: vars.HAS_GAME_RUNNER == 'true'
+    needs: windows
+    runs-on: [self-hosted, windows, has-game]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with the runner's game files
+        shell: pwsh
+        run: |
+          cmake -S native_port -B native_port/build-x86 -A Win32 "-DCW_GAME_ROOT=$env:CW_GAME_ROOT"
+          cmake --build native_port/build-x86 --config Release --target clone_wars
+      - name: Regression tests
+        run: python tests/run_tests.py boot_to_main_menu thule_academy_starts thule_academy_plugin
