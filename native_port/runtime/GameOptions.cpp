@@ -48,6 +48,28 @@ void __cdecl setFogRange(float start, float end) {
     g_setFogRange(start * g_multiplier, end * g_multiplier);
 }
 
+// The tiled sky plane (sky flag 0x4, e.g. dm1) is a grid sized from the camera's far distance (+0x2D4), written each
+// frame into a fixed-size dynamic buffer. With a scaled visibility range the grid outgrows the buffer and the game
+// writes past its end (access violation at 0xBA1D6). Draw that plane with the map's own range; it lies beyond the fog.
+constexpr std::uint32_t kSkyDrawPlane = 0x000B9CE0;  // void __cdecl(Camera*)
+constexpr std::uint32_t kCameraFarDistance = 0x2D4;
+void(__cdecl* g_skyDrawPlane)(std::uint8_t*) = nullptr;
+
+void __cdecl skyDrawPlane(std::uint8_t* camera) {
+    auto* farDistance = reinterpret_cast<float*>(camera + kCameraFarDistance);
+    const float saved = *farDistance;
+    static bool logged = false;
+    if (!logged) {
+        logged = true;
+        logf("options: sky plane drawn with far distance %.0f (scaled x%g, drawn at %.0f)", saved, g_multiplier, saved / g_multiplier);
+    }
+    if (g_multiplier > 1.0f) {
+        *farDistance = saved / g_multiplier;
+    }
+    g_skyDrawPlane(camera);
+    *farDistance = saved;
+}
+
 // With a mod overlay, level caches (Bins/<map>odf.bin, anm.bin) would be recorded on the first load and replayed in
 // the same order afterwards; any change in what loads (another vehicle, a changed mod) desynchronizes the replay and
 // crashes. config.ini's doBatch turns the caches on; report it as off so every file loads from data.zwp.
@@ -126,6 +148,8 @@ void install() {
         "Sky_SetVisibilityRange (view distance)");
     hooks::detour(kSkySetFogRange, reinterpret_cast<const void*>(&setFogRange), reinterpret_cast<void**>(&g_setFogRange),
         "Sky_SetFogRange (view distance)");
+    hooks::detour(kSkyDrawPlane, reinterpret_cast<const void*>(&skyDrawPlane), reinterpret_cast<void**>(&g_skyDrawPlane),
+        "Sky_DrawPlane (unscaled range)");
     hooks::detour(kConfigGetInt, reinterpret_cast<const void*>(&configGetInt), reinterpret_cast<void**>(&g_configGetInt), "Config_GetInt (no level caches with mods)");
     // The license/copyright screen ("LIC") stays up for a fixed 5.5 s before the logo movies; the constant is only used
     // by that screen. CW_SKIP_INTRO=0 keeps it.

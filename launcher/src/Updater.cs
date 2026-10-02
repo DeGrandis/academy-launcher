@@ -46,7 +46,8 @@ namespace AcademyLauncher
             {
                 return null;
             }
-            bool beta = settings.Get("update_channel", "stable") == "beta";
+            // A pre-release build follows the beta channel, so testers get the next beta (and then the release).
+            bool beta = settings.Get("update_channel", "stable") == "beta" || AppPaths.Version.Contains("-");
             string url = "https://api.github.com/repos/" + repo + "/releases" + (beta ? "?per_page=10" : "/latest");
             string json;
             using (WebClient client = Client())
