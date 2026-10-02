@@ -1,5 +1,5 @@
 [
-  {"file": "multi18.wld", "from": "multi5.wld", "find": "Respawntime\\(240\\.000000\\)", "replace": "Respawntime(60.000000)", "count": 1},
+  {"file": "multi18.wld", "from": "multi5.wld", "find": "Position\\(348\\.975159, 64\\.081093, 696\\.449219\\);(\\r\\n\\tRotation\\([^)]*\\);\\r\\n\\t)Respawntime\\(240\\.000000\\)", "replace": "Position(-7.735, 34.500000, 825.476);\\1Respawntime(60.000000)", "count": 1},
   {"file": "multi18.pth", "from": "multi5.pth"},
   {"file": "multi18.aim", "from": "multi5.aim"},
   {"file": "multi18.cin", "from": "multi5.cin"},

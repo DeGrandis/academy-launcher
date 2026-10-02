@@ -299,9 +299,9 @@
         ]
       },
       "log_regex": [
-        "academy_waves: wave 4 \\(bonus wave replaced\\): 7 groups, 9 -> 11 enemies",
-        "academy_waves: wave 25: 6 groups, 22 -> 216 enemies",
-        "academy_waves: keep going on, delays x0\\.50, \\+10% enemies per wave"
+        "academy_waves: wave 4 \\(bonus wave replaced\\): 7 groups, 9 -> 9 enemies",
+        "academy_waves: wave 25: 6 groups, 22 -> 22 enemies",
+        "academy_waves: keep going: every group, waves wait for a clear, delays x1\\.00, \\+0% enemies per wave"
       ],
       "screenshots": [
         1400

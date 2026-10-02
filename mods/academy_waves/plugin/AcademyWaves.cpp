@@ -1,6 +1,7 @@
 // Rewrites the single-player Thule Moon Academy waves (see docs/academy_waves.md) from academy_waves.ini:
 // - bonus-point waves become a copy of the enemy wave before them (and raise the Academy level like one),
-// - every group can be set to "keep going" (no waiting until all enemies are dead),
+// - groups can be set to "keep going" (no waiting until all enemies are dead), optionally except each wave's last
+//   enemy group, so units stream in during a wave but the next wave waits for a clear,
 // - pauses between groups are scaled,
 // - wave N spawns floor(original enemies * (1 + growth) ^ (N - 1)); extra units repeat the wave's own units.
 //
@@ -29,12 +30,11 @@ constexpr std::uint32_t kSetupWaves1 = 0x0017E72D;  // void __thiscall(ThuleAcad
 constexpr std::uint32_t kUnitNames = 0x003968F8;    // const char*[], index 0 (null) ends a group
 constexpr int kUnitNameCount = 16;
 constexpr int kRecordSize = 0x14;                   // path effect record per group
-constexpr std::uint32_t kLevelSteps = 0x3E4;        // script field: byte per wave added to the Academy level
 
 struct Settings {
     bool replaceBonusWaves = true;
-    bool keepGoing = true;
-    float delayScale = 0.5f;
+    int keepGoing = 2;  // 0 = the game's own flags, 1 = every group, 2 = every group but each wave's last enemy group
+    float delayScale = 1.0f;
     float growth = 0.10f;
 };
 
@@ -88,8 +88,8 @@ Settings readSettings() {
         return std::atof(value);
     };
     settings.replaceBonusWaves = read("replace_bonus_waves", "1") != 0.0;
-    settings.keepGoing = read("keep_going", "1") != 0.0;
-    settings.delayScale = static_cast<float>(read("delay_scale", "0.5"));
+    settings.keepGoing = static_cast<int>(read("keep_going", "2"));
+    settings.delayScale = static_cast<float>(read("delay_scale", "1.0"));
     settings.growth = static_cast<float>(read("growth_per_wave", "0.10"));
     return settings;
 }
@@ -185,10 +185,21 @@ void __fastcall setupWaves(std::uint8_t* self, void* edx) {
                 std::memset(group.record, 0, kRecordSize);
             }
         }
-        for (Group& group : groups) {
-            group.delay *= settings.delayScale;
-            if (settings.keepGoing) {
-                group.keepGoing = 1;
+        // The script runs a group, then waits for a clear unless that group keeps going, then waits its delay. The wave
+        // number goes up when the last group (usually the outro line) runs, so waiting after the last enemy group
+        // holds the outro and the next wave until the field is clear.
+        int lastEnemyGroup = -1;
+        for (int group = 0; group < static_cast<int>(groups.size()); ++group) {
+            if (!groups[group].units.empty()) {
+                lastEnemyGroup = group;
+            }
+        }
+        for (int group = 0; group < static_cast<int>(groups.size()); ++group) {
+            groups[group].delay *= settings.delayScale;
+            if (settings.keepGoing == 1 || (settings.keepGoing == 2 && group != lastEnemyGroup)) {
+                groups[group].keepGoing = 1;
+            } else if (settings.keepGoing == 2) {
+                groups[group].keepGoing = 0;
             }
         }
 
@@ -216,7 +227,8 @@ void __fastcall setupWaves(std::uint8_t* self, void* edx) {
         }
     }
     script.levelSteps() = g_levelSteps;
-    g_api->log("academy_waves: keep going %s, delays x%.2f, +%.0f%% enemies per wave", settings.keepGoing ? "on" : "off",
+    static const char* const kKeepGoing[] = {"game default", "every group", "every group, waves wait for a clear"};
+    g_api->log("academy_waves: keep going: %s, delays x%.2f, +%.0f%% enemies per wave", kKeepGoing[std::clamp(settings.keepGoing, 0, 2)],
         settings.delayScale, settings.growth * 100.0f);
 }
 

@@ -1,5 +1,8 @@
 [
   {"file": "multiplayerbuttons.cfg",
    "find": "(MissionFile\\(\"multi5\\.wld\"\\);[\\s\\S]*?PlayerODF\\(\"REP_walk_assault_multi\",\"REP_walk_assault_icon\\.tga\"\\);)",
-   "replace": "\\1\r\n\tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_fighter_multi\",\"CIS_tank_fighter_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_assault_multi\",\"CIS_tank_assault_icon.tga\");\r\n\tPlayerODF(\"REP_fly_gunship_player\",\"rep_gunship.tga\");", "count": 1}
+   "replace": "\\1\r\n\tPlayerODF(\"CIS_tank_wheeled_multi\",\"CIS_tank_wheeled_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_fighter_multi\",\"CIS_tank_fighter_icon.tga\");\r\n\tPlayerODF(\"CIS_tank_assault_multi\",\"CIS_tank_assault_icon.tga\");\r\n\tPlayerODF(\"REP_fly_gunship_player\",\"rep_gunship.tga\");", "count": 1},
+  {"file": "rep_fly_gunship_player.odf",
+   "find": "maxAmmoSpecial = 6\\.0(\\s+)addAmmoSpecial = 0\\.1",
+   "replace": "maxAmmoSpecial = 12.0\\1addAmmoSpecial = 0.2", "count": 1}
 ]
