@@ -1,0 +1,12 @@
+[
+  {"file": "rep_walk_sixleg_multi.odf", "from": "rep_walk_sixleg.odf", "find": "velocForward = 6\\b", "replace": "velocForward = 20", "count": 1},
+  {"file": "rep_walk_sixleg_multi.odf", "find": "velocReverse = 5\\b", "replace": "velocReverse = 8", "count": 1},
+  {"file": "rep_walk_sixleg_multi.odf", "find": "omegaSpin = 0\\.8", "replace": "omegaSpin = 1.3", "count": 1},
+  {"file": "rep_walk_sixleg_multi.odf", "find": "omegaTurn = 0\\.8", "replace": "omegaTurn = 1.3", "count": 1},
+  {"file": "rep_walk_sixleg_multi.odf", "find": "(\\S)\\s*\\Z", "replace": "\\1\r\n\r\n[Interface]\r\n//1-grenade, 2-mortar, 3-beam, 4-shield, 5-sonic, 6-missile, 7-boost\r\nicon = \"rep_walker.tga\"\r\nsecondaryWeaponType = 0\r\nspecialWeaponType = 0\r\n", "count": 1},
+  {"file": "rep_tank_gtrans_multi.odf", "from": "rep_tank_gtrans.odf"},
+  {"file": "rep_tank_gtrans_multi.odf", "find": "(\\S)\\s*\\Z", "replace": "\\1\r\n\r\n[Player]\r\nlockRangeNormal = 500\r\nlockRangeZoomed = 700\r\nlockAngleNormal = -0.3 0.3 -1.5 1.5\r\nlockAngleZoomed = -0.1 0.1 -1.5 1.5\r\n\r\n[Interface]\r\n//1-grenade, 2-mortar, 3-beam, 4-shield, 5-sonic, 6-missile, 7-boost\r\nicon = \"rep_fightertank.tga\"\r\nsecondaryWeaponType = 0\r\nspecialWeaponType = 0\r\n", "count": 1},
+  {"file": "rep_bike_speeder_multi.odf", "from": "rep_bike_speeder_player.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nminAmmoSpecial = 1.0\r\nmaxAmmoSpecial = 3.0\r\naddAmmoSpecial = 0.2\r\n", "count": 1},
+  {"file": "rep_bike_speeder_multi.odf", "find": "(\\S)\\s*\\Z", "replace": "\\1\r\n\r\n[Interface]\r\n//1-grenade, 2-mortar, 3-beam, 4-shield, 5-sonic, 6-missile, 7-boost\r\nicon = \"rep_fightertank.tga\"\r\nsecondaryWeaponType = 0\r\nspecialWeaponType = 7\r\n", "count": 1},
+  {"file": "multiplayerbuttons.cfg", "find": "(PlayerODF\\(\"REP_walk_assault_multi\",\"REP_walk_assault_icon\\.tga\",1\\);)", "replace": "\\1\r\n  \tPlayerODF(\"REP_walk_sixleg_multi\",\"rep_walk_sixleg_icon.tga\",1);\r\n  \tPlayerODF(\"REP_tank_gtrans_multi\",\"rep_tank_gtrans_icon.tga\",1);\r\n  \tPlayerODF(\"REP_bike_speeder_multi\",\"rep_bike_speeder_icon.tga\",1);", "count": 4}
+]
