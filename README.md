@@ -162,6 +162,7 @@ These environment variables affect `clone_wars.exe`:
 - `CW_DISABLE_HOOKS=XOnlineReadCachedRecord,...`: skips the named hooks, to compare against the original game code.
 - `CW_WIDESCREEN=0`: use the original 4:3 mode (widescreen 16:9 is the default, using the game's own widescreen support). The game draws its 3D view for 16:9 but lays out the HUD, text and menus for 4:3; the runtime narrows those 2D elements back to their 4:3 shape (HUD pieces stay anchored to their screen edge or the center, menus are centered). `CW_WIDESCREEN_HUD=stretch` keeps the original stretched 2D.
 - `CW_RESOLUTION=2560x1440` renders at a fixed resolution, `CW_RESOLUTION=window` follows the window size, `CW_RENDER_SCALE=3` renders at 3x (1440 lines). The game still works at 640x480; the runtime scales the back buffer, render targets, viewports and 2D elements. In game, F9 cycles 1x/2x/3x/4x/window size and F11 (or Alt+Enter) toggles borderless fullscreen. `CW_ANISOTROPY=8` enables anisotropic filtering.
+- `CW_CAMERA_DISTANCE=1.2` (the default) multiplies every vehicle's chase-camera distance (`[Camera] distance` in its ODF); `1` is the original camera.
 - `CW_VIEW_DISTANCE=4` multiplies every map's view distance (far clip plane, object culling, sky dome) and fog range from its `.sky` file; in game F8 / F7 step it up / down (1, 1.5, 2, 3, 4, 6, 8, 12, 16).
 - `CW_HOTKEY_SCRIPT=36000:f9,40000:f11`: presses those hotkeys (f7, f8, f9, f11) at time offsets (for tests).
 - `CW_FPS=n`: software frame cap instead of vsync (`CW_FPS=0` = unlimited, for fast automated tests).

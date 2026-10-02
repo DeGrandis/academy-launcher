@@ -49,6 +49,15 @@ void __cdecl setFogRange(float start, float end) {
 // With a mod overlay, level caches (Bins/<map>odf.bin, anm.bin) would be recorded on the first load and replayed in
 // the same order afterwards; any change in what loads (another vehicle, a changed mod) desynchronizes the replay and
 // crashes. config.ini's doBatch turns the caches on; report it as off so every file loads from data.zwp.
+// Chase camera: each vehicle class reads [Camera] distance from its ODF at 0x304C7 into class +0x2180 (ebx = the
+// class); right after, CW_CAMERA_DISTANCE (default 1.2) scales it.
+constexpr std::uint32_t kCameraDistanceRead = 0x000304CC;
+float g_cameraDistance = 1.2f;
+
+void __cdecl cameraDistanceRead(hooks::Registers* registers) {
+    *reinterpret_cast<float*>(static_cast<std::uintptr_t>(registers->ebx + 0x2180)) *= g_cameraDistance;
+}
+
 int __cdecl configGetInt(const char* name, int fallback) {
     if (name != nullptr && std::strcmp(name, "doBatch") == 0 && std::getenv("CW_MOD_ROOT") != nullptr) {
         return 0;
@@ -74,7 +83,13 @@ void install() {
         const float zero = 0.0f;
         hooks::patchBytes(kLicenseScreenSeconds, &zero, sizeof(zero), "license screen duration (skip intro)");
     }
-    logf("options: view distance x%g", g_multiplier);
+    if (const char* value = std::getenv("CW_CAMERA_DISTANCE")) {
+        g_cameraDistance = std::clamp(static_cast<float>(std::atof(value)), 0.25f, 8.0f);
+    }
+    if (g_cameraDistance != 1.0f) {
+        hooks::midHook(kCameraDistanceRead, &cameraDistanceRead, "camera distance (CW_CAMERA_DISTANCE)");
+    }
+    logf("options: view distance x%g, camera distance x%g", g_multiplier, g_cameraDistance);
 }
 
 void stepViewDistance(int direction) {
