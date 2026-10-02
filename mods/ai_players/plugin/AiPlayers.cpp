@@ -11,6 +11,7 @@
 // (0 = team 1, 1 = team 2). The panel header is built at 0x12B060; at 0x12B0DA its name (wide string) is at the
 // hooked code's esp + 0x18 and the panel in esi.
 
+#include "AiDriver.h"
 #include "cw_mod.h"
 #include "game/GameSymbols.h"
 
@@ -101,7 +102,11 @@ void __cdecl padFilter(uint32_t port, CwPad* pad) {
         return;
     }
     if (port < kSlots && g_plugged[port]) {
-        *pad = inLobby() && g_cursor == static_cast<int>(port) ? g_forwarded : CwPad{};
+        if (inLobby()) {
+            *pad = g_cursor == static_cast<int>(port) ? g_forwarded : CwPad{};
+        } else {
+            ai::drive(static_cast<int>(port), pad);
+        }
     }
 }
 
@@ -140,6 +145,7 @@ void __cdecl beginMission(const char* mission, const char* directory) {
     if (computers > 0) {
         g_api->log("ai_players: %s starts with %d computer player(s)", mission != nullptr ? mission : "?", computers);
     }
+    ai::missionStart(mission);
     g_originalBeginMission(mission, directory);
 }
 
@@ -189,6 +195,7 @@ extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
         api->log("ai_players: this runtime has no virtual gamepad support");
         return 0;
     }
+    ai::install(api);
     api->setPadFilter(&padFilter);
     return api->hookVirtual(kLobbyVtable, kLobbyOpenSlot, reinterpret_cast<const void*>(&lobbyOpen),
                reinterpret_cast<void**>(&g_originalOpen), "Lobby open (ai_players)")
