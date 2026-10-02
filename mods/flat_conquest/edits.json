@@ -1,0 +1,7 @@
+[
+  {"file": "multi19.cin", "from": "multi8.cin"},
+  {"file": "multi19.xbt", "from": "multi8.xbt"},
+  {"file": "multiplayerbuttons.cfg", "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?Title\\(\")Geonosis(\"\\);\\s*Descrition\\(\"CONQUEST\"\\);[^{}]*?)MissionFile\\(\"multi8\\.wld\"\\);([^{}]*\\})", "replace": "\\1Geonosis\\2MissionFile(\"multi8.wld\");\\3\r\n\\1Flat Test\\2MissionFile(\"multi19.wld\");\\3", "count": 1},
+  {"file": "localize.cfg", "find": "(VarBinary\\(\"Multi8\"\\)\\r?\\n\\s*\\{\\r?\\n\\s*Size\\(\\d+\\);\\r?\\n\\s*Value\\(\"1000000074005600F600E600F600370096003700\"\\);(?:\\r?\\n\\s*Value\\(\"[0-9A-F]+\"\\);)*\\r?\\n\\s*\\})", "replace": "\\1\r\n      VarBinary(\"Multi19\")\r\n      {\r\n        Size(22);\r\n        Value(\"100000006400C6001600470002004500560037004700\");\r\n      }", "count": 1},
+  {"file": "localize.cfg", "find": "(VarBinary\\(\"Multi8\"\\)\\r?\\n\\s*\\{\\r?\\n\\s*Size\\(\\d+\\);\\r?\\n\\s*Value\\(\"200000002400160047004700C60056000200F60007000700F60037009600E600\"\\);(?:\\r?\\n\\s*Value\\(\"[0-9A-F]+\"\\);)*\\r?\\n\\s*\\})", "replace": "\\1\r\n      VarBinary(\"Multi19\")\r\n      {\r\n        Size(136);\r\n        Value(\"200000006400C6001600470002004700560037004700020076002700F6005700\");\r\n        Value(\"E6004600A3000200F600E60056000200F600570047000700F600370047000200\");\r\n        Value(\"F600E6000200560016003600860002003700960046005600C2000200E6005600\");\r\n        Value(\"16002700020056001600360086000200470056001600D6007200370002002600\");\r\n        Value(\"160037005600E200\");\r\n      }", "count": 1}
+]
