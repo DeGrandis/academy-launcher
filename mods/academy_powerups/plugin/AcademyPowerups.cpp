@@ -1,5 +1,5 @@
 // Powerup Academy: a second Thule Moon Academy (multi18.wld, a copy of multi5.wld with a 60 s powerup respawn)
-// whose powerup changes type every time it respawns: Super Blasters -> Invincibility -> Cloak.
+// whose powerup changes type every time it respawns, alternating Super Blasters and Invincibility.
 //
 // Map powerups live in a table of 0x3C-byte entries at 0x43AE78 (count at 0x43AE64): +0x00 type (itemdesc.cfg
 // Type), +0x04 position, +0x14 respawn time, +0x1C respawn countdown, +0x24 handle of the pickup object (0 while
@@ -18,11 +18,11 @@ constexpr std::uint32_t kPowerupCreatePickup = 0x0007D858; // esi = entry + 0x0C
 constexpr int kMaxPowerups = 100;
 constexpr char kMission[] = "multi18";
 
-// itemdesc.cfg types: 1 Quad Damage (Super Blasters), 6 Ultimate Health (invincibility), 8 Invisibility (cloak).
-// 7 Total Offense ("Disintegration Field") is left out: the collision handler (0x332B0) only lets it destroy
-// vehicles that belong to players, so it does nothing against the Academy's AI waves.
-constexpr int kCycle[] = {1, 6, 8};
-const char* const kCycleNames[] = {"Super Blasters", "Invincibility", "Cloak"};
+// itemdesc.cfg types: 1 Quad Damage (Super Blasters), 6 Ultimate Health (invincibility). Left out: 7 Total Offense
+// ("Disintegration Field"), which the collision handler (0x332B0) only lets destroy vehicles that belong to players,
+// so it does nothing against the Academy's AI waves; and 8 Invisibility (cloak), which hardly matters against them.
+constexpr int kCycle[] = {1, 6};
+const char* const kCycleNames[] = {"Super Blasters", "Invincibility"};
 
 const CwModApi* g_api = nullptr;
 void(__cdecl* g_originalBeginMission)(const char*, const char*) = nullptr;

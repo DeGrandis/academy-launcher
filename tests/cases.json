@@ -271,8 +271,8 @@
       },
       "log_regex": [
         "academy_powerups: mission 'multi18.wld' \\(powerup cycle on\\)",
-        "powerup \\d spawns as Invincibility",
-        "powerup \\d spawns as Cloak"
+        "powerup \\d spawns as Super Blasters",
+        "powerup \\d spawns as Invincibility"
       ],
       "screenshots": [
         1400
