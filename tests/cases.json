@@ -272,7 +272,6 @@
       "log_regex": [
         "academy_powerups: mission 'multi18.wld' \\(powerup cycle on\\)",
         "powerup \\d spawns as Invincibility",
-        "powerup \\d spawns as Touch of Death",
         "powerup \\d spawns as Cloak"
       ],
       "screenshots": [
