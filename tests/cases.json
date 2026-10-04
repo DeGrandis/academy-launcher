@@ -272,7 +272,13 @@
       "log_regex": [
         "academy_powerups: mission 'multi18.wld' \\(powerup cycle on\\)",
         "powerup \\d spawns as Super Blasters",
-        "powerup \\d spawns as Invincibility"
+        "powerup \\d spawns as Invincibility",
+        "powerup \\d spawns as Overcharge",
+        "player 0 picked up Overcharge",
+        "Overcharge on player 0",
+        "powerup \\d spawns as Double Tap",
+        "player 0 picked up Double Tap",
+        "Double Tap on player 0"
       ],
       "screenshots": [
         1400
