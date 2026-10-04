@@ -12,5 +12,11 @@
   {"file": "overcharge.pse", "tag": "overcharge", "find": "Color\\(255, 20, 20, 255\\)", "replace": "Color(255, 60, 200, 255)", "count": 1},
   {"file": "doubletap.pse", "from": "totaloffense.pse", "tag": "doubletap", "find": "(ParticleEmitter\\(\\\"light\\\"\\)\\s*\\{\\s*BirthRate\\([^)]*\\);\\s*Delay\\([^)]*\\);\\s*)LifeTime\\(20\\.00\\)", "replace": "\\1LifeTime(60.00)", "count": 1},
   {"file": "doubletap.pse", "tag": "doubletap", "find": "Color\\(255, 20, 20, 255\\)", "replace": "Color(255, 140, 20, 255)", "count": 1},
+  {"file": "pow_overcharge_idle.pse", "from": "pow_ammo_idle.pse", "tag": "overcharge crate", "find": "Color\\(0, 0, 127, 127, 255, 255, 0, 128\\)", "replace": "Color(255, 255, 40, 40, 200, 200, 0, 128)", "count": 1},
+  {"file": "pow_overcharge_idle.pse", "tag": "overcharge crate", "find": "Color\\(0, 127, 255, (\\d+)\\)", "replace": "Color(255, 40, 200, \\1)", "count": 3},
+  {"file": "pow_overcharge_idle.pse", "tag": "overcharge crate", "find": "Color\\(0, 0, 255, 127\\)", "replace": "Color(255, 0, 170, 127)", "count": 1},
+  {"file": "pow_overcharge_idle.pse", "tag": "overcharge crate", "find": "Color\\(32, 127, 255, 127\\)", "replace": "Color(255, 60, 210, 127)", "count": 1},
+  {"file": "pow_overcharge_idle.pse", "tag": "overcharge crate", "find": "Color\\(0, 0, 0, 0, 255, 255, 0, 128\\)", "replace": "Color(255, 255, 0, 0, 160, 160, 0, 128)", "count": 1},
+  {"file": "pow_overcharge_idle.pse", "tag": "overcharge crate", "find": "Color\\(64, 127, 255, 255\\)", "replace": "Color(255, 80, 220, 255)", "count": 1},
   {"file": "localize.cfg", "tag": "hud", "find": "(VarBinary\\(\"totaloffense\"\\)\\r?\\n\\s*\\{\\r?\\n\\s*Size\\(\\d+\\);\\r?\\n\\s*Value\\(\"300000004400960037009600E6004700560076002700160047009600F600E600\"\\);(?:\\r?\\n\\s*Value\\(\"[0-9A-F]+\"\\);)*\\r?\\n\\s*\\})", "replace": "\\1\n      VarBinary(\"overcharge\")\n      {\n        Size(32);\n        Value(\"10000000F400670056002700360086001600270076005600A300020052004600\");\n      }\n      VarBinary(\"doubletap\")\n      {\n        Size(32);\n        Value(\"100000004400F60057002600C60056000200450016000700A300020052004600\");\n      }", "count": 1}
 ]

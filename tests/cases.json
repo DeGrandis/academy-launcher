@@ -274,6 +274,7 @@
         "powerup \\d spawns as Super Blasters",
         "powerup \\d spawns as Invincibility",
         "powerup \\d spawns as Overcharge",
+        "powerup \\d shows the Overcharge glow",
         "player 0 picked up Overcharge",
         "Overcharge on player 0",
         "powerup \\d spawns as Double Tap",

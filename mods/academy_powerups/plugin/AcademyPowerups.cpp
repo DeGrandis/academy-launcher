@@ -1,7 +1,8 @@
 // Powerup Academy: a second Thule Moon Academy (multi18.wld, a copy of multi5.wld with a 60 s powerup respawn)
 // whose powerup changes every time it respawns: Super Blasters -> Invincibility -> Overcharge -> Double Tap.
 //
-// Overcharge (ammo crate, pink glow): unlimited secondary weapon for 30 s.
+// Overcharge (ammo crate, pink glow): unlimited secondary weapon for 30 s. The crate itself glows pink too
+// (pow_overcharge_idle.pse, a recoloured pow_ammo_idle.pse) so it stands apart from the waves' ammo drops.
 // Double Tap (gold pellet, orange glow): primary cannons fire twice as fast for 60 s.
 //
 // Map powerups live in a table of 0x3C-byte entries at 0x43AE78 (count at 0x43AE64): +0x00 type (itemdesc.cfg
@@ -15,6 +16,11 @@
 // Offense ("Disintegration Field") timer, Double Tap in the Invisibility (cloak) timer. Their effects are applied on
 // every machine from those timers, and in Thule Power the built-in effects are kept off (the disintegration
 // collision check reads 0, and the cloak is never switched on since only its own pickup does that).
+//
+// Health packs and ammo crates: the Academy script drops them at named map points when some enemy groups start
+// (per wave entry +0x18 health / +0x1C ammo: name lists, one null-terminated list per group), once each, with no
+// respawn. In Thule Power every two drops of a kind earn one extra: the last drop of that kind is placed again at the
+// next group start that drops none, once the earlier ones have been collected.
 
 #include "cw_mod.h"
 
@@ -35,6 +41,10 @@ constexpr std::uint32_t kLoadEffect = 0x000A0870;          // void* __cdecl(cons
 constexpr std::uint32_t kAttachEffect = 0x000A5400;        // void __cdecl(quat*, vec3*, effect, GameObject*, int)
 constexpr std::uint32_t kHudTotalOffenseKey = 0x0007C905;  // push "multiplayer.misc.totaloffense" (imm32)
 constexpr std::uint32_t kHudInvisibleKey = 0x0007C9A7;     // push "multiplayer.misc.invisible" (imm32)
+constexpr std::uint32_t kPlaceAmmo = 0x00177426;           // void __thiscall ThuleAcademyScript::PlaceAmmo(int wave, int group)
+constexpr std::uint32_t kPlaceHealth = 0x001774A8;         // the same for health packs
+constexpr std::uint32_t kShowPickup = 0x0007D4B0;          // void __cdecl(int index): a joining machine shows a sent pickup
+constexpr std::uint32_t kPowerupCount = 0x0043AE64;
 constexpr std::uint32_t kPowerupTable = 0x0043AE78;
 constexpr std::uint32_t kPowerupStride = 0x3C;
 constexpr std::uint32_t kPlayerTimers = 0x005EC380;        // per player 0x80 bytes
@@ -48,6 +58,7 @@ constexpr char kMission[] = "multi18";
 
 constexpr float kOverchargeSeconds = 30.0f;
 constexpr float kDoubleTapSeconds = 60.0f;
+constexpr float kDropRate = 1.5f;  // health and ammo drops, relative to the Academy's own
 
 // The rotation. A pickup shows the model of its itemdesc.cfg type (1 Quad Damage = Super Blasters, 6 Ultimate
 // Health = Invincibility, 2 Ammo crate, 16 Boost = gold pellet); the two custom kinds borrow the ammo crate and pellet.
@@ -83,6 +94,10 @@ constexpr std::uint32_t kPickupFinish = 0x0007D35A;  // Pickup_Apply: common end
 constexpr std::uint32_t kPickupTypes = 0x0043A888;   // per itemdesc type, 0x50 bytes (see setPickupLabels)
 constexpr int kNoEffectType = 4;                       // "Tag": Pickup_Apply's switch has no case for it
 
+constexpr int kAmmoType = 2;
+constexpr int kHealthType = 0;
+constexpr int kWaves = 30;
+
 bool g_active = false;
 int* g_finishEntry = nullptr;  // entry whose type pickupApply swapped, restored by pickupFinish
 int g_finishType = 0;
@@ -90,11 +105,23 @@ bool g_labelsSet = false;
 int g_position[kMaxPowerups];     // rotation position of each map powerup, -1 = not rotating
 void* g_overchargeEffect = nullptr;
 void* g_doubleTapEffect = nullptr;
+void* g_overchargeIdle = nullptr;  // the Overcharge crate's glow
+void* g_ammoIdle = nullptr;        // the ammo crate's own, kept while the table holds ours
 std::uint32_t g_hudKeys[2] = {};  // the HUD's original label pointers, restored outside Thule Power
 
 float& timer(int player, std::uint32_t which) {
     return *reinterpret_cast<float*>(kPlayerTimers + player * 0x80 + which);
 }
+
+std::uint8_t* powerup(int index) {
+    return reinterpret_cast<std::uint8_t*>(kPowerupTable + index * kPowerupStride);
+}
+
+int powerupCount() {
+    return *reinterpret_cast<int*>(kPowerupCount);
+}
+
+void resetDrops();
 
 std::uint8_t* playerObject(int player) {
     auto* world = *reinterpret_cast<std::uint8_t**>(kWorld);
@@ -121,18 +148,53 @@ void __cdecl beginMission(const char* mission, const char* directory) {
     if (g_active) {
         g_overchargeEffect = reinterpret_cast<void*(__cdecl*)(const char*)>(kLoadEffect)("overcharge.pse");
         g_doubleTapEffect = reinterpret_cast<void*(__cdecl*)(const char*)>(kLoadEffect)("doubletap.pse");
+        g_overchargeIdle = reinterpret_cast<void*(__cdecl*)(const char*)>(kLoadEffect)("pow_overcharge_idle.pse");
     }
+    resetDrops();
     setHudLabels(g_active);
 }
 
 void setPickupLabels();
 
+// A pickup's look is its type's idle effect (0x43A888 + type * 0x50 + 0x08), read when the pickup is created. The
+// rotating powerup is the only ammo crate that respawns (the Academy's drops have respawn time -1), so on every
+// machine an ammo crate with a respawn time is the Overcharge and gets the pink glow.
+void chooseIdleEffect(int index) {
+    auto* idle = reinterpret_cast<void**>(kPickupTypes + kAmmoType * 0x50 + 0x08);
+    if (*idle != g_overchargeIdle) {
+        g_ammoIdle = *idle;
+    }
+    bool overcharge = false;
+    if (g_active && g_overchargeIdle != nullptr && index >= 0 && index < kMaxPowerups) {
+        std::uint8_t* entry = powerup(index);
+        overcharge = *reinterpret_cast<int*>(entry) == kAmmoType && *reinterpret_cast<float*>(entry + 0x14) > 0.0f;
+    }
+    *idle = overcharge ? g_overchargeIdle : g_ammoIdle;
+    if (overcharge) {
+        g_api->log("academy_powerups: powerup %d shows the Overcharge glow", index);
+    }
+}
+
+void rotate(int index);
+
 void __cdecl createPickup(CwRegisters* registers) {
     const int index = static_cast<int>(registers->edi);
-    if (!g_active || index < 0 || index >= kMaxPowerups) {
-        return;
+    if (g_active && index >= 0 && index < kMaxPowerups) {
+        rotate(index);
     }
-    auto* type = reinterpret_cast<int*>(static_cast<std::uintptr_t>(registers->esi - 0x0C));
+    chooseIdleEffect(index);
+}
+
+// A joining machine creates the pickups the host announces here.
+void(__cdecl* g_originalShowPickup)(int) = nullptr;
+
+void __cdecl showPickup(int index) {
+    chooseIdleEffect(index);
+    g_originalShowPickup(index);
+}
+
+void rotate(int index) {
+    auto* type = reinterpret_cast<int*>(powerup(index));
     if (!g_labelsSet) {
         g_labelsSet = true;  // the pickup tables are loaded by the time the first pickup appears
         setPickupLabels();
@@ -297,6 +359,107 @@ void __fastcall cannonUpdate(std::uint8_t* cannon, void* edx, float dt) {
     g_originalCannonUpdate(cannon, edx, dt);
 }
 
+// Health and ammo drops (see the top of the file). One kind's state; the script calls PlaceAmmo and PlaceHealth at
+// every group start.
+struct Drops {
+    const char* name;
+    int type;
+    std::uint32_t lists;  // offset of the per-group name lists in a wave entry
+    void(__fastcall* original)(std::uint8_t*, void*, int, int);
+    float credit;
+    int wave, group;      // the last group that dropped this kind, -1 = none yet
+    int placed;
+    float positions[8][3];
+};
+Drops g_ammo = {"ammo", kAmmoType, 0x1C};
+Drops g_health = {"health", kHealthType, 0x18};
+
+void resetDrops() {
+    Drops* const kinds[] = {&g_ammo, &g_health};
+    for (Drops* drops : kinds) {
+        drops->credit = 0.0f;
+        drops->wave = -1;
+        drops->group = -1;
+        drops->placed = 0;
+    }
+}
+
+// Does this group drop any of this kind? (The script's own walk: group N's names follow the Nth null.)
+bool groupDrops(std::uint8_t* script, const Drops& drops, int wave, int group) {
+    if (wave < 0 || wave >= kWaves || group < 0) {
+        return false;
+    }
+    std::uint8_t* entry = script + 0x24 + wave * 0x20;
+    auto* names = *reinterpret_cast<const char* const**>(entry + drops.lists);
+    if (group >= *reinterpret_cast<int*>(entry) || names == nullptr) {
+        return false;
+    }
+    int index = 0;
+    for (int nulls = 0; nulls < group; ++index) {
+        if (names[index] == nullptr) {
+            ++nulls;
+        }
+    }
+    return names[index] != nullptr;
+}
+
+void place(Drops& drops, std::uint8_t* script, int wave, int group) {
+    const int before = powerupCount();
+    drops.original(script, nullptr, wave, group);
+    const int after = powerupCount();
+    drops.placed = 0;
+    for (int index = before; index < after && drops.placed < 8; ++index) {
+        std::memcpy(drops.positions[drops.placed++], powerup(index) + 0x04, sizeof(drops.positions[0]));
+    }
+}
+
+// Is a pickup from the last drop of this kind still lying there? (A taken pickup has no object at +0x24.)
+bool stillThere(const Drops& drops) {
+    for (int index = 0; index < powerupCount() && index < kMaxPowerups; ++index) {
+        std::uint8_t* entry = powerup(index);
+        if (*reinterpret_cast<int*>(entry) != drops.type || *reinterpret_cast<float*>(entry + 0x14) > 0.0f ||
+            *reinterpret_cast<std::uint32_t*>(entry + 0x24) == 0) {
+            continue;
+        }
+        const float* position = reinterpret_cast<float*>(entry + 0x04);
+        for (int i = 0; i < drops.placed; ++i) {
+            const float dx = position[0] - drops.positions[i][0];
+            const float dy = position[1] - drops.positions[i][1];
+            const float dz = position[2] - drops.positions[i][2];
+            if (dx * dx + dy * dy + dz * dz < 1.0f) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void placeDrops(Drops& drops, std::uint8_t* script, int wave, int group) {
+    if (!g_active) {
+        drops.original(script, nullptr, wave, group);
+        return;
+    }
+    if (groupDrops(script, drops, wave, group)) {
+        place(drops, script, wave, group);
+        drops.wave = wave;
+        drops.group = group;
+        drops.credit += kDropRate - 1.0f;
+        g_api->log("academy_powerups: wave %d group %d drops %d %s", wave, group, drops.placed, drops.name);
+    } else if (drops.credit >= 1.0f && drops.wave >= 0 && !stillThere(drops)) {
+        drops.credit -= 1.0f;
+        place(drops, script, drops.wave, drops.group);
+        g_api->log("academy_powerups: wave %d group %d drops %d extra %s", wave, group, drops.placed, drops.name);
+    }
+}
+
+void __fastcall placeAmmo(std::uint8_t* script, void*, int wave, int group) {
+    placeDrops(g_ammo, script, wave, group);
+}
+
+void __fastcall placeHealth(std::uint8_t* script, void*, int wave, int group) {
+    placeDrops(g_health, script, wave, group);
+}
+
 } // namespace
 
 extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
@@ -319,5 +482,11 @@ extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
         && api->detour(kTotalOffenseTimer, reinterpret_cast<const void*>(&totalOffenseTimer), reinterpret_cast<void**>(&g_originalTotalOffenseTimer),
                "TotalOffense_GetTimer (academy_powerups)")
         && api->detour(kCannonUpdate, reinterpret_cast<const void*>(&cannonUpdate), reinterpret_cast<void**>(&g_originalCannonUpdate),
-               "CannonPhysics::Update (academy_powerups)");
+               "CannonPhysics::Update (academy_powerups)")
+        && api->detour(kShowPickup, reinterpret_cast<const void*>(&showPickup), reinterpret_cast<void**>(&g_originalShowPickup),
+               "Powerup_ShowPickup (academy_powerups)")
+        && api->detour(kPlaceAmmo, reinterpret_cast<const void*>(&placeAmmo), reinterpret_cast<void**>(&g_ammo.original),
+               "ThuleAcademyScript::PlaceAmmo (academy_powerups)")
+        && api->detour(kPlaceHealth, reinterpret_cast<const void*>(&placeHealth), reinterpret_cast<void**>(&g_health.original),
+               "ThuleAcademyScript::PlaceHealth (academy_powerups)");
 }
