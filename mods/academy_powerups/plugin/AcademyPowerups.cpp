@@ -28,6 +28,7 @@ constexpr std::uint32_t kBatchBeginMission = 0x00062750;  // void __cdecl(const 
 constexpr std::uint32_t kPowerupCreatePickup = 0x0007D858; // esi = entry + 0x0C, edi = entry index
 constexpr std::uint32_t kPickupApply = 0x0007CD20;         // bool __cdecl(int, Powerup* entry, GameObject* vehicle)
 constexpr std::uint32_t kPowerupTick = 0x0007C410;         // void __cdecl(float dt, int player): counts timers down
+constexpr std::uint32_t kPowerupHud = 0x0007C780;          // void __cdecl(View*, GameObject* vehicle): powerup countdowns
 constexpr std::uint32_t kTotalOffenseTimer = 0x00073BF0;   // float __cdecl(int player): read by the collision check
 constexpr std::uint32_t kCannonUpdate = 0x00049540;        // void __thiscall CannonPhysics::Update(float dt)
 constexpr std::uint32_t kLoadEffect = 0x000A0870;          // void* __cdecl(const char* pse)
@@ -74,6 +75,7 @@ const CwModApi* g_api = nullptr;
 void(__cdecl* g_originalBeginMission)(const char*, const char*) = nullptr;
 bool(__cdecl* g_originalPickupApply)(int, std::uint8_t*, std::uint8_t*) = nullptr;
 void(__cdecl* g_originalPowerupTick)(float, int) = nullptr;
+void(__cdecl* g_originalPowerupHud)(std::uint8_t*, std::uint8_t*) = nullptr;
 float(__cdecl* g_originalTotalOffenseTimer)(int) = nullptr;
 void(__fastcall* g_originalCannonUpdate)(std::uint8_t*, void*, float) = nullptr;
 
@@ -252,6 +254,25 @@ void __cdecl powerupTick(float dt, int player) {
     }
 }
 
+// Online, a joining machine fires its own player's weapons from its own ammo, but it never runs Powerup_Tick for
+// that player (the host does, and sends the timers). The powerup HUD (0x7C780, every frame, for each local player on
+// every machine) is where the local player's Overcharge refill happens on every machine.
+void __cdecl powerupHud(std::uint8_t* view, std::uint8_t* vehicle) {
+    g_originalPowerupHud(view, vehicle);
+    if (!g_active || vehicle == nullptr) {
+        return;
+    }
+    const int player = *reinterpret_cast<int*>(vehicle + 0xC8);
+    if (player >= 0 && player < kMaxPlayers && timer(player, kTotalOffense) > 0.0f) {
+        auto addAmmo = reinterpret_cast<bool(__thiscall*)(std::uint8_t*, int, float)>((*reinterpret_cast<void***>(vehicle))[0x84 / 4]);
+        addAmmo(vehicle, 1, 1.0f);
+        if (!g_overchargeLogged[player]) {
+            g_overchargeLogged[player] = true;
+            g_api->log("academy_powerups: Overcharge on player %d (local, %.0f s left)", player, timer(player, kTotalOffense));
+        }
+    }
+}
+
 // The Disintegration Field's collision kill reads this timer; in Thule Power it holds Overcharge instead.
 float __cdecl totalOffenseTimer(int player) {
     return g_active ? 0.0f : g_originalTotalOffenseTimer(player);
@@ -293,6 +314,8 @@ extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
         && api->midHook(kPickupFinish, &pickupFinish, "Pickup_Apply finish (academy_powerups)")
         && api->detour(kPowerupTick, reinterpret_cast<const void*>(&powerupTick), reinterpret_cast<void**>(&g_originalPowerupTick),
                "Powerup_Tick (academy_powerups)")
+        && api->detour(kPowerupHud, reinterpret_cast<const void*>(&powerupHud), reinterpret_cast<void**>(&g_originalPowerupHud),
+               "Powerup_DrawHud (academy_powerups)")
         && api->detour(kTotalOffenseTimer, reinterpret_cast<const void*>(&totalOffenseTimer), reinterpret_cast<void**>(&g_originalTotalOffenseTimer),
                "TotalOffense_GetTimer (academy_powerups)")
         && api->detour(kCannonUpdate, reinterpret_cast<const void*>(&cannonUpdate), reinterpret_cast<void**>(&g_originalCannonUpdate),
