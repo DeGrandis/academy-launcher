@@ -53,21 +53,90 @@ namespace AcademyLauncher
             return Path.Combine(AppPaths.ModsDir, name);
         }
 
-        static string PluginDll(string name)
+        // A mod to build: one of the launcher's own (mods\<name>) or an add-on the player dropped into
+        // %LOCALAPPDATA%\AcademyLauncher\addons\<name> (same layout).
+        public sealed class Source
         {
-            string shipped = Path.Combine(ModDir(name), "plugin", name + ".dll");
-            if (File.Exists(shipped)) return shipped;
-            if (AppPaths.PluginFallbackDir != null)
+            public string Name;
+            public string Dir;
+            public bool IsAddon;
+
+            // Only textures in data\: changes how things look, not how the game plays, so it does not take part in the
+            // online fingerprint (players with and without it can still play together).
+            public bool VisualOnly
             {
-                string built = Path.Combine(AppPaths.PluginFallbackDir, name + ".dll");
-                if (File.Exists(built)) return built;
+                get
+                {
+                    if (!IsAddon || File.Exists(Path.Combine(Dir, "edits.json")) || Directory.Exists(Path.Combine(Dir, "files"))
+                        || Directory.Exists(Path.Combine(Dir, "plugin")) || !Directory.Exists(Path.Combine(Dir, "data")))
+                    {
+                        return false;
+                    }
+                    foreach (string file in Directory.GetFiles(Path.Combine(Dir, "data"), "*", SearchOption.AllDirectories))
+                    {
+                        if (!file.EndsWith(".xbt", StringComparison.OrdinalIgnoreCase)) return false;
+                    }
+                    return true;
+                }
             }
-            throw new FileNotFoundException("Mod '" + name + "' has a plugin, but " + name + ".dll is missing.");
         }
 
-        // SHA-256 over the launcher version and every input of the mods (in order): the network build fingerprint and
-        // the "is this mod root up to date" stamp. Plugin sources are skipped; the DLL that would be used counts.
+        public static List<Source> Addons()
+        {
+            var addons = new List<Source>();
+            if (Directory.Exists(AppPaths.AddonsDir))
+            {
+                var dirs = new List<string>(Directory.GetDirectories(AppPaths.AddonsDir));
+                dirs.Sort(StringComparer.OrdinalIgnoreCase);
+                foreach (string dir in dirs)
+                {
+                    addons.Add(new Source { Name = Path.GetFileName(dir), Dir = dir, IsAddon = true });
+                }
+            }
+            return addons;
+        }
+
+        // The preset's own mods, then the add-ons (every modded preset; "Original game" stays unmodded).
+        public static List<Source> Sources(Preset preset)
+        {
+            var sources = new List<Source>();
+            foreach (string name in preset.Mods)
+            {
+                sources.Add(new Source { Name = name, Dir = ModDir(name) });
+            }
+            if (preset.Mods.Count > 0)
+            {
+                sources.AddRange(Addons());
+            }
+            return sources;
+        }
+
+        static string PluginDll(Source source)
+        {
+            string shipped = Path.Combine(source.Dir, "plugin", source.Name + ".dll");
+            if (File.Exists(shipped)) return shipped;
+            if (!source.IsAddon && AppPaths.PluginFallbackDir != null)
+            {
+                string built = Path.Combine(AppPaths.PluginFallbackDir, source.Name + ".dll");
+                if (File.Exists(built)) return built;
+            }
+            throw new FileNotFoundException("Mod '" + source.Name + "' has a plugin, but " + source.Name + ".dll is missing.");
+        }
+
+        // SHA-256 over the launcher version and every input of the mods (in order). The gameplay fingerprint (online
+        // build id) leaves out visual-only add-ons; the content fingerprint (is the built mod root up to date) covers
+        // everything. Plugin sources are skipped; the DLL that would be used counts.
         public static string Fingerprint(Preset preset)
+        {
+            return Fingerprint(preset, false);
+        }
+
+        public static string ContentFingerprint(Preset preset)
+        {
+            return Fingerprint(preset, true);
+        }
+
+        static string Fingerprint(Preset preset, bool includeVisual)
         {
             using (var sha = SHA256.Create())
             {
@@ -75,27 +144,27 @@ namespace AcademyLauncher
                 Action<string> text = value => { byte[] bytes = Encoding.UTF8.GetBytes(value + "\n"); all.Write(bytes, 0, bytes.Length); };
                 Action<string> file = path => { byte[] bytes = sha.ComputeHash(File.ReadAllBytes(path)); all.Write(bytes, 0, bytes.Length); };
                 text("academy " + AppPaths.Version);
-                foreach (string name in preset.Mods)
+                foreach (Source source in Sources(preset))
                 {
-                    string dir = ModDir(name);
-                    if (!Directory.Exists(dir)) throw new DirectoryNotFoundException("Mod '" + name + "' is not installed.");
-                    text("mod " + name);
+                    if (!Directory.Exists(source.Dir)) throw new DirectoryNotFoundException("Mod '" + source.Name + "' is not installed.");
+                    if (!includeVisual && source.VisualOnly) continue;
+                    text((source.IsAddon ? "addon " : "mod ") + source.Name);
                     var files = new List<string>();
                     foreach (string sub in new[] { "data", "files" })
                     {
-                        if (Directory.Exists(Path.Combine(dir, sub))) files.AddRange(Directory.GetFiles(Path.Combine(dir, sub), "*", SearchOption.AllDirectories));
+                        if (Directory.Exists(Path.Combine(source.Dir, sub))) files.AddRange(Directory.GetFiles(Path.Combine(source.Dir, sub), "*", SearchOption.AllDirectories));
                     }
-                    if (File.Exists(Path.Combine(dir, "edits.json"))) files.Add(Path.Combine(dir, "edits.json"));
+                    if (File.Exists(Path.Combine(source.Dir, "edits.json"))) files.Add(Path.Combine(source.Dir, "edits.json"));
                     files.Sort(StringComparer.OrdinalIgnoreCase);
                     foreach (string path in files)
                     {
-                        text(path.Substring(dir.Length + 1).Replace('\\', '/').ToLowerInvariant());
+                        text(path.Substring(source.Dir.Length + 1).Replace('\\', '/').ToLowerInvariant());
                         file(path);
                     }
-                    if (Directory.Exists(Path.Combine(dir, "plugin")))
+                    if (Directory.Exists(Path.Combine(source.Dir, "plugin")))
                     {
                         text("plugin");
-                        file(PluginDll(name));
+                        file(PluginDll(source));
                     }
                 }
                 return ToHex(sha.ComputeHash(all.ToArray()));
@@ -119,10 +188,11 @@ namespace AcademyLauncher
             Archive archive = null;
             try
             {
-                foreach (string name in preset.Mods)
+                foreach (Source source in Sources(preset))
                 {
-                    string dir = ModDir(name);
-                    log("mod " + name);
+                    string name = source.Name;
+                    string dir = source.Dir;
+                    log((source.IsAddon ? "add-on " : "mod ") + name);
                     string data = Path.Combine(dir, "data");
                     if (Directory.Exists(data))
                     {
@@ -140,7 +210,7 @@ namespace AcademyLauncher
                     if (Directory.Exists(Path.Combine(dir, "plugin")))
                     {
                         Directory.CreateDirectory(Path.Combine(output, "plugins"));
-                        File.Copy(PluginDll(name), Path.Combine(output, "plugins", name + ".dll"), true);
+                        File.Copy(PluginDll(source), Path.Combine(output, "plugins", name + ".dll"), true);
                     }
                     string files = Path.Combine(dir, "files");
                     if (Directory.Exists(files))

@@ -31,6 +31,7 @@ namespace AcademyLauncher
         readonly Label hostCode, hostHelp, joinHelp, onlineStatus;
         // settings
         readonly Label gameFolder;
+        Label addonsLabel;
 
         public MainForm()
         {
@@ -276,6 +277,32 @@ namespace AcademyLauncher
             var open = Ui.SecondaryButton("Open saves and logs", new Point(466, y), new Size(150, 28));
             open.Click += (sender, e) => { Directory.CreateDirectory(AppPaths.PlayDir); Process.Start("explorer.exe", "\"" + AppPaths.PlayDir + "\""); };
             tab.Controls.AddRange(new Control[] { change, rebuild, open });
+
+            y += 42;
+            tab.Controls.Add(Ui.Caption("Add-ons", new Point(22, y + 3)));
+            addonsLabel = Ui.Paragraph("", new Point(190, y + 3), 470);
+            tab.Controls.Add(addonsLabel);
+            y += 30;
+            var openAddons = Ui.SecondaryButton("Open add-ons folder", new Point(190, y), new Size(150, 28));
+            openAddons.Click += (sender, e) =>
+            {
+                Directory.CreateDirectory(AppPaths.AddonsDir);
+                Process.Start("explorer.exe", "\"" + AppPaths.AddonsDir + "\"");
+            };
+            tab.Controls.Add(openAddons);
+            tab.Controls.Add(Ui.Caption("Each folder in it is a mod, added on top of every mode except Original game.", new Point(348, y + 5)));
+            ShowAddons();
+            Activated += (sender, e) => ShowAddons();  // pick up folders added while the launcher was in the background
+        }
+
+        void ShowAddons()
+        {
+            var names = new List<string>();
+            foreach (ModBuilder.Source addon in ModBuilder.Addons())
+            {
+                names.Add(addon.Name + (addon.VisualOnly ? " (looks only, online-safe)" : ""));
+            }
+            addonsLabel.Text = names.Count > 0 ? string.Join(", ", names) : "None";
         }
 
         void Bind(ComboBox box, string key, string fallback)

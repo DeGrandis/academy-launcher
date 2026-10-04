@@ -134,7 +134,7 @@ namespace AcademyLauncher
             string root = Path.Combine(AppPaths.ModRootsDir, preset.Id);
             string game = GameDir(settings);
             var zwp = new FileInfo(Path.Combine(game, "data.zwp"));
-            string stamp = ModBuilder.Fingerprint(preset) + " " + zwp.Length + " " + zwp.LastWriteTimeUtc.Ticks;
+            string stamp = ModBuilder.ContentFingerprint(preset) + " " + zwp.Length + " " + zwp.LastWriteTimeUtc.Ticks;
             string stampFile = Path.Combine(root, "built.txt");
             if (File.Exists(stampFile) && File.ReadAllText(stampFile) == stamp)
             {

@@ -96,6 +96,10 @@ namespace AcademyLauncher
                         {
                             Console.WriteLine(preset.Id + " " + Online.BuildId(preset) + " " + string.Join("+", preset.Mods));
                         }
+                        foreach (ModBuilder.Source addon in ModBuilder.Addons())
+                        {
+                            Console.WriteLine("add-on " + addon.Name + (addon.VisualOnly ? " (textures only, not in the online fingerprint)" : ""));
+                        }
                         return 0;
                     case "build":
                     {

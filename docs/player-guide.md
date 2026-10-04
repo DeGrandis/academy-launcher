@@ -69,6 +69,17 @@ and type the host's public IP address.
 The launcher checks for updates when it starts. When a new version is out, a yellow bar appears: click **Update now**.
 Your game files, saves and settings stay as they are.
 
+## Add-ons
+
+Extra mods (for example higher-resolution textures) go in the add-ons folder: **Settings > Open add-ons folder**
+(`%LOCALAPPDATA%\AcademyLauncher\addons`). Each folder in it is one add-on, laid out like the launcher's own mods
+(`data`, `edits.json`, `files`, `plugin`). Add-ons apply on top of **Game + all mods**, not to **Original game**, and
+the launcher rebuilds the mods by itself when an add-on changes. Updates never touch the add-ons folder.
+
+Online: add-ons that only replace textures (`.xbt` files in `data`) change how the game looks, not how it plays, so you
+can still play with friends who don't have them. Any other add-on changes your online version, so everyone in the game
+needs the same one.
+
 ## Where things are
 
 - The launcher: `%LOCALAPPDATA%\Programs\Academy Launcher`

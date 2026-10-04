@@ -12,6 +12,7 @@ namespace AcademyLauncher
     //   game\         the extracted game disc (or settings game_dir points at the player's own extracted copy)
     //   play\         clone_wars.exe (converted from the player's default.xbe), cw_runtime.dll, hdd\ (saves)
     //   modroots\<preset>\   built mod overlays
+//   addons\<name>\      extra mods the player adds (layered on every modded preset)
     //   settings.ini, launcher.log
     public static class AppPaths
     {
@@ -27,6 +28,7 @@ namespace AcademyLauncher
         public static string GameDir { get { return Path.Combine(DataDir, "game"); } }
         public static string PlayDir { get { return Path.Combine(DataDir, "play"); } }
         public static string ModRootsDir { get { return Path.Combine(DataDir, "modroots"); } }
+        public static string AddonsDir { get { return Path.Combine(DataDir, "addons"); } }
         public static string SettingsFile { get { return Path.Combine(DataDir, "settings.ini"); } }
         public static string LogFile { get { return Path.Combine(DataDir, "launcher.log"); } }
 

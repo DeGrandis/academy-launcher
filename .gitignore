@@ -31,3 +31,6 @@ mods/flat_conquest/data/
 
 # Editor settings (local paths)
 .vscode/
+
+# Upscaled game textures (derived from the game files; local only)
+mods/hd_textures/
