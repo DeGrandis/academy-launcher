@@ -1,6 +1,7 @@
 #include "d3d/VertexShader.h"
 
 #include "Log.h"
+#include "d3d/Device11.h"
 
 #include <d3dcompiler.h>
 
@@ -130,7 +131,10 @@ std::string generateHlsl(const std::vector<DWORD>& function, const std::vector<S
     for (const ShaderInput& input : inputs) {
         if (!declared[input.reg]) {
             declared[input.reg] = true;
-            inputList += (inputList.empty() ? "" : ", ") + std::string("float4 i") + std::to_string(input.reg) + " : TEXCOORD" + std::to_string(input.reg);
+            // v0 is the vertex position by Xbox convention: declare it as POSITION so tools that read the vertex
+            // stream (RTX Remix) can find the geometry.
+            inputList += (inputList.empty() ? "" : ", ") + std::string("float4 i") + std::to_string(input.reg) +
+                (input.reg == 0 ? std::string(" : POSITION0") : " : TEXCOORD" + std::to_string(input.reg));
         }
     }
     for (int reg = 0; reg < 16; ++reg) {
@@ -302,8 +306,9 @@ void translateVertexShader(IDirect3DDevice9* device, const std::vector<DWORD>& d
 
     std::vector<D3DVERTEXELEMENT9> elements;
     for (std::size_t index = 0; index < out.inputs.size(); ++index) {
-        elements.push_back({0, static_cast<WORD>(index * 16), D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,
-            static_cast<BYTE>(out.inputs[index].reg)});
+        const bool position = out.inputs[index].reg == 0;
+        elements.push_back({0, static_cast<WORD>(index * 16), D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT,
+            static_cast<BYTE>(position ? D3DDECLUSAGE_POSITION : D3DDECLUSAGE_TEXCOORD), static_cast<BYTE>(position ? 0 : out.inputs[index].reg)});
     }
     elements.push_back(D3DDECL_END());
 
@@ -319,6 +324,13 @@ void translateVertexShader(IDirect3DDevice9* device, const std::vector<DWORD>& d
             std::fprintf(file, "\n%s", hlsl.c_str());
             std::fclose(file);
         }
+    }
+    if (isDevice11(device)) {
+        out.shader = createXboxVertexShader11(device, hlsl);
+        if (out.shader == nullptr || FAILED(device->CreateVertexDeclaration(elements.data(), &out.declaration))) {
+            logf("d3d: could not create the host vertex shader");
+        }
+        return;
     }
     ID3DBlob* code = nullptr;
     ID3DBlob* errors = nullptr;

@@ -51,8 +51,10 @@ BOOL __stdcall xQueryPerformanceFrequency(LARGE_INTEGER* frequency) {
         const unsigned long long tscEnd = __rdtsc();
         const double seconds = static_cast<double>(end.QuadPart - start.QuadPart) / static_cast<double>(hostFrequency.QuadPart);
         const auto measured = static_cast<LONGLONG>(static_cast<double>(tscEnd - tscStart) / seconds);
-        logf("timing: host TSC runs at %.1f MHz", measured / 1e6);
-        return measured;
+        logf("timing: host TSC runs at %.1f MHz; game speed x%g (menus) / x%g (missions)", measured / 1e6, menuTimeScale(), targetTimeScale());
+        // CW_TIME_SCALE: a slower reported rate makes every TSC interval count for more game time. The game reads this
+        // once, at the menu speed; options::switchTimeScale changes it per mission.
+        return static_cast<LONGLONG>(static_cast<double>(measured) / menuTimeScale());
     }();
     frequency->QuadPart = tscFrequency;
     return TRUE;

@@ -20,5 +20,8 @@
   {"file": "rep_tank_gtrans_multi.odf", "find": "\\[Status\\]\\r\\n", "replace": "[Status]\r\nmaxAmmoSecondary = 15\r\naddAmmoSecondary = 0.05\r\nminAmmoSpecial = 1.0\r\nmaxAmmoSpecial = 3.0\r\naddAmmoSpecial = 0.2\r\n", "count": 1, "tag": "weapons"},
   {"file": "rep_tank_gtrans_multi.odf", "find": "secondaryWeaponType = \\d+", "replace": "secondaryWeaponType = 6", "count": 1, "tag": "weapons"},
   {"file": "rep_tank_gtrans_multi.odf", "find": "specialWeaponType = \\d+", "replace": "specialWeaponType = 7", "count": 1, "tag": "weapons"},
-  {"file": "onlinebuttons.cfg", "tag": "online", "find": "(?m)^(\\s+PlayerODF\\(\"rep_walk_assault_xblive\",\"REP_walk_assault_icon\\.tga\",1\\);)", "replace": "\\1\n  \tPlayerODF(\"REP_walk_sixleg_multi\",\"rep_walk_sixleg_icon.tga\",1);\n  \tPlayerODF(\"REP_tank_gtrans_multi\",\"rep_tank_gtrans_icon.tga\",1);", "count": 4}
+  {"file": "onlinebuttons.cfg", "tag": "online", "find": "(?m)^(\\s+PlayerODF\\(\"rep_walk_assault_xblive\",\"REP_walk_assault_icon\\.tga\",1\\);)", "replace": "\\1\n  \tPlayerODF(\"REP_walk_sixleg_multi\",\"rep_walk_sixleg_icon.tga\",1);\n  \tPlayerODF(\"REP_tank_gtrans_multi\",\"rep_tank_gtrans_icon.tga\",1);", "count": 4},
+  {"file": "drone_blue_mortar.odf", "tag": "conquest troops", "find": "//fireSound = \"\"", "replace": "effectEmitterFile = \"muzzleflash\"\r\nfireSound = \"R_Asswalk_secfire02\"\r\nfireSoundRangeOverride = 300", "count": 1},
+  {"file": "drone_blue_mortar_xpl.odf", "tag": "conquest troops", "find": "damageCenter = 0\\.0 0\\.0", "replace": "damageCenter = 500.0 350.0", "count": 1},
+  {"file": "drone_blue_mortar_xpl.odf", "tag": "conquest troops", "find": "damageEdge = 0\\.0 0\\.0", "replace": "damageEdge = 350.0 200.0", "count": 1}
 ]

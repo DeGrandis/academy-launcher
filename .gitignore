@@ -34,3 +34,6 @@ mods/flat_conquest/data/
 
 # Upscaled game textures (derived from the game files; local only)
 mods/hd_textures/
+mods/bal_*/
+shots/
+remix_dl/

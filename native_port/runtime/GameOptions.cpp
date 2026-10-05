@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <intrin.h>
 #include <iterator>
 
 #include <windows.h>
@@ -54,8 +55,19 @@ void __cdecl setFogRange(float start, float end) {
 constexpr std::uint32_t kSkyDrawPlane = 0x000B9CE0;  // void __cdecl(Camera*)
 constexpr std::uint32_t kCameraFarDistance = 0x2D4;
 void(__cdecl* g_skyDrawPlane)(std::uint8_t*) = nullptr;
+} // namespace
+extern bool g_remixSkyPlane;  // d3d/Device.cpp: CW_REMIX_DUMP marks the sky plane's draws "sky"
+extern char g_missionName[32];  // d3d/Device.cpp: RTX Remix picks each map's lighting by mission
+namespace {
 
 void __cdecl skyDrawPlane(std::uint8_t* camera) {
+    // CW_NO_SKY_PLANE=1 (RTX Remix): skip the flat cloud plane drawn high over the map. A path tracer sees it as a solid
+    // lid that blocks the sun; Remix draws its own sky from the tagged sky textures.
+    // While dumping textures for Remix the plane is drawn anyway, so its textures can be found and tagged.
+    static const bool skip = std::getenv("CW_NO_SKY_PLANE") != nullptr && std::getenv("CW_REMIX_DUMP") == nullptr;
+    if (skip) {
+        return;
+    }
     auto* farDistance = reinterpret_cast<float*>(camera + kCameraFarDistance);
     const float saved = *farDistance;
     static bool logged = false;
@@ -66,7 +78,9 @@ void __cdecl skyDrawPlane(std::uint8_t* camera) {
     if (g_multiplier > 1.0f) {
         *farDistance = saved / g_multiplier;
     }
+    g_remixSkyPlane = true;
     g_skyDrawPlane(camera);
+    g_remixSkyPlane = false;
     *farDistance = saved;
 }
 
@@ -137,10 +151,44 @@ void installPlayerName() {
     logf("options: multiplayer name '%ls'", g_playerName);
 }
 
+// CW_TIME_SCALE: missions run at targetTimeScale(), the menus at menuTimeScale(). The game's timer is
+// (rdtsc - base) * secondsPerTick, base at 0x608DD8 and secondsPerTick (double) at 0x608DE0, both set once at startup
+// from QueryPerformanceFrequency (which reports the menu speed); changing speed rescales secondsPerTick and moves base
+// so the game time read right now stays the same.
+constexpr std::uint32_t kBatchBeginMission = 0x00062750;  // void __cdecl(const char* mission, const char* directory)
+constexpr std::uint32_t kTimerBase = 0x00608DD8;
+constexpr std::uint32_t kTimerSecondsPerTick = 0x00608DE0;
+void(__cdecl* g_beginMission)(const char*, const char*) = nullptr;
+
+void switchTimeScale(double scale) {
+    const double current = timeScale();
+    auto& base = *reinterpret_cast<unsigned long long*>(kTimerBase);
+    auto& secondsPerTick = *reinterpret_cast<double*>(kTimerSecondsPerTick);
+    if (scale == current || secondsPerTick == 0.0) {
+        return;
+    }
+    const unsigned long long now = __rdtsc();
+    const double gameNow = static_cast<double>(static_cast<long long>(now - base)) * secondsPerTick;
+    secondsPerTick *= scale / current;
+    base = now - static_cast<unsigned long long>(gameNow / secondsPerTick);
+    setTimeScale(scale);
+    logf("timing: game speed x%g", scale);
+}
+
+void __cdecl beginMission(const char* mission, const char* directory) {
+    const bool menus = mission == nullptr || _strnicmp(mission, "shell", 5) == 0;
+    logf("options: mission '%s'", mission != nullptr ? mission : "(none)");  // automated runs check where the menus led
+    switchTimeScale(menus ? menuTimeScale() : targetTimeScale());
+    strncpy_s(g_missionName, mission != nullptr ? mission : "", _TRUNCATE);
+    g_beginMission(mission, directory);
+}
+
 } // namespace
 
 void install() {
     installPlayerName();
+    hooks::detour(kBatchBeginMission, reinterpret_cast<const void*>(&beginMission), reinterpret_cast<void**>(&g_beginMission),
+        "Batch_BeginMission (mission log, CW_TIME_SCALE per mission)");
     if (const char* value = std::getenv("CW_VIEW_DISTANCE")) {
         g_multiplier = std::clamp(static_cast<float>(std::atof(value)), 0.25f, 64.0f);
     }

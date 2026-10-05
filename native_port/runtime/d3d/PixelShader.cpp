@@ -1,6 +1,7 @@
 #include "d3d/PixelShader.h"
 
 #include "Log.h"
+#include "d3d/Device11.h"
 
 #include <d3dcompiler.h>
 
@@ -262,6 +263,11 @@ IDirect3DPixelShader9* hostPixelShader(IDirect3DDevice9* device, const DWORD* de
             std::fputs(hlsl.c_str(), file);
             std::fclose(file);
         }
+    }
+    if (isDevice11(device)) {
+        shader = createXboxPixelShader11(device, hlsl);
+        g_cache[program] = shader;
+        return shader;
     }
     for (const char* profile : {"ps_2_a", "ps_2_b", "ps_2_0"}) {
         ID3DBlob* code = nullptr;

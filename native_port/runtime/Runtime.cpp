@@ -12,6 +12,10 @@
 #include <fstream>
 #include <string>
 
+namespace cw::d3d {
+unsigned long long scriptMilliseconds();
+}
+
 namespace {
 
 constexpr std::uintptr_t kXbeBase = 0x10000;
@@ -216,10 +220,14 @@ extern "C" __declspec(dllexport) void __cdecl CwRun() {
     cw::mods::loadPlugins(gameRoot, exeDirectory);
     cw::trace::installFromEnvironment();
     if (const char* exitAfter = std::getenv("CW_EXIT_MS")) {
-        // Automated runs: end the process after a fixed time.
+        // Automated runs: end the process after a fixed time, on the same clock as CW_INPUT_SCRIPT.
         const DWORD milliseconds = static_cast<DWORD>(std::strtoul(exitAfter, nullptr, 10));
         CreateThread(nullptr, 0, [](LPVOID parameter) -> DWORD {
-            Sleep(static_cast<DWORD>(reinterpret_cast<std::uintptr_t>(parameter)));
+            const auto milliseconds = static_cast<unsigned long long>(reinterpret_cast<std::uintptr_t>(parameter));
+            const unsigned long long start = cw::d3d::scriptMilliseconds();
+            while (cw::d3d::scriptMilliseconds() - start < milliseconds) {
+                Sleep(10);
+            }
             cw::logf("CW_EXIT_MS reached; exiting");
             ExitProcess(0);
         }, reinterpret_cast<LPVOID>(static_cast<std::uintptr_t>(milliseconds)), 0, nullptr);

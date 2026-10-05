@@ -15,10 +15,12 @@
 #include "cw_mod.h"
 #include "game/GameSymbols.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <cwchar>
 #include <intrin.h>
+#include <iterator>
 
 namespace {
 
@@ -177,6 +179,30 @@ void __cdecl viewRectForPlayer(CwRegisters* registers) {
     }
 }
 
+// The empty quarter of a 3-player split screen is filled black by 0x76D40 (after the 3D pass), which asks the local
+// player count (0x73820, int __cdecl(void)) and fills the first free quadrant when it is 3. Name tags and markers
+// (0x10D903, 0x10FE50, 0x11025C) shrink to split-screen size when it is above 1. From those call sites, computer
+// players do not count.
+constexpr std::uint32_t kCountLocalPlayers = 0x00073820;
+constexpr std::uintptr_t kScreenCountCallers[] = {0x00076DB2, 0x0010D903, 0x0010FE50, 0x0011025C};
+int(__cdecl* g_originalCountLocalPlayers)() = nullptr;
+
+int __cdecl countLocalPlayers() {
+    int count = g_originalCountLocalPlayers();
+    const auto caller = reinterpret_cast<std::uintptr_t>(_ReturnAddress());
+    if (inLobby() || std::find(std::begin(kScreenCountCallers), std::end(kScreenCountCallers), caller) == std::end(kScreenCountCallers)) {
+        return count;
+    }
+    int computers = 0;
+    for (int slot = 1; slot < kSlots; ++slot) {
+        computers += g_plugged[slot] ? 1 : 0;
+    }
+    if (computers > 0 && count > 1) {
+        count = count - computers < 1 ? 1 : count - computers;
+    }
+    return count;
+}
+
 bool __cdecl isLocalPlayer(int slot) {
     const auto caller = reinterpret_cast<std::uintptr_t>(_ReturnAddress());
     if (slot > 0 && slot < kSlots && g_plugged[slot] && !inLobby() && caller >= kRenderCodeStart && caller < kRenderCodeEnd) {
@@ -204,6 +230,8 @@ extern "C" __declspec(dllexport) int __cdecl CwModInit(const CwModApi* api) {
         && api->detour(kIsLocalPlayer, reinterpret_cast<const void*>(&isLocalPlayer), reinterpret_cast<void**>(&g_originalIsLocalPlayer),
                "IsLocalPlayer (ai_players: no screen for computer players)")
         && api->midHook(kViewRectForPlayer, &viewRectForPlayer, "ViewRectForPlayer (ai_players: full screen)")
+        && api->detour(kCountLocalPlayers, reinterpret_cast<const void*>(&countLocalPlayers), reinterpret_cast<void**>(&g_originalCountLocalPlayers),
+               "CountLocalPlayers (ai_players: no empty-quarter fill, full-size markers)")
         && api->detour(reinterpret_cast<std::uint32_t>(cw::game::Batch_BeginMission), reinterpret_cast<const void*>(&beginMission),
                reinterpret_cast<void**>(&g_originalBeginMission), "Batch_BeginMission (ai_players)");
 }

@@ -39,6 +39,10 @@ target_compile_options(minhook PRIVATE /W0)
 add_library(cw_runtime SHARED
     runtime/audio/XboxAdpcm.cpp
     runtime/d3d/Device.cpp
+    runtime/d3d/Device11.cpp
+    runtime/d3d/FixedFunction11.cpp
+    runtime/d3d/FxTuner.cpp
+    runtime/d3d/TexturePack.cpp
     runtime/d3d/Textures.cpp
     runtime/d3d/PixelShader.cpp
     runtime/d3d/VertexShader.cpp

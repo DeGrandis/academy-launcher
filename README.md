@@ -180,7 +180,21 @@ python tests/run_tests.py                       # all cases
 python tests/run_tests.py thule_academy_starts  # one case
 ```
 
-Each case in `tests/cases.json` boots the game with scripted input against a fresh copy of `tests/fixtures/hdd`, then checks memory values sampled with `CW_WATCH` and fails on any hardware exception. Logs and screenshots go to `tests/results/<case>/`.
+Each case in `tests/cases.json` boots the game with scripted input against a fresh copy of `tests/fixtures/hdd`, then checks memory values sampled with `CW_WATCH` and fails on any hardware exception. Logs and screenshots go to `tests/results/<case>/`. Cases run at 4x game speed (`CW_TIME_SCALE`); a case that needs real time sets `"env": {"CW_TIME_SCALE": "1"}`.
+
+## Conquest balance simulations
+
+`tools/balance/` plays split-screen Conquest matches between two computer players (one per team, player 1 idle as an observer) many at a time, sped up, and measures them with the `mods/conquest_stats` telemetry plugin (outposts, troop/turret/tank/HQ losses, shots, winner). Each game gets a physical core; a 48-match batch takes about 10 minutes on a 12-core PC.
+
+```powershell
+powershell tools/balance/run_conquest.ps1 -Label baseline -Games 12   # 12 matches on each of the 4 Conquest maps
+python tools/balance/summarize.py work/balance/baseline                # per-match and per-map tables
+python tools/balance/make_variant.py tough_cis drone_red.maxHull=1200  # a throwaway stat variant (mods/bal_<name>)
+python tools/balance/evolve.py --until 08:00                           # evolutionary search over unit stats
+python tools/balance/confirm.py work/balance/ga/state.json c001 c022   # side-by-side confirmation of candidates
+```
+
+`evolve.py` searches unit stats (troop and tank hulls and weapons, turret and HQ toughness) and the `mods/conquest_comeback` loss bonus, scoring even sides overall and per map, decisive matches of a good length, lead changes and comebacks.
 
 ## Debugging
 
@@ -215,7 +229,9 @@ These environment variables affect `clone_wars.exe`:
 - `CW_CAMERA_DISTANCE=1.2` (the default) multiplies every vehicle's chase-camera distance (`[Camera] distance` in its ODF); `1` is the original camera.
 - `CW_VIEW_DISTANCE=4` multiplies every map's view distance (far clip plane, object culling, sky dome) and fog range from its `.sky` file; in game F8 / F7 step it up / down (1, 1.5, 2, 3, 4, 6, 8, 12, 16).
 - `CW_HOTKEY_SCRIPT=36000:f9,40000:f11`: presses those hotkeys (f7, f8, f9, f11) at time offsets (for tests).
-- `CW_FPS=n`: software frame cap instead of vsync (`CW_FPS=0` = unlimited, for fast automated tests).
+- `CW_FPS=n`: software frame cap instead of vsync (`CW_FPS=0` = unlimited).
+- `CW_TIME_SCALE=n`: runs missions n times faster than real time, for automated runs (`tests/run_tests.py` uses 4, the balance tools 14); the menus run at `CW_MENU_TIME_SCALE` (default the smaller of n and 4, where scripted menu input stays reliable). The `CW_FPS` cap and the log's timestamps count game time; `CW_INPUT_SCRIPT`, `CW_HOTKEY_SCRIPT` and `CW_EXIT_MS` count rendered frames at the `CW_FPS` rate, so loading screens don't eat into them. Sound doesn't follow it (use `CW_AUDIO=0`).
+- `CW_RENDER_EVERY=n`: draws only every nth frame (and screenshot frames); the game itself runs every frame. Makes sped-up runs much cheaper.
 - `CW_SHADERLOG=1`: writes translated shaders to `vs_<n>.hlsl` / `ps_<n>.hlsl`.
 - `CW_DRAWLOG_FRAME=1500`: logs every draw call of one frame.
 - `CW_WIREFRAME=1`, `CW_DEBUG_SOLID=1`, `CW_PS_OUTPUT=t0`: rendering debug views.

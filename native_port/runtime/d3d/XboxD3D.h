@@ -4,6 +4,7 @@
 #include <d3d9.h>
 
 #include <cstdint>
+#include <vector>
 
 namespace cw::d3d {
 
@@ -64,6 +65,9 @@ bool isCompressedFormat(DWORD xboxFormat);
 
 void initializeTextures(IDirect3DDevice9* device);
 IDirect3DBaseTexture9* hostTexture(const XPixelContainer* container);
+// RTX Remix work (CW_REMIX_DUMP): a texture's top level as uploaded, or null.
+const std::vector<std::uint8_t>* remixTopLevel(const IDirect3DBaseTexture9* texture);
+std::uint64_t textureContentHash(const IDirect3DBaseTexture9* texture);
 void setRenderTargetOverride(const XPixelContainer* container, IDirect3DBaseTexture9* texture);
 HWND gameWindow();
 

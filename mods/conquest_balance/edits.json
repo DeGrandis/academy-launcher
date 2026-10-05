@@ -1,0 +1,14 @@
+[
+  {
+    "file": "drone_blue_mortar_xpl.odf",
+    "find": "damageCenter = 500\\.0 350\\.0",
+    "replace": "damageCenter = 150.0 105.0",
+    "count": 1
+  },
+  {
+    "file": "drone_blue_mortar_xpl.odf",
+    "find": "damageEdge = 350\\.0 200\\.0",
+    "replace": "damageEdge = 105.0 60.0",
+    "count": 1
+  }
+]

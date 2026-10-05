@@ -172,6 +172,12 @@ NTSTATUS __stdcall xNtCreateFile(PHANDLE fileHandle, ACCESS_MASK desiredAccess, 
     HostObjectAttributes host;
     NTSTATUS status = translateObjectAttributes(objectAttributes, host);
     if (status == kStatusSuccess) {
+        // Read-only opens (the game files) also let other readers in: the game asks for exclusive access to some disc
+        // files, which on a PC would stop a second copy of the game (parallel test runs) from opening them.
+        constexpr ACCESS_MASK kWriteAccess = GENERIC_WRITE | FILE_WRITE_DATA | FILE_APPEND_DATA | DELETE | WRITE_DAC | WRITE_OWNER;
+        if ((desiredAccess & kWriteAccess) == 0) {
+            shareAccess |= FILE_SHARE_READ;
+        }
         // The Xbox I/O manager implicitly allows attribute queries on any handle it returns.
         status = NtCreateFile(fileHandle, desiredAccess | FILE_READ_ATTRIBUTES | SYNCHRONIZE, &host.attributes, ioStatusBlock, allocationSize, fileAttributes,
             shareAccess, createDisposition, createOptions & ~kFileNoIntermediateBuffering, nullptr, 0);

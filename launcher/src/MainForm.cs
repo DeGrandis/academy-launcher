@@ -22,6 +22,7 @@ namespace AcademyLauncher
         // play
         readonly ComboBox presetBox;
         readonly Label presetDescription;
+        readonly Label onlineMode;
         readonly Button playButton;
         readonly Label playStatus;
         // online
@@ -102,9 +103,9 @@ namespace AcademyLauncher
             nameBox.KeyPress += (sender, e) => { if (!char.IsControl(e.KeyChar) && (e.KeyChar < 0x20 || e.KeyChar >= 0x7F)) e.Handled = true; };
             nameBox.TextChanged += (sender, e) => { settings.Set("player_name", Game.CleanPlayerName(nameBox.Text)); settings.Save(); };
             onlineTab.Controls.Add(nameBox);
-            onlineTab.Controls.Add(Ui.Paragraph(
-                "Online games use the " + OnlinePreset().Name + " mode, and everyone needs the same launcher version. "
-                + "The host starts System Link in the game; everyone else joins it.", new Point(22, 52), 640));
+            onlineMode = Ui.Paragraph("", new Point(22, 52), 640);
+            onlineTab.Controls.Add(onlineMode);
+            ShowPreset();
             var connection = new GroupBox { Text = "Connection", Location = new Point(22, 96), Size = new Size(640, 52) };
             viaRelay = new RadioButton { Text = "Join code (easiest)", Location = new Point(14, 20), AutoSize = true };
             viaDirect = new RadioButton { Text = "Direct / IP address", Location = new Point(220, 20), AutoSize = true };
@@ -323,14 +324,22 @@ namespace AcademyLauncher
             return presets.Find(p => option != null && p.Id == option.Value) ?? presets[0];
         }
 
+        // Online games use the mode picked on the Play tab when it can be played online (everyone in a game needs the
+        // same one), otherwise the first mode that can.
         Preset OnlinePreset()
         {
-            return presets.Find(p => p.Online) ?? presets[0];
+            Preset selected = SelectedPreset();
+            return selected.Online ? selected : presets.Find(p => p.Online) ?? presets[0];
         }
 
         void ShowPreset()
         {
             presetDescription.Text = SelectedPreset().Description;
+            if (onlineMode != null)
+            {
+                onlineMode.Text = "Online games use the " + OnlinePreset().Name + " mode (the one picked on the Play tab), and everyone "
+                    + "needs the same mode and launcher version. The host starts System Link in the game; everyone else joins it.";
+            }
         }
 
         string OnlineMode()

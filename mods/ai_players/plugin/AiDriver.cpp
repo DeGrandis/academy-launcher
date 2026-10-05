@@ -7,7 +7,14 @@
 //   then the nearest enemy one,
 // - drives the map's route between its base and that outpost (Fac<id>_<team>), waypoint by waypoint, then into the
 //   claim circle, going round the outpost building when it gets stuck,
-// - stops once the outpost counts it as the claimer and waits there until everything is built.
+// - stops once the outpost counts it as the claimer and waits there until everything is built,
+// - pushes the enemy HQ along the map's paths when none of its outposts needs rebuilding and it holds kPushLead more
+//   outposts than the enemy (1 more after 8 minutes, none after 14: escalation) or there is nothing left to take; it
+//   shoots the HQ first,
+// - fights: every 0.5 s it picks the nearest enemy within range (troops, vehicles, turrets; not the invulnerable HQs
+//   and generators). It turns to face one that is close (or any, while holding an outpost) and otherwise keeps
+//   driving; whenever one is lined up it fires its primary weapon (A), and its secondary (X) every 2.5 s at range.
+//   Object +0xC0 team: 1 and 2 for players and buildings, 11 and 12 for the troops each side's outposts build.
 // Steering: the left stick points where the tank should go relative to its heading (right = clockwise from above).
 //
 // Object: +0x40 matrix (rows right, up, front, position), +0xC0 team; world position from 0x22F5A0.
@@ -15,6 +22,8 @@
 // (2 = outpost), +0x14 owner team (-1 none), +0x18 player slot claiming it, +0x20 id, +0x28 build index (-1 = all
 // built), +0x2C claimed. Paths: [[0x3A2F0C]+0x1C] path manager, Find at 0xAD320; points listed from +0x18 (node
 // +0x08 next, +0x10 position). Spawn points: 0x20-byte records at 0x41BA50 (count 0x41B870): rotation, position, team.
+// Objects: a search tree of handles at [[0x3A2F0C]+0x18] (root +0x08; node +0x08 lower, +0x0C higher, +0x14 handle,
+// +0x18 object), looked up by 0x14340 (__thiscall(tree, handle), null once the object is gone).
 
 #include "AiDriver.h"
 
@@ -26,6 +35,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 namespace ai {
 
@@ -41,6 +51,7 @@ constexpr std::uint32_t kPathFind = 0x000AD320;
 constexpr std::uint32_t kSpawnPointCount = 0x0041B870;
 constexpr std::uint32_t kSpawnPoints = 0x0041BA50;
 const char* const kConquestMaps[] = {"multi6", "multi8", "multi10", "multi12", "multi19",  // multi19: flat_conquest test map
+    "night6", "night8", "night10", "night12",  // mods/night_maps
                                      "cq1", "cq2", "cq3", "cq4", "cq5"};  // online (System Link) Conquest maps
 
 constexpr float kWaypointReached = 20.0f;
@@ -56,6 +67,22 @@ constexpr float kLookahead = 25.0f;       // steer at the route this far ahead o
 constexpr float kPivotAngle = 1.0f;       // radians off course beyond which the tank pivots slowly
 constexpr float kPivotThrottle = 0.12f;
 constexpr float kRespawnJump = 150.0f;    // a move this big between two frames means the tank respawned
+constexpr std::uint32_t kObjectFromHandle = 0x00014340;
+constexpr std::uint32_t kScreen = 0x0038F7A8;  // current screen; 4 = playing, 18 = Conquest end screen
+constexpr std::int32_t kInGameScreen = 4;
+constexpr std::uint32_t kHealthComponent = 0xFBCD164A;
+constexpr float kEngageRange = 250.0f;     // enemies this close are shot at
+constexpr float kStandRange = 150.0f;      // and this close, the tank stops to face them on its way
+constexpr float kFireAngle = 0.2f;         // radians off the hull's heading the target may be to fire
+constexpr float kSecondaryRange = 40.0f;   // the secondary weapon only beyond this (splash, missiles)
+constexpr float kSecondaryEvery = 2.5f;
+constexpr float kRetarget = 0.5f;
+constexpr float kInvulnerable = 20000.0f;  // invulnerable buildings have huge health (1,000,000)
+constexpr float kHqMinHealth = 2400.0f;    // the HQ is the only destructible building above this (turrets 750-800)
+constexpr int kPushLead = 2;               // outposts ahead before pushing the enemy HQ
+constexpr float kEscalate1 = 480.0f;       // match seconds after which a lead of 1 is enough
+constexpr float kEscalate2 = 840.0f;       // and after which a tie is enough
+constexpr float kPushCheck = 5.0f;
 
 struct Zone {
     float position[3];
@@ -99,12 +126,22 @@ struct Brain {
     int troopSignature = 0;
     double troopOrderedAt = -1.0;
     double pressUpUntil = 0.0;
+    // fighting
+    int enemy = 0;            // handle of the target, 0 = none
+    double retargetAt = 0.0;
+    double secondaryAt = 0.0;
+    double secondaryUntil = 0.0;
+    // pushing the enemy HQ
+    bool pushing = false;
+    double pushCheckAt = 0.0;
+    float hq[3] = {};
+    int hqHandle = 0;
 };
 
 const CwModApi* g_api = nullptr;
 bool g_conquest = false;
 Brain g_brains[kSlots];
-double g_now = 0.0;  // seconds, wall clock
+double g_now = 0.0;  // seconds, game time
 
 std::uint8_t* playerObject(int slot) {
     auto* world = *reinterpret_cast<std::uint8_t**>(0x003A2F0C);
@@ -199,11 +236,10 @@ const std::uint8_t* findPath(const char* name) {
     return find(manager, nullptr, name);
 }
 
-void planRoute(Brain& brain, int slot, const Zone* target, const float* from, int team) {
+// Loads the map path `name` as the route, ordered to end nearest `goal`, joined at its point nearest `from`.
+void planPath(Brain& brain, int slot, const char* name, const float* goal, const float* from) {
     brain.routeLength = 0;
     brain.routeIndex = 0;
-    char name[16];
-    std::snprintf(name, sizeof(name), "Fac%d_%d", target->id, team);
     const std::uint8_t* path = findPath(name);
     if (path == nullptr) {
         g_api->log("ai_players: player %d: no path %s; driving straight", slot + 1, name);
@@ -216,7 +252,7 @@ void planRoute(Brain& brain, int slot, const Zone* target, const float* from, in
     if (brain.routeLength == 0) {
         return;
     }
-    if (distance2d(brain.route[0], target->position) < distance2d(brain.route[brain.routeLength - 1], target->position)) {
+    if (distance2d(brain.route[0], goal) < distance2d(brain.route[brain.routeLength - 1], goal)) {
         for (int low = 0, high = brain.routeLength - 1; low < high; ++low, --high) {
             float swap[3];
             std::memcpy(swap, brain.route[low], sizeof(swap));
@@ -234,6 +270,12 @@ void planRoute(Brain& brain, int slot, const Zone* target, const float* from, in
     }
     std::memcpy(brain.segmentStart, from, sizeof(brain.segmentStart));
     g_api->log("ai_players: player %d following %s (%d points, joining at %d)", slot + 1, name, brain.routeLength, brain.routeIndex + 1);
+}
+
+void planRoute(Brain& brain, int slot, const Zone* target, const float* from, int team) {
+    char name[16];
+    std::snprintf(name, sizeof(name), "Fac%d_%d", target->id, team);
+    planPath(brain, slot, name, target->position, from);
 }
 
 // Pure pursuit along the route: the point kLookahead further along the route than the tank's closest point on the
@@ -278,14 +320,20 @@ void routeLookahead(Brain& brain, const float* position, float* out) {
     }
 }
 
-// Left stick towards `point`, relative to the tank's heading.
-void steer(CwPad* pad, const std::uint8_t* object, const float* position, const float* point) {
+// How far `point` is off the tank's heading, in radians (positive = clockwise from above).
+float headingError(const std::uint8_t* object, const float* position, const float* point) {
     const float* front = reinterpret_cast<const float*>(object + 0x60);
     const float heading = std::atan2(front[0], front[2]);
     const float wanted = std::atan2(point[0] - position[0], point[2] - position[2]);
     float error = wanted - heading;
     while (error > kPi) error -= 2 * kPi;
     while (error < -kPi) error += 2 * kPi;
+    return error;
+}
+
+// Left stick towards `point`, relative to the tank's heading.
+void steer(CwPad* pad, const std::uint8_t* object, const float* position, const float* point) {
+    const float error = headingError(object, position, point);
     // Slow down to turn: full throttle only when lined up, a crawl while pivoting, so it doesn't arc off bridges.
     const float x = std::fabs(error) > kPi / 2 ? (error > 0 ? 1.0f : -1.0f) : std::sin(error);
     const float lined = std::cos(error) > 0.0f ? std::cos(error) : 0.0f;
@@ -314,11 +362,231 @@ void troopCommands(Brain& brain, int slot, int team, CwPad* pad) {
     }
 }
 
+void* objectTree() {
+    auto* world = *reinterpret_cast<std::uint8_t**>(0x003A2F0C);
+    return world != nullptr ? *reinterpret_cast<void**>(world + 0x18) : nullptr;
+}
+
+std::uint8_t* objectFromHandle(int handle) {
+    void* tree = objectTree();
+    return tree != nullptr ? reinterpret_cast<std::uint8_t*(__fastcall*)(void*, void*, int)>(kObjectFromHandle)(tree, nullptr, handle) : nullptr;
+}
+
+// Something worth shooting: alive, on another team, with health left and not invulnerable (ordnance and props have
+// no health; HQs and generators can't be destroyed).
+bool isEnemy(const std::uint8_t* candidate, int team) {
+    if (candidate == nullptr || ((*reinterpret_cast<const std::uint32_t*>(candidate + 0x04) >> 8) & 1) == 0) {
+        return false;
+    }
+    // Teams 1 and 2 are the players' (and their buildings'); the troops the outposts build are 11 and 12.
+    const std::int32_t other = *reinterpret_cast<const std::int32_t*>(candidate + 0xC0);
+    const std::int32_t side = other > 10 ? other - 10 : other;
+    if ((side != 1 && side != 2) || side == (team > 10 ? team - 10 : team)) {
+        return false;
+    }
+    auto getComponent = reinterpret_cast<const float*(__fastcall*)(const void*, void*, std::uint32_t)>(
+        (*reinterpret_cast<void* const* const*>(candidate))[16]);
+    const float* health = getComponent(candidate, nullptr, kHealthComponent);
+    return health != nullptr && health[0x14 / 4] > 0.0f && health[0x18 / 4] < kInvulnerable;
+}
+
+// The nearest enemy within kEngageRange, or 0.
+int nearestEnemy(const std::uint8_t* self, const float* position, int team) {
+    auto* tree = static_cast<std::uint8_t*>(objectTree());
+    if (tree == nullptr) {
+        return 0;
+    }
+    std::vector<const std::uint8_t*> pending;
+    if (auto* root = *reinterpret_cast<const std::uint8_t* const*>(tree + 0x08)) {
+        pending.push_back(root);
+    }
+    int best = 0;
+    float bestDistance = kEngageRange;
+    while (!pending.empty() && pending.size() < 100000) {
+        const std::uint8_t* node = pending.back();
+        pending.pop_back();
+        constexpr std::uint32_t kChildren[] = {0x08, 0x0C};
+        for (std::uint32_t child : kChildren) {
+            if (auto* next = *reinterpret_cast<const std::uint8_t* const*>(node + child)) {
+                pending.push_back(next);
+            }
+        }
+        auto* candidate = *reinterpret_cast<std::uint8_t* const*>(node + 0x18);
+        if (candidate == self || !isEnemy(candidate, team)) {
+            continue;
+        }
+        float at[3];
+        worldPosition(candidate, at);
+        const float distance = distance2d(at, position);
+        if (distance < bestDistance) {
+            best = *reinterpret_cast<const std::int32_t*>(node + 0x14);
+            bestDistance = distance;
+        }
+    }
+    return best;
+}
+
+// Shoots at the nearest enemy; returns true when it took over the left stick (turning to face it).
+bool fight(Brain& brain, int slot, const std::uint8_t* object, const float* position, int team, CwPad* pad) {
+    if (g_now >= brain.retargetAt) {
+        brain.retargetAt = g_now + kRetarget;
+        int enemy = nearestEnemy(object, position, team);
+        // Pushing: the HQ comes first once it is in range (its shield regenerates, so spread fire never breaks it).
+        if (brain.pushing && brain.hqHandle != 0 && distance2d(position, brain.hq) < kEngageRange && isEnemy(objectFromHandle(brain.hqHandle), team)) {
+            enemy = brain.hqHandle;
+        }
+        if (enemy != brain.enemy && enemy != 0) {
+            float at[3];
+            worldPosition(objectFromHandle(enemy), at);
+            g_api->log("ai_players: player %d engages enemy %d (team %d, %.0f away)", slot + 1, enemy,
+                *reinterpret_cast<const std::int32_t*>(objectFromHandle(enemy) + 0xC0), distance2d(at, position));
+        }
+        brain.enemy = enemy;
+    }
+    std::uint8_t* enemy = brain.enemy != 0 ? objectFromHandle(brain.enemy) : nullptr;
+    if (!isEnemy(enemy, team)) {
+        brain.enemy = 0;
+        return false;
+    }
+    float at[3];
+    worldPosition(enemy, at);
+    const float distance = distance2d(at, position);
+    if (distance > kEngageRange) {
+        return false;
+    }
+    const float error = headingError(object, position, at);
+    if (std::fabs(error) < kFireAngle) {
+        pad->analog[CW_PAD_A] = 255;
+        if (distance > kSecondaryRange && g_now >= brain.secondaryAt) {
+            brain.secondaryAt = g_now + kSecondaryEvery;
+            brain.secondaryUntil = g_now + 0.2;
+        }
+    }
+    if (g_now < brain.secondaryUntil) {
+        pad->analog[CW_PAD_X] = 255;
+    }
+    if (!brain.inPlace && distance > kStandRange) {
+        return false;  // keep driving; shoot whatever comes into line
+    }
+    const float turn = error * 2.5f;
+    pad->thumbLX = static_cast<std::int16_t>((turn > 1.0f ? 1.0f : (turn < -1.0f ? -1.0f : turn)) * 32767.0f);
+    pad->thumbLY = 0;
+    return true;
+}
+
+int heldBy(int team) {
+    int count = 0;
+    for (int index = 0; index < zoneCount(); ++index) {
+        const Zone* candidate = zone(index);
+        count += candidate->type == kFactoryZone && candidate->owner == team && candidate->claimed != 0;
+    }
+    return count;
+}
+
+// Push the enemy HQ once none of our outposts needs rebuilding (outposts only build while a player stands in them,
+// and their troops are what bring HQs down) and we are far enough ahead on outposts, or nothing is left to take. The
+// lead needed shrinks as the match goes on, like a round timer forcing a decision: kPushLead, then 1 after
+// kEscalate1 s, then 0 (tied is enough) after kEscalate2 s. Once pushing, it goes on while at most 1 below that.
+bool wantPush(const float* position, int team, int slot, bool pushing) {
+    for (int index = 0; index < zoneCount(); ++index) {
+        if (priority(zone(index), team) == 0) {
+            return false;
+        }
+    }
+    const int lead = heldBy(team) - heldBy(3 - team);
+    const int needed = g_now < kEscalate1 ? kPushLead : (g_now < kEscalate2 ? 1 : 0);
+    return lead >= (pushing ? needed - 1 : needed) || chooseTarget(position, team, slot, true) < 0;
+}
+
+// The enemy HQ: a destructible building of the other team with the most health.
+bool findEnemyHq(int team, float* out, int* handle) {
+    auto* tree = static_cast<std::uint8_t*>(objectTree());
+    if (tree == nullptr) {
+        return false;
+    }
+    std::vector<const std::uint8_t*> pending;
+    if (auto* root = *reinterpret_cast<const std::uint8_t* const*>(tree + 0x08)) {
+        pending.push_back(root);
+    }
+    float best = kHqMinHealth;
+    bool found = false;
+    while (!pending.empty() && pending.size() < 100000) {
+        const std::uint8_t* node = pending.back();
+        pending.pop_back();
+        constexpr std::uint32_t kChildren[] = {0x08, 0x0C};
+        for (std::uint32_t child : kChildren) {
+            if (auto* next = *reinterpret_cast<const std::uint8_t* const*>(node + child)) {
+                pending.push_back(next);
+            }
+        }
+        auto* candidate = *reinterpret_cast<std::uint8_t* const*>(node + 0x18);
+        if (candidate == nullptr || *reinterpret_cast<const std::int32_t*>(candidate + 0xC0) != 3 - team || !isEnemy(candidate, team)) {
+            continue;
+        }
+        auto getComponent = reinterpret_cast<const float*(__fastcall*)(const void*, void*, std::uint32_t)>(
+            (*reinterpret_cast<void* const* const*>(candidate))[16]);
+        const float maxHealth = getComponent(candidate, nullptr, kHealthComponent)[0x18 / 4];
+        if (maxHealth > best) {
+            best = maxHealth;
+            worldPosition(candidate, out);
+            *handle = *reinterpret_cast<const std::int32_t*>(node + 0x14);
+            found = true;
+        }
+    }
+    return found;
+}
+
+// Starts a push: the route from the outpost nearest to us along that outpost's path to the enemy base.
+void startPush(Brain& brain, int slot, const float* position, int team) {
+    int nearest = -1;
+    for (int index = 0; index < zoneCount(); ++index) {
+        if (zone(index)->type == kFactoryZone &&
+            (nearest < 0 || distance2d(zone(index)->position, position) < distance2d(zone(nearest)->position, position))) {
+            nearest = index;
+        }
+    }
+    brain.routeLength = 0;
+    if (nearest >= 0) {
+        char name[16];
+        std::snprintf(name, sizeof(name), "Fac%d_%d", zone(nearest)->id, 3 - team);
+        planPath(brain, slot, name, brain.hq, position);
+    }
+    std::memcpy(brain.segmentStart, position, sizeof(brain.segmentStart));
+    brain.best = 1e9f;
+    brain.progressAt = g_now;
+}
+
+void drivePush(Brain& brain, int slot, const std::uint8_t* object, const float* position, CwPad* pad) {
+    if (brain.routeIndex < brain.routeLength && distance2d(position, brain.hq) > kStandRange) {
+        const int previous = brain.routeIndex;
+        float lookahead[3];
+        routeLookahead(brain, position, lookahead);
+        const float leg = distance2d(position, brain.route[brain.routeIndex]);
+        if (brain.routeIndex != previous || leg < brain.best - kStuckProgress) {
+            brain.best = leg;
+            brain.progressAt = g_now;
+        } else if (g_now - brain.progressAt > kStuckSeconds) {
+            std::memcpy(brain.segmentStart, position, sizeof(brain.segmentStart));
+            ++brain.routeIndex;
+            brain.best = 1e9f;
+            brain.progressAt = g_now;
+        }
+        if (brain.routeIndex + 1 >= brain.routeLength && distance2d(position, brain.route[brain.routeIndex]) < kWaypointReached) {
+            brain.routeIndex = brain.routeLength;  // route done: straight at the HQ
+        }
+        steer(pad, object, position, lookahead);
+        return;
+    }
+    steer(pad, object, position, brain.hq);
+}
+
 void resetApproach(Brain& brain) {
     brain.approachStarted = false;
     brain.sideMove = false;
     brain.sideTries = 0;
 }
+
+void navigate(Brain& brain, int slot, std::uint8_t* object, const float* position, int team, CwPad* pad);
 
 void think(Brain& brain, int slot, std::uint8_t* object, CwPad* pad) {
     const int team = *reinterpret_cast<const std::int32_t*>(object + 0xC0);
@@ -334,9 +602,37 @@ void think(Brain& brain, int slot, std::uint8_t* object, CwPad* pad) {
         brain.object = object;
         brain.target = -1;
         brain.inPlace = false;
+        brain.enemy = 0;
+        brain.pushing = false;
+        brain.pushCheckAt = 0.0;
     }
     std::memcpy(brain.lastPosition, position, sizeof(brain.lastPosition));
 
+    navigate(brain, slot, object, position, team, pad);
+    if (fight(brain, slot, object, position, team, pad)) {
+        brain.progressAt = g_now;  // standing to fight is not being stuck
+    }
+}
+
+void navigate(Brain& brain, int slot, std::uint8_t* object, const float* position, int team, CwPad* pad) {
+    if (g_now >= brain.pushCheckAt) {
+        brain.pushCheckAt = g_now + kPushCheck;
+        const bool push = wantPush(position, team, slot, brain.pushing) && findEnemyHq(team, brain.hq, &brain.hqHandle);
+        if (push != brain.pushing) {
+            brain.pushing = push;
+            g_api->log("ai_players: player %d %s (outposts %d vs %d)", slot + 1, push ? "pushes the enemy HQ" : "stops pushing",
+                heldBy(team), heldBy(3 - team));
+            brain.target = -1;
+            brain.inPlace = false;
+            if (push) {
+                startPush(brain, slot, position, team);
+            }
+        }
+    }
+    if (brain.pushing) {
+        drivePush(brain, slot, object, position, pad);
+        return;
+    }
     if (brain.target >= 0 && held(zone(brain.target), team)) {
         g_api->log("ai_players: player %d: zone %d claimed and fully built", slot + 1, zone(brain.target)->id);
         brain.target = -1;
@@ -482,14 +778,16 @@ void missionStart(const char* mission) {
 
 void drive(int slot, CwPad* pad) {
     *pad = CwPad{};
-    if (!g_conquest || slot <= 0 || slot >= kSlots) {
+    // Only in the match itself (screen 4): on the end screen ("Conquest battle is over") pressing A would restart it.
+    if (!g_conquest || slot <= 0 || slot >= kSlots || *reinterpret_cast<const std::int32_t*>(kScreen) != kInGameScreen) {
         return;
     }
     std::uint8_t* object = playerObject(slot);
     if (object == nullptr) {
         return;
     }
-    g_now = GetTickCount64() / 1000.0;
+    auto* world = *reinterpret_cast<std::uint8_t**>(0x003A2F0C);
+    g_now = world != nullptr ? *reinterpret_cast<const float*>(world + 0x28) : 0.0;  // game time (follows pause, CW_TIME_SCALE)
     Brain& brain = g_brains[slot];
     if (!brain.started) {
         brain.started = true;

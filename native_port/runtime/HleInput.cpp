@@ -6,6 +6,7 @@
 #include <Xinput.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <mutex>
@@ -13,6 +14,7 @@
 
 namespace cw::d3d {
 HWND gameWindow();
+unsigned long long scriptMilliseconds();
 }
 
 namespace cw::hle {
@@ -78,16 +80,38 @@ volatile DWORD* gamepadDeviceMasks() {
 // CW_INPUT_SCRIPT="ms:button[:holdms],..." presses a button at each time offset, for 150 ms unless a hold time is given.
 // Buttons: start, back, a, b, x, y, black, white, lt, rt, up, down, left, right (d-pad), lup, ldown, lleft, lright (left stick),
 // rup, rdown, rleft, rright (right stick), lthumb, rthumb (stick clicks).
+void applyScript(const std::string& script, ULONGLONG elapsed, XboxGamepad& pad);
+
 void applyScriptedInput(XboxGamepad& pad) {
     static const std::string script = [] {
         const char* value = std::getenv("CW_INPUT_SCRIPT");
         return value == nullptr ? std::string() : std::string(value);
     }();
-    static const ULONGLONG start = GetTickCount64();
-    if (script.empty()) {
-        return;
+    static const ULONGLONG start = cw::d3d::scriptMilliseconds();
+    if (!script.empty()) {
+        applyScript(script, cw::d3d::scriptMilliseconds() - start, pad);
     }
-    const ULONGLONG elapsed = GetTickCount64() - start;
+    // CW_MISSION_INPUT: the same format, timed (wall clock) from the first frame in play (screen 4) of each mission,
+    // for automated runs that drive the player after spawning.
+    static const std::string missionScript = [] {
+        const char* value = std::getenv("CW_MISSION_INPUT");
+        return value == nullptr ? std::string() : std::string(value);
+    }();
+    if (!missionScript.empty()) {
+        static ULONGLONG playingSince = 0;
+        const bool playing = *reinterpret_cast<volatile std::int32_t*>(0x0038F7A8) == 4;
+        if (!playing) {
+            playingSince = 0;
+        } else {
+            if (playingSince == 0) {
+                playingSince = GetTickCount64();
+            }
+            applyScript(missionScript, GetTickCount64() - playingSince, pad);
+        }
+    }
+}
+
+void applyScript(const std::string& script, ULONGLONG elapsed, XboxGamepad& pad) {
     std::size_t position = 0;
     while (position < script.size()) {
         const std::size_t end = std::min(script.find(',', position), script.size());

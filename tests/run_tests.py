@@ -6,6 +6,10 @@ Each case runs clone_wars.exe from native_port/build-x86/bin with a fresh copy o
 tests/fixtures/hdd, writes its log and screenshots to tests/results/<case>/, and
 checks the last CW_WATCH sample against the case's expectations. A case also fails
 if the log reports a hardware exception or a fatal error.
+
+Cases run at TIME_SCALE x game speed (CW_TIME_SCALE); "seconds", input-script times and
+screenshot frames are all in game time. A case that needs real time (audio) sets
+"env": {"CW_TIME_SCALE": "1"}.
 """
 
 import json
@@ -20,6 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 EXE = ROOT / "native_port" / "build-x86" / "bin" / "clone_wars.exe"
+TIME_SCALE = 4
 FIXTURE_HDD = ROOT / "tests" / "fixtures" / "hdd"
 RESULTS = ROOT / "tests" / "results"
 
@@ -64,6 +69,7 @@ def run_case(case, routes):
         env["CW_MOD_ROOT"] = str(ROOT / "work" / "mod_root" / "+".join(case["mods"]))
     env.update({
         "CW_FPS": "60",
+        "CW_TIME_SCALE": str(TIME_SCALE),
         "CW_INPUT_SCRIPT": script,
         "CW_HDD_ROOT": str(out / "hdd"),
         "CW_LOG_PATH": str(out / "cw_runtime.log"),
@@ -76,7 +82,7 @@ def run_case(case, routes):
     started = time.time()
     try:
         subprocess.run([str(EXE)], cwd=out, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                       timeout=case["seconds"] + 30)
+                       timeout=case["seconds"] / float(env["CW_TIME_SCALE"]) + 60)
     except subprocess.TimeoutExpired:
         return False, "timed out (game did not exit)"
 
@@ -92,6 +98,10 @@ def run_case(case, routes):
     for pattern in case.get("log_regex", []):
         if not any(re.search(pattern, line) for line in log):
             failures.append(f"log has no line matching /{pattern}/")
+    for pattern in case.get("log_regex_absent", []):
+        found = next((line for line in log if re.search(pattern, line)), None)
+        if found is not None:
+            failures.append(f"log has a line matching /{pattern}/: {found.strip()}")
     for text in case.get("log_contains", []):
         if not any(text in line for line in log):
             failures.append(f"log has no line containing '{text}'")

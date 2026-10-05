@@ -1,6 +1,10 @@
 #include "d3d/XboxD3D.h"
+#include "d3d/Device11.h"
+#include "d3d/FxTuner.h"
 #include "d3d/PixelShader.h"
 #include "d3d/VertexShader.h"
+#define REMIX_ALLOW_X86  // the 32-bit RTX Remix bridge exposes the API to x86 games
+#include "../third_party/remix/remix_c.h"
 
 #include "GameOptions.h"
 #include "Hle.h"
@@ -19,8 +23,17 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <tuple>
+#include <set>
+
+namespace cw::options {
+bool g_remixSkyPlane = false;  // set by GameOptions.cpp while Sky_DrawPlane runs
+char g_missionName[32] = {};   // set by GameOptions.cpp at Batch_BeginMission
+}
 
 namespace cw::d3d {
+
+unsigned long long scriptMilliseconds();
 
 namespace {
 
@@ -152,6 +165,8 @@ std::map<const XPixelContainer*, IDirect3DTexture9*> g_hostRenderTargets;
 std::map<const XPixelContainer*, std::pair<float, float>> g_renderTargetScales;
 DWORD g_frame = 0;
 DWORD g_drawsThisFrame = 0;
+// Remix investigation: per-frame draw counts by path and transform calls (logged with the frame line).
+DWORD g_shaderDraws = 0, g_fvfDraws = 0, g_screenDraws = 0, g_transformCalls[10] = {};
 DWORD g_skippedShaderDraws = 0;
 bool g_reportedPixelShader = false;
 
@@ -415,13 +430,13 @@ void postScriptedHotkeys() {
         const char* value = std::getenv("CW_HOTKEY_SCRIPT");
         return value == nullptr ? std::string() : std::string(value) + ",";
     }();
-    static const ULONGLONG start = GetTickCount64();
+    static const ULONGLONG start = scriptMilliseconds();
     static std::size_t next = 0;
     while (next < script.size()) {
         const std::size_t end = script.find(',', next);
         const std::string item = script.substr(next, end - next);
         const std::size_t colon = item.find(':');
-        if (colon == std::string::npos || GetTickCount64() - start < std::strtoull(item.c_str(), nullptr, 10)) {
+        if (colon == std::string::npos || scriptMilliseconds() - start < std::strtoull(item.c_str(), nullptr, 10)) {
             if (colon == std::string::npos) {
                 next = end + 1;
                 continue;
@@ -444,6 +459,10 @@ LRESULT CALLBACK windowProc(HWND window, UINT message, WPARAM wParam, LPARAM lPa
     }
     if (message == WM_KEYDOWN && (wParam == VK_F7 || wParam == VK_F8)) {
         options::stepViewDistance(wParam == VK_F8 ? 1 : -1);
+        return 0;
+    }
+    if (message == WM_KEYDOWN && wParam == VK_F10 && isDevice11(g_device)) {
+        toggleFxTuner();  // lighting and effect sliders (Direct3D 11 renderer)
         return 0;
     }
     if (message == WM_KEYDOWN && wParam == VK_F9) {
@@ -580,6 +599,39 @@ void applyRenderStates() {
     set(D3DRS_DEPTHBIAS, asDword(static_cast<float>(g_rs[RS_ZBIAS]) * -0.000005f));
 }
 
+// CW_REMIX_DUMP=<folder>: saves each texture a draw uses (its top level as uploaded, tex_<pointer>.bin, for computing
+// RTX Remix texture hashes) and lists which kind of draw used it in which stage (draws.txt: "shader|fixed <vertex shader>
+// <stage> <texture> <width>x<height>"), once per combination.
+void dumpForRemix(DWORD stage, IDirect3DBaseTexture9* texture) {
+    static const char* folder = std::getenv("CW_REMIX_DUMP");
+    if (folder == nullptr || texture == nullptr || g_textures[stage] == nullptr) {
+        return;
+    }
+    static std::set<std::tuple<DWORD, DWORD, const void*, DWORD>> seen;
+    static std::set<const void*> saved;
+    // blend: 0 = opaque, else Xbox D3DBLEND source << 16 | destination (1 ONE, 0x302 SRCALPHA, 0x303 INVSRCALPHA)
+    const DWORD blend = g_rs[RS_ALPHABLENDENABLE] ? (g_rs[RS_SRCBLEND] << 16 | g_rs[RS_DESTBLEND]) : 0;
+    if (!seen.insert({g_vertexShader | (cw::options::g_remixSkyPlane ? 0x80000000u : 0u), stage, texture, blend}).second) {
+        return;
+    }
+    const TextureLayout layout = describe(g_textures[stage]);
+    if (FILE* list = std::fopen((std::string(folder) + "/draws.txt").c_str(), "a")) {
+        std::fprintf(list, "%s %08lX %lu %p %ux%u blend=%08lX\n",
+            cw::options::g_remixSkyPlane ? "sky" : (g_vertexShader & 1) ? "shader" : "fixed", g_vertexShader, stage,
+            static_cast<const void*>(texture), layout.width, layout.height, blend);
+        std::fclose(list);
+    }
+    const std::vector<std::uint8_t>* bytes = remixTopLevel(texture);
+    if (bytes != nullptr && saved.insert(texture).second) {
+        char name[64];
+        std::snprintf(name, sizeof(name), "/tex_%p.bin", static_cast<const void*>(texture));
+        if (FILE* file = std::fopen((std::string(folder) + name).c_str(), "wb")) {
+            std::fwrite(bytes->data(), 1, bytes->size(), file);
+            std::fclose(file);
+        }
+    }
+}
+
 void applyTextureStages(bool linearTextures[4], UINT textureSizes[4][2]) {
     for (DWORD stage = 0; stage < 4; ++stage) {
         const DWORD* ts = g_tss + stage * kStageSize;
@@ -631,6 +683,7 @@ void applyTextureStages(bool linearTextures[4], UINT textureSizes[4][2]) {
             textureSizes[stage][1] = layout.height;
         }
         g_device->SetTexture(stage, texture);
+        dumpForRemix(stage, texture);
     }
 }
 
@@ -818,6 +871,70 @@ bool hostPrimitive(DWORD primitive, UINT vertexCount, D3DPRIMITIVETYPE& type, UI
     return primitiveCount > 0;
 }
 
+// RTX Remix menu light emitters: the hangar's glowing parts (console screens, light panels, indicator lights) are
+// ordinary textured geometry, so Remix cannot light the room from them. Draws using one of these textures (by
+// textureContentHash, from a menu texture catalogue) get a sphere light at their centre while the menus are up.
+// CW_REMIX_MENU_GLOW scales the light (0 turns it off).
+struct MenuEmitter {
+    std::uint64_t texture;
+    float color[3];
+};
+const MenuEmitter kMenuEmitters[] = {
+    {0xEF7AA3A356EFC5B0ull, {1.0f, 0.55f, 0.15f}},  // console with orange screens
+    {0xB0028BF1CB2BED02ull, {1.0f, 0.55f, 0.15f}},  // orange gauges
+    {0x4CBDD2AC100D81B7ull, {1.0f, 0.55f, 0.15f}},  // orange display
+    {0xBA4ABD898B321EB0ull, {1.0f, 0.45f, 0.3f}},   // red/green indicator lights
+};
+struct EmitterLight {
+    float position[3];
+    float radius;
+    float color[3];
+};
+std::vector<EmitterLight> g_emitterLights;
+bool g_remixReady = false;
+
+void collectMenuEmitter(const std::uint8_t* vertices, UINT count, UINT stride) {
+    static const float glow = [] {
+        const char* value = std::getenv("CW_REMIX_MENU_GLOW");
+        return value != nullptr ? static_cast<float>(std::atof(value)) : 1.0f;
+    }();
+    if (!g_remixReady || glow <= 0.0f || count == 0 || g_textures[0] == nullptr ||
+        *reinterpret_cast<volatile std::int32_t*>(0x0038F7A8) == 4) {  // screen 4 = playing
+        return;
+    }
+    const std::uint64_t hash = textureContentHash(hostTexture(g_textures[0]));
+    const MenuEmitter* emitter = nullptr;
+    for (const MenuEmitter& candidate : kMenuEmitters) {
+        if (candidate.texture == hash) {
+            emitter = &candidate;
+        }
+    }
+    if (emitter == nullptr || g_emitterLights.size() >= 64) {
+        return;
+    }
+    // World-space bounds (row vectors: p * world).
+    const D3DMATRIX& w = g_transforms[6];
+    float low[3] = {1e30f, 1e30f, 1e30f}, high[3] = {-1e30f, -1e30f, -1e30f};
+    for (UINT vertex = 0; vertex < count; ++vertex) {
+        const auto* p = reinterpret_cast<const float*>(vertices + static_cast<std::size_t>(vertex) * stride);
+        const float world[3] = {p[0] * w._11 + p[1] * w._21 + p[2] * w._31 + w._41, p[0] * w._12 + p[1] * w._22 + p[2] * w._32 + w._42,
+            p[0] * w._13 + p[1] * w._23 + p[2] * w._33 + w._43};
+        for (int axis = 0; axis < 3; ++axis) {
+            low[axis] = std::min(low[axis], world[axis]);
+            high[axis] = std::max(high[axis], world[axis]);
+        }
+    }
+    EmitterLight light{};
+    float diagonal = 0.0f;
+    for (int axis = 0; axis < 3; ++axis) {
+        light.position[axis] = (low[axis] + high[axis]) * 0.5f;
+        diagonal += (high[axis] - low[axis]) * (high[axis] - low[axis]);
+        light.color[axis] = emitter->color[axis] * glow;
+    }
+    light.radius = std::clamp(std::sqrt(diagonal) * 0.15f, 0.5f, 15.0f);
+    g_emitterLights.push_back(light);
+}
+
 void bindShaderState(const bool linearTextures[4], const UINT textureSizes[4][2]) {
     constexpr float kDepthScale = 16777215.0f;
     const float scale[4] = {g_viewport.Width * 0.5f, g_viewport.Height * -0.5f, (g_viewport.MaxZ - g_viewport.MinZ) * kDepthScale, 1.0f};
@@ -908,13 +1025,186 @@ void bindPixelShader() {
     g_device->SetPixelShaderConstantF(0, &constants[0][0], kPixelShaderConstantCount);
 }
 
-// Binds state for a draw of vertices [first, first + count) and returns host-ready vertex data.
-bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& stride) {
-    static const DWORD logFrame = [] {
+// CW_DRAWLOG_FRAME=<frame> logs every draw of that frame; CW_DRAWLOG_MS="<ms>,<ms>,..." logs the first frame after
+// each of those wall-clock times (milliseconds since the first frame).
+bool g_drawLogThisFrame = false;
+void updateDrawLog() {
+    static const DWORD frame = [] {
         const char* value = std::getenv("CW_DRAWLOG_FRAME");
         return value == nullptr ? 0ul : std::strtoul(value, nullptr, 10);
     }();
-    if (logFrame != 0 && g_frame == logFrame) {
+    static std::vector<ULONGLONG> times = [] {
+        std::vector<ULONGLONG> list;
+        if (const char* value = std::getenv("CW_DRAWLOG_MS")) {
+            for (const char* cursor = value; *cursor != 0;) {
+                char* end = nullptr;
+                list.push_back(std::strtoull(cursor, &end, 10));
+                cursor = *end == ',' ? end + 1 : end;
+                if (end == cursor && *cursor != 0) {
+                    break;
+                }
+            }
+        }
+        return list;
+    }();
+    static const ULONGLONG start = GetTickCount64();
+    g_drawLogThisFrame = frame != 0 && g_frame == frame;
+    if (!times.empty() && GetTickCount64() - start >= times.front()) {
+        times.erase(times.begin());
+        g_drawLogThisFrame = true;
+    }
+    if (g_drawLogThisFrame) {
+        logf("draw: ---- frame %lu", g_frame);
+    }
+}
+
+// Binds state for a draw of vertices [first, first + count) and returns host-ready vertex data.
+// CW_REMIX_UI=1 (RTX Remix): Remix skips screen-space (pre-transformed, XYZRHW) draws but treats orthographic draws as UI
+// (rtx.orthographicIsUI), so HUD draws are resubmitted as XYZ vertices under an orthographic projection that maps host
+// pixels onto the screen; the game's transforms are restored before the next draw.
+bool remixUi() {
+    static const bool enabled = std::getenv("CW_REMIX_UI") != nullptr;
+    return enabled;
+}
+
+std::vector<std::uint8_t> g_uiScratch;
+bool g_restoreTransforms = false;
+
+const std::uint8_t* orthographicUi(const std::uint8_t* vertices, UINT count, UINT& stride) {
+    const UINT newStride = stride - 4;  // drop RHW
+    g_uiScratch.resize(static_cast<std::size_t>(count) * newStride);
+    for (UINT vertex = 0; vertex < count; ++vertex) {
+        const std::uint8_t* from = vertices + static_cast<std::size_t>(vertex) * stride;
+        std::uint8_t* to = g_uiScratch.data() + static_cast<std::size_t>(vertex) * newStride;
+        std::memcpy(to, from, 12);
+        std::memcpy(to + 12, from + 16, stride - 16);
+    }
+    stride = newStride;
+    g_device->SetFVF((g_vertexShader & ~D3DFVF_POSITION_MASK) | D3DFVF_XYZ);
+    D3DVIEWPORT9 viewport;
+    g_device->GetViewport(&viewport);
+    const float width = static_cast<float>(viewport.Width), height = static_cast<float>(viewport.Height);
+    const D3DMATRIX identity = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+    // Pixel (x, y) relative to the viewport -> clip (-1..1, 1..-1); z stays the depth value.
+    const D3DMATRIX projection = {2.0f / width, 0, 0, 0, 0, -2.0f / height, 0, 0, 0, 0, 1, 0,
+        -1.0f - 2.0f * viewport.X / width, 1.0f + 2.0f * viewport.Y / height, 0, 1};
+    g_device->SetTransform(D3DTS_WORLD, &identity);
+    g_device->SetTransform(D3DTS_VIEW, &identity);
+    g_device->SetTransform(D3DTS_PROJECTION, &projection);
+    // Screen-space vertices are never lit; as XYZ vertices with lighting on, D3D would replace their colours with the
+    // material's (dark text and panels). applyRenderStates sets it again for the next draw.
+    g_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+    g_restoreTransforms = true;
+    return g_uiScratch.data();
+}
+
+// Terrain patches (vertex shader inputs v0 SHORT2 grid, v1 SHORT1 height) blend up to four textures in the pixel
+// shader with per-vertex weights (oD0 = v3.w, v4.y, v4.x, v4.w * (1 - the others)). RTX Remix
+// only reads the stage 0 texture, so on maps whose stage 0 layer is a minor one (Kashyyyk: pale rock) the whole
+// ground took that look. Under Remix the patch's dominant layer is bound to stage 0 instead.
+void remixDominantTerrainLayer(const HostVertexShader& shader, UINT count, UINT stride) {
+    static const bool enabled = [] {
+        const char* value = std::getenv("CW_REMIX_TERRAIN_LAYER");
+        return value == nullptr || std::strcmp(value, "0") != 0;
+    }();
+    if (!g_remixReady || !enabled || count == 0 || g_textures[1] == nullptr) {
+        return;
+    }
+    int grid = -1, height = -1, slot3 = -1, slot4 = -1;
+    for (std::size_t slot = 0; slot < shader.inputs.size(); ++slot) {
+        const ShaderInput& input = shader.inputs[slot];
+        if (input.reg == 0 && input.type == 0x25) grid = static_cast<int>(slot);
+        if (input.reg == 1 && input.type == 0x15) height = static_cast<int>(slot);
+        if (input.reg == 3) slot3 = static_cast<int>(slot);
+        if (input.reg == 4) slot4 = static_cast<int>(slot);
+    }
+    if (grid < 0 || height < 0 || slot3 < 0 || slot4 < 0) {
+        return;
+    }
+    double weight[4] = {};
+    for (UINT vertex = 0; vertex < count; ++vertex) {
+        const auto* v3 = reinterpret_cast<const float*>(g_vertexScratch.data() + static_cast<std::size_t>(vertex) * stride + slot3 * 16);
+        const auto* v4 = reinterpret_cast<const float*>(g_vertexScratch.data() + static_cast<std::size_t>(vertex) * stride + slot4 * 16);
+        weight[0] += v3[3];
+        weight[1] += v4[1];
+        weight[2] += v4[0];
+        weight[3] += v4[3] * std::max(0.0f, 1.0f - v3[3] - v4[1] - v4[0]);
+    }
+    // CW_REMIX_TERRAIN_MAP="i,j,k,l": which weight (index above) drives each stage, for tuning.
+    static int map[4] = {3, 0, 1, 2};  // the pixel shader weights stage 0 by d0.w and stages 1-3 by d0.xyz
+    static const bool mapRead = [] {
+        if (const char* value = std::getenv("CW_REMIX_TERRAIN_MAP")) {
+            std::sscanf(value, "%d,%d,%d,%d", &map[0], &map[1], &map[2], &map[3]);
+        }
+        return true;
+    }();
+    (void)mapRead;
+    double mapped[4];
+    for (int stage = 0; stage < 4; ++stage) {
+        mapped[stage] = weight[std::clamp(map[stage], 0, 3)];
+    }
+    std::copy(std::begin(mapped), std::end(mapped), std::begin(weight));
+    int best = 0;
+    for (int stage = 1; stage < 4; ++stage) {
+        if (g_textures[stage] != nullptr && weight[stage] > weight[best]) {
+            best = stage;
+        }
+    }
+    if (best != 0) {
+        g_device->SetTexture(0, hostTexture(g_textures[best]));
+    }
+}
+
+bool g_remixDomeDraw = false;
+
+// 1x1 texture (A8R8G8B8 0xFF13C0DE; Remix hash 0x2D453B7B28347B92) that marks the sky dome for rtx.skyBoxTextures.
+void bindRemixDomeMarker() {
+    static IDirect3DTexture9* marker = [] {
+        IDirect3DTexture9* texture = nullptr;
+        if (SUCCEEDED(g_device->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texture, nullptr))) {
+            D3DLOCKED_RECT locked;
+            if (SUCCEEDED(texture->LockRect(0, &locked, nullptr, 0))) {
+                *static_cast<DWORD*>(locked.pBits) = 0xFF13C0DE;
+                texture->UnlockRect(0);
+            }
+        }
+        return texture;
+    }();
+    g_device->SetTexture(0, marker);
+    g_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG2);
+    g_device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+    g_device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+    g_device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+}
+
+bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& stride) {
+    // Under RTX Remix, skip the game's shine pass: vehicles and buildings are drawn a second time with additive ONE/ONE
+    // blending and a small environment/sparkle map on stage 1, which Remix turns into a self-lit layer over the
+    // path-traced lighting (path tracing does real reflections). Other ONE/ONE draws stay: the Academy's ground is
+    // drawn that way. CW_REMIX_SHINE=1 keeps the pass.
+    static const bool keepShine = [] {
+        const char* value = std::getenv("CW_REMIX_SHINE");
+        return value != nullptr && std::strcmp(value, "0") != 0;
+    }();
+    if (g_remixReady && !keepShine && g_rs[RS_ALPHABLENDENABLE] && g_rs[RS_SRCBLEND] == 1 && g_rs[RS_DESTBLEND] == 1 &&
+        g_textures[1] != nullptr && describe(g_textures[1]).width <= 64) {
+        return false;
+    }
+    // Under RTX Remix, make the sky's gradient dome sky: right after the cloud band (tagged as sky) the game draws a
+    // camera-centred dome of untextured, vertex-coloured, alpha-blended triangles with depth writes off. Untextured,
+    // Remix treated it as a solid shell around the camera that kept the sun off everything inside it. Skipping it lost
+    // Remix the world camera ahead of the terrain (the Academy's ground vanished) and left holes in the sky, so it is
+    // drawn with a 1x1 marker texture that rtx.conf lists in rtx.skyBoxTextures.
+    static const bool keepDome = std::getenv("CW_REMIX_DOME") != nullptr;
+    g_remixDomeDraw = g_remixReady && !keepDome && (g_vertexShader & 1) == 0 && g_textures[0] == nullptr && g_rs[RS_ALPHABLENDENABLE] &&
+        !g_rs[RS_ZWRITEENABLE] && g_drawsThisFrame < 16 && count >= 300;
+    if (g_restoreTransforms) {
+        g_restoreTransforms = false;
+        g_device->SetTransform(D3DTS_VIEW, &g_transforms[0]);
+        g_device->SetTransform(D3DTS_PROJECTION, &g_transforms[1]);
+        g_device->SetTransform(D3DTS_WORLD, &g_transforms[6]);
+    }
+    if (g_drawLogThisFrame) {
         const auto* shader = (g_vertexShader & 1) ? reinterpret_cast<XVertexShader*>(static_cast<std::uintptr_t>(g_vertexShader & ~1u)) : nullptr;
         logf("draw: vs=%08lX ps=%08lX first=%u count=%u stream0=%p/%u inputs=%u ins=%u tex0=%p", g_vertexShader, g_pixelShader, first, count,
             static_cast<void*>(g_streams[0].buffer), g_streams[0].stride, shader ? static_cast<UINT>(shader->host.inputs.size()) : 0,
@@ -933,6 +1223,8 @@ bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& st
             g_vertexConstants[96][2], g_vertexConstants[96][3], g_vertexConstants[99][0], g_vertexConstants[99][1], g_vertexConstants[99][2],
             g_vertexConstants[99][3], g_vertexConstants[100][0], g_vertexConstants[100][1], g_vertexConstants[100][2], g_vertexConstants[100][3],
             static_cast<void*>(g_streams[1].buffer), g_streams[1].stride);
+        logf("draw:   c97=%g,%g,%g,%g c98=%g,%g,%g,%g", g_vertexConstants[97][0], g_vertexConstants[97][1], g_vertexConstants[97][2],
+            g_vertexConstants[97][3], g_vertexConstants[98][0], g_vertexConstants[98][1], g_vertexConstants[98][2], g_vertexConstants[98][3]);
     }
     bool linear[4] = {};
     UINT sizes[4][2] = {};
@@ -969,20 +1261,26 @@ bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& st
         }
         stride = static_cast<UINT>(shader->host.inputs.size() * 16);
         vertices = gatherShaderVertices(shader->host, first, count);
+        remixDominantTerrainLayer(shader->host, count, stride);
         ++g_drawsThisFrame;
+        ++g_shaderDraws;
         return true;
     }
     if (g_streams[0].buffer == nullptr) {
         return false;
     }
     const FvfLayout layout = parseFvf(g_vertexShader);
+    ++(layout.pretransformed ? g_screenDraws : g_fvfDraws);
     g_device->SetVertexShader(nullptr);
     g_device->SetFVF(g_vertexShader);
     applyRenderStates();
     applyTextureStages(linear, sizes);
     bindPixelShader();
+    if (g_remixDomeDraw) {
+        bindRemixDomeMarker();
+    }
     stride = g_streams[0].stride;
-    if (logFrame != 0 && g_frame == logFrame && layout.pretransformed) {
+    if (g_drawLogThisFrame && layout.pretransformed) {
         const std::uint8_t* source = xboxPointer(g_streams[0].buffer->Data) + static_cast<std::size_t>(first) * stride;
         float minX = 1e9f, maxX = -1e9f, minY = 1e9f, maxY = -1e9f;
         for (UINT vertex = 0; vertex < count; ++vertex) {
@@ -1005,15 +1303,241 @@ bool prepareDraw(UINT first, UINT count, const std::uint8_t*& vertices, UINT& st
         logf("draw:   2D bounds x %.1f..%.1f y %.1f..%.1f callers%s", minX, maxX, minY, maxY, callers);
     }
     vertices = adjustVertices(xboxPointer(g_streams[0].buffer->Data) + static_cast<std::size_t>(first) * stride, count, stride, layout, linear, sizes);
+    if (!layout.pretransformed) {
+        collectMenuEmitter(vertices, count, stride);
+    }
+    if (layout.pretransformed && remixUi()) {
+        vertices = orthographicUi(vertices, count, stride);
+    }
     ++g_drawsThisFrame;
     return true;
+}
+
+// ---------------------------------------------------------------- RTX Remix API
+
+// With the RTX Remix bridge as d3d9.dll, the Remix API (remixapi_InitializeLibrary) adds what the game cannot express
+// in D3D9: lights. Optional camera lights for the menus: a key light above and in front of the camera and a fill
+// light behind it, rebuilt every frame at the current camera. Off by default (the ship is lit by its own glowing
+// panels and the starlight through the windows); CW_REMIX_MENU_LIGHTS="key radiance, fill radiance, distance,
+// radius" (game units) turns them on.
+remixapi_Interface g_remix{};
+remixapi_LightHandle g_menuLights[2] = {};
+float g_menuLightSettings[4] = {60.0f, 15.0f, 120.0f, 40.0f};
+bool g_menuLightsEnabled = false;
+
+void remixInit() {
+    HMODULE module = GetModuleHandleW(L"d3d9.dll");
+    auto initialize = module != nullptr ? reinterpret_cast<PFN_remixapi_InitializeLibrary>(GetProcAddress(module, "remixapi_InitializeLibrary")) : nullptr;
+    if (initialize == nullptr) {
+        return;
+    }
+    remixapi_InitializeLibraryInfo info{};
+    info.sType = REMIXAPI_STRUCT_TYPE_INITIALIZE_LIBRARY_INFO;
+    info.version = REMIXAPI_VERSION_MAKE(REMIXAPI_VERSION_MAJOR, REMIXAPI_VERSION_MINOR, REMIXAPI_VERSION_PATCH);
+    const remixapi_ErrorCode result = initialize(&info, &g_remix);
+    g_remixReady = result == REMIXAPI_ERROR_CODE_SUCCESS;
+    if (const char* value = std::getenv("CW_REMIX_MENU_LIGHTS")) {
+        g_menuLightsEnabled = std::strcmp(value, "0") != 0 && std::strcmp(value, "") != 0;
+        std::sscanf(value, "%f,%f,%f,%f", &g_menuLightSettings[0], &g_menuLightSettings[1], &g_menuLightSettings[2], &g_menuLightSettings[3]);
+    }
+    logf("d3d: RTX Remix API %s (code %d)", g_remixReady ? "ready" : "unavailable", static_cast<int>(result));
+}
+
+remixapi_LightHandle remixSphereLight(const float* position, float radius, float radiance, std::uint64_t hash) {
+    remixapi_LightInfoSphereEXT sphere{};
+    sphere.sType = REMIXAPI_STRUCT_TYPE_LIGHT_INFO_SPHERE_EXT;
+    sphere.position = {position[0], position[1], position[2]};
+    sphere.radius = radius;
+    sphere.volumetricRadianceScale = 1.0f;
+    remixapi_LightInfo info{};
+    info.sType = REMIXAPI_STRUCT_TYPE_LIGHT_INFO;
+    info.pNext = &sphere;
+    info.hash = hash;
+    info.radiance = {radiance, radiance * 0.95f, radiance * 0.88f};  // slightly warm
+    remixapi_LightHandle handle = nullptr;
+    if (g_remix.CreateLight(&info, &handle) != REMIXAPI_ERROR_CODE_SUCCESS) {
+        return nullptr;
+    }
+    return handle;
+}
+
+// Each planet's look: the sun (Remix's fallback light, a distant light that casts shadows; its direction is the way
+// the light travels, so negative Y for a sun above the horizon), how bright the sky is, and the colour and thickness
+// of the haze. The sky stays dim (0.3): brighter, its
+// light fills in every shadow and auto-exposure flattens the sun away; dimmer, shaded surfaces go black. Applied when a mission starts;
+// anything else (menus, campaign) gets the rtx.conf values.
+struct RemixAtmosphere {
+    const char* missions;  // mission name prefixes, ';'-separated
+    const char* name;
+    const char* sunDirection;
+    const char* sunRadiance;
+    const char* sunAngle;  // degrees: smaller = sharper shadows
+    const char* skyBrightness;
+    const char* hazeColor;
+    const char* hazeDistance;  // metres until the haze colour is reached
+};
+const RemixAtmosphere kAtmospheres[] = {
+    // Thule Moon: a cold, overcast moon. Pale grey-blue daylight from a high sun through cloud, soft shadows.
+    {"multi5;multi10", "Thule Moon", "-0.35, -0.85, 0.4", "4.38, 4.62, 5.16", "3", "0.3", "0.93, 0.95, 0.98", "6000"},
+    // Geonosis: a red desert world under a hot amber sun, low in the sky for long hard shadows; ochre dust haze.
+    {"multi8", "Geonosis", "0.65, -0.42, -0.62", "8.1, 5.58, 3.42", "1.2", "0.3", "0.99, 0.91, 0.81", "5000"},
+    // Kashyyyk: humid forest. Warm sunlight from high up, green-tinted moist air.
+    {"multi12", "Kashyyyk", "-0.3, -0.78, -0.55", "4.44, 4.62, 3.72", "2", "0.3", "0.93, 0.97, 0.93", "5000"},
+    // Rhen Var: a frozen world. Low, cold, blue-white sun across the snow; icy blue haze.
+    {"multi6", "Rhen Var", "-0.68, -0.42, 0.6", "3.72, 4.32, 5.46", "1.5", "0.3", "0.86, 0.92, 1.0", "5000"},
+};
+// Menus (and anything else): dim, cool starlight; a warm sun through the hangar windows overlit the main desk.
+const RemixAtmosphere kDefaultAtmosphere = {"", "default", "-0.3, -1, 0.45", "2.6, 2.8, 3.4", "5", "0.35", "0.97, 0.97, 0.98", "2500"};
+
+void remixApplyAtmosphere() {
+    static std::string applied = "?";
+    std::string mission = cw::options::g_missionName;
+    if (mission == applied) {
+        return;
+    }
+    applied = mission;
+    // Night copies of the maps (mods/night_maps): night8.wld is multi8 at night.
+    // CW_REMIX_FORCE_NIGHT=1 renders every map at night (automated tests reach the day maps' menu entries).
+    static const bool forceNight = std::getenv("CW_REMIX_FORCE_NIGHT") != nullptr;
+    const bool night = _strnicmp(mission.c_str(), "night", 5) == 0 || (forceNight && _strnicmp(mission.c_str(), "multi", 5) == 0);
+    if (night) {
+        mission = "multi" + mission.substr(5);
+    }
+    const RemixAtmosphere* chosen = &kDefaultAtmosphere;
+    for (const RemixAtmosphere& atmosphere : kAtmospheres) {
+        const std::string list = atmosphere.missions;
+        for (std::size_t start = 0; start < list.size() && chosen == &kDefaultAtmosphere;) {
+            const std::size_t end = std::min(list.find(';', start), list.size());
+            const std::string prefix = list.substr(start, end - start);
+            if (_strnicmp(mission.c_str(), prefix.c_str(), prefix.size()) == 0) {
+                chosen = &atmosphere;
+            }
+            start = end + 1;
+        }
+    }
+    std::string sunDirection = chosen->sunDirection, sunRadiance = chosen->sunRadiance;
+    std::string sunAngle = chosen->sunAngle, skyBrightness = chosen->skyBrightness, hazeColor = chosen->hazeColor;
+    std::string hazeDistance = chosen->hazeDistance;
+    // Night: moonlight, a cool, dim, small light from the same
+    // direction, a near-black sky and a thin blue haze, so lasers, explosions and lit surfaces carry the scene.
+    if (night) {
+        sunRadiance = "0.55, 0.68, 1.0";
+        sunAngle = "0.6";
+        skyBrightness = "0.05";
+        hazeColor = "0.80, 0.86, 0.97";
+        hazeDistance = "4000";
+    }
+    // CW_REMIX_SUN="dx, dy, dz; r, g, b" overrides the sun for tuning.
+    if (const char* value = std::getenv("CW_REMIX_SUN"); value != nullptr && std::strchr(value, ';') != nullptr) {
+        const std::string text = value;
+        sunDirection = text.substr(0, text.find(';'));
+        sunRadiance = text.substr(text.find(';') + 1);
+    }
+    const std::pair<const char*, std::string> settings[] = {
+        {"rtx.fallbackLightDirection", sunDirection},
+        {"rtx.fallbackLightRadiance", sunRadiance},
+        {"rtx.fallbackLightAngle", sunAngle},
+        {"rtx.skyBrightness", skyBrightness},
+        {"rtx.volumetrics.transmittanceColor", hazeColor},
+        {"rtx.volumetrics.transmittanceMeasurementDistanceMeters", hazeDistance},
+        // Night: a fixed exposure under the global tonemapper (the local tonemapper and auto exposure lifted the
+        // moonlit scene back to daylight levels).
+        {"rtx.tonemappingMode", night ? "0" : "1"},
+        {"rtx.autoExposure.enabled", night ? "False" : "True"},
+        {"rtx.tonemap.exposureBias", night ? "-1.3" : "0"},
+    };
+    int failed = 0;
+    for (const auto& [key, value] : settings) {
+        failed += g_remix.SetConfigVariable(key, value.c_str()) != REMIXAPI_ERROR_CODE_SUCCESS ? 1 : 0;
+    }
+    // CW_REMIX_SET="rtx.key=value|rtx.key=value" applies extra settings for tuning.
+    if (const char* value = std::getenv("CW_REMIX_SET"); value != nullptr) {
+        const std::string text = value;
+        for (std::size_t start = 0; start < text.size();) {
+            const std::size_t end = std::min(text.find('|', start), text.size());
+            const std::string item = text.substr(start, end - start);
+            const std::size_t equals = item.find('=');
+            if (equals != std::string::npos) {
+                failed += g_remix.SetConfigVariable(item.substr(0, equals).c_str(), item.substr(equals + 1).c_str()) != REMIXAPI_ERROR_CODE_SUCCESS ? 1 : 0;
+            }
+            start = end + 1;
+        }
+    }
+    logf("d3d: RTX Remix atmosphere '%s'%s for mission '%s' (%d settings failed)", chosen->name, night ? " (night)" : "", applied.c_str(), failed);
+}
+
+void remixFrame() {
+    if (!g_remixReady) {
+        return;
+    }
+    remixApplyAtmosphere();
+    for (remixapi_LightHandle& light : g_menuLights) {
+        if (light != nullptr) {
+            g_remix.DestroyLight(light);
+            light = nullptr;
+        }
+    }
+    // Menu emitters collected while the last frame was drawn (collectMenuEmitter).
+    static std::vector<remixapi_LightHandle> emitterHandles;
+    for (remixapi_LightHandle light : emitterHandles) {
+        g_remix.DestroyLight(light);
+    }
+    emitterHandles.clear();
+    static const float emitterRadiance = 0.5f;  // brighter flooded the hangar with gold; dimmer left the desk dark
+    for (std::size_t index = 0; index < g_emitterLights.size(); ++index) {
+        const EmitterLight& emitter = g_emitterLights[index];
+        remixapi_LightInfoSphereEXT sphere{};
+        sphere.sType = REMIXAPI_STRUCT_TYPE_LIGHT_INFO_SPHERE_EXT;
+        sphere.position = {emitter.position[0], emitter.position[1], emitter.position[2]};
+        sphere.radius = emitter.radius;
+        sphere.volumetricRadianceScale = 1.0f;
+        remixapi_LightInfo info{};
+        info.sType = REMIXAPI_STRUCT_TYPE_LIGHT_INFO;
+        info.pNext = &sphere;
+        info.hash = 0xE3171E00u + index;
+        info.radiance = {emitter.color[0] * emitterRadiance, emitter.color[1] * emitterRadiance, emitter.color[2] * emitterRadiance};
+        remixapi_LightHandle handle = nullptr;
+        if (g_remix.CreateLight(&info, &handle) == REMIXAPI_ERROR_CODE_SUCCESS && handle != nullptr) {
+            g_remix.DrawLightInstance(handle);
+            emitterHandles.push_back(handle);
+        }
+    }
+    static std::size_t loggedEmitters = static_cast<std::size_t>(-1);
+    if (g_emitterLights.size() != loggedEmitters) {
+        loggedEmitters = g_emitterLights.size();
+        logf("d3d: RTX Remix menu emitters: %zu lights", loggedEmitters);
+    }
+    g_emitterLights.clear();
+    const bool menus = *reinterpret_cast<volatile std::int32_t*>(0x0038F7A8) != 4;  // screen 4 = playing
+    if (!menus || !g_menuLightsEnabled) {
+        return;
+    }
+    // Camera from the view matrix (row vectors): position = -t * R^T; right/up/forward are R's columns.
+    const D3DMATRIX& v = g_transforms[0];
+    const float camera[3] = {-(v._41 * v._11 + v._42 * v._12 + v._43 * v._13), -(v._41 * v._21 + v._42 * v._22 + v._43 * v._23),
+        -(v._41 * v._31 + v._42 * v._32 + v._43 * v._33)};
+    const float up[3] = {v._12, v._22, v._32};
+    const float forward[3] = {v._13, v._23, v._33};
+    const float distance = g_menuLightSettings[2];
+    float key[3], fill[3];
+    for (int axis = 0; axis < 3; ++axis) {
+        key[axis] = camera[axis] + up[axis] * distance * 0.6f + forward[axis] * distance * 0.3f;
+        fill[axis] = camera[axis] - forward[axis] * distance * 0.5f + up[axis] * distance * 0.2f;
+    }
+    g_menuLights[0] = remixSphereLight(key, g_menuLightSettings[3], g_menuLightSettings[0], 0xC10E5A11u);
+    g_menuLights[1] = remixSphereLight(fill, g_menuLightSettings[3] * 1.5f, g_menuLightSettings[1], 0xC10E5A12u);
+    for (remixapi_LightHandle light : g_menuLights) {
+        if (light != nullptr) {
+            g_remix.DrawLightInstance(light);
+        }
+    }
 }
 
 // ---------------------------------------------------------------- D3D entry points
 
 // Writes the back buffer to screenshot_<frame>.bmp for frames listed in CW_SCREENSHOT_FRAMES, and every
 // CW_SCREENSHOT_EVERY frames.
-void maybeCaptureScreenshot() {
+bool isScreenshotFrame(DWORD frame) {
     static const std::string frames = [] {
         const char* value = std::getenv("CW_SCREENSHOT_FRAMES");
         return value == nullptr ? std::string() : "," + std::string(value) + ",";
@@ -1022,8 +1546,25 @@ void maybeCaptureScreenshot() {
         const char* value = std::getenv("CW_SCREENSHOT_EVERY");
         return value == nullptr ? 0u : static_cast<unsigned>(std::strtoul(value, nullptr, 10));
     }();
-    const bool listed = !frames.empty() && frames.find("," + std::to_string(g_frame) + ",") != std::string::npos;
-    if (!listed && (every == 0 || g_frame % every != 0)) {
+    const bool listed = !frames.empty() && frames.find("," + std::to_string(frame) + ",") != std::string::npos;
+    return listed || (every != 0 && frame % every == 0);
+}
+
+// CW_RENDER_EVERY=n (automated runs): only every nth frame, and screenshot frames, is drawn and presented; on the
+// others clears and draws return at once while the game itself runs as usual. Default 1 (every frame).
+unsigned renderEvery() {
+    static const unsigned every = [] {
+        const char* value = std::getenv("CW_RENDER_EVERY");
+        const unsigned parsed = value != nullptr ? static_cast<unsigned>(std::strtoul(value, nullptr, 10)) : 1u;
+        return parsed > 0 ? parsed : 1u;
+    }();
+    return every;
+}
+
+bool g_skipFrame = false;  // this frame isn't drawn (CW_RENDER_EVERY)
+
+void maybeCaptureScreenshot() {
+    if (!isScreenshotFrame(g_frame)) {
         return;
     }
     IDirect3DSurface9* copy = nullptr;
@@ -1123,7 +1664,22 @@ HRESULT __stdcall xDirect3D_CreateDevice(UINT adapter, DWORD deviceType, HWND fo
     present.AutoDepthStencilFormat = D3DFMT_D24S8;
     present.PresentationInterval = fpsSetting() < 0 ? D3DPRESENT_INTERVAL_ONE : D3DPRESENT_INTERVAL_IMMEDIATE;
     const DWORD flags = D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED;
-    HRESULT result = g_d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_window, flags | D3DCREATE_HARDWARE_VERTEXPROCESSING, &present, &g_device);
+    // CW_RENDERER=d3d11: the Direct3D 11 renderer (Device11.cpp) behind the same Direct3D 9 interface.
+    const char* renderer = std::getenv("CW_RENDERER");
+    HRESULT result = E_FAIL;
+    if (renderer != nullptr && _stricmp(renderer, "d3d11") == 0) {
+        g_device = createDevice11(g_window, g_hostWidth, g_hostHeight, fpsSetting() < 0);
+        result = g_device != nullptr ? D3D_OK : E_FAIL;
+        if (g_device != nullptr) {
+            startFxTunerIfRequested();
+        }
+        if (FAILED(result)) {
+            logf("d3d: the Direct3D 11 renderer is unavailable; using Direct3D 9");
+        }
+    }
+    if (FAILED(result)) {
+        result = g_d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_window, flags | D3DCREATE_HARDWARE_VERTEXPROCESSING, &present, &g_device);
+    }
     if (FAILED(result)) {
         result = g_d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_window, flags | D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present, &g_device);
     }
@@ -1151,6 +1707,7 @@ HRESULT __stdcall xDirect3D_CreateDevice(UINT adapter, DWORD deviceType, HWND fo
     }
     g_device->BeginScene();
     logf("d3d: device ready; window %p, rendering %ux%u (%s)", g_window, g_hostWidth, g_hostHeight, describeResolution(g_resolution));
+    remixInit();
     return D3D_OK;
 }
 
@@ -1164,7 +1721,8 @@ void limitFrameRate() {
         QueryPerformanceFrequency(&frequency);
         timeBeginPeriod(1);
     }
-    const LONGLONG period = frequency.QuadPart / fpsSetting();
+    // CW_TIME_SCALE: the cap counts frames per game second.
+    const LONGLONG period = static_cast<LONGLONG>(static_cast<double>(frequency.QuadPart) / (fpsSetting() * cw::timeScale()));
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
     if (next == 0 || now.QuadPart - next > period * 4) {
@@ -1180,9 +1738,12 @@ void limitFrameRate() {
 
 DWORD __stdcall xSwap(DWORD flags) {
     std::lock_guard lock(g_lock);
+    remixFrame();
     g_device->EndScene();
-    maybeCaptureScreenshot();
-    g_device->Present(nullptr, nullptr, nullptr, nullptr);
+    if (!g_skipFrame) {
+        maybeCaptureScreenshot();
+        g_device->Present(nullptr, nullptr, nullptr, nullptr);
+    }
     limitFrameRate();
     {
         static ULONGLONG windowStart = GetTickCount64();
@@ -1207,13 +1768,22 @@ DWORD __stdcall xSwap(DWORD flags) {
     options::applyPending();
     g_device->BeginScene();
     if (g_frame % 300 == 0) {
-        logf("d3d: frame %lu (%lu draws)", g_frame, g_drawsThisFrame);
+        logf("d3d: frame %lu (%lu draws: %lu shader, %lu fixed-function 3D, %lu screen-space; view %lu, projection %lu, world %lu)", g_frame,
+            g_drawsThisFrame, g_shaderDraws, g_fvfDraws, g_screenDraws, g_transformCalls[0], g_transformCalls[1], g_transformCalls[6]);
     }
+    g_shaderDraws = g_fvfDraws = g_screenDraws = 0;
+    std::fill(std::begin(g_transformCalls), std::end(g_transformCalls), 0);
     g_drawsThisFrame = 0;
-    return ++g_frame;
+    ++g_frame;
+    updateDrawLog();
+    g_skipFrame = renderEvery() > 1 && g_frame % renderEvery() != 0 && !isScreenshotFrame(g_frame);
+    return g_frame;
 }
 
 void __stdcall xClear(DWORD count, const D3DRECT* rects, DWORD flags, D3DCOLOR color, float z, DWORD stencil) {
+    if (g_skipFrame) {
+        return;
+    }
     std::lock_guard lock(g_lock);
     DWORD hostFlags = 0;
     if (flags & 0xF0) hostFlags |= D3DCLEAR_TARGET;
@@ -1228,6 +1798,9 @@ void __stdcall xClear(DWORD count, const D3DRECT* rects, DWORD flags, D3DCOLOR c
 }
 
 void __stdcall xDrawVertices(DWORD primitive, UINT startVertex, UINT vertexCount) {
+    if (g_skipFrame) {
+        return;
+    }
     std::lock_guard lock(g_lock);
     D3DPRIMITIVETYPE type;
     UINT primitiveCount;
@@ -1256,6 +1829,9 @@ void __stdcall xDrawVertices(DWORD primitive, UINT startVertex, UINT vertexCount
 }
 
 void __stdcall xDrawIndexedVertices(DWORD primitive, UINT indexCount, const WORD* indices) {
+    if (g_skipFrame) {
+        return;
+    }
     std::lock_guard lock(g_lock);
     D3DPRIMITIVETYPE type;
     UINT primitiveCount;
@@ -1406,7 +1982,12 @@ void __stdcall xSetPixelShaderConstant(DWORD reg, const void* data, DWORD count)
 void __stdcall xSetTransform(DWORD state, const D3DMATRIX* matrix) {
     std::lock_guard lock(g_lock);
     if (state < 10) {
+        ++g_transformCalls[state];
         g_transforms[state] = *matrix;
+        if (g_drawLogThisFrame && state != 6) {
+            logf("transform: draw %lu state %lu: %.3f %.3f %.3f %.3f / %.3f %.3f %.3f %.3f", g_drawsThisFrame, state, matrix->_11,
+                matrix->_22, matrix->_33, matrix->_34, matrix->_41, matrix->_42, matrix->_43, matrix->_44);
+        }
         g_device->SetTransform(convertTransform(state), matrix);
     }
 }
@@ -1897,6 +2478,21 @@ void __stdcall xUpdateOverlay(XSurface* surface, const RECT* sourceRect, const R
 
 HWND gameWindow() {
     return g_window;
+}
+
+// Clock for CW_INPUT_SCRIPT and CW_HOTKEY_SCRIPT: game milliseconds, or with CW_TIME_SCALE presented frames at the
+// CW_FPS rate (loading screens take real time, which a sped-up clock would count several times over). With
+// CW_MENU_TIME_SCALE=1 (menus at real speed, only missions sped up) it is the wall clock: menu routes then keep their
+// timing even when frames are slow (RTX Remix), where counting frames would stretch them several times over.
+unsigned long long scriptMilliseconds() {
+    if (cw::targetTimeScale() == 1.0) {
+        return cw::gameMilliseconds();
+    }
+    if (cw::menuTimeScale() == 1.0) {
+        static const ULONGLONG start = GetTickCount64();
+        return GetTickCount64() - start;
+    }
+    return static_cast<unsigned long long>(g_frame) * 1000 / (fpsSetting() > 0 ? fpsSetting() : 60);
 }
 
 } // namespace cw::d3d

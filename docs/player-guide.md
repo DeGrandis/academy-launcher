@@ -37,7 +37,13 @@ On the **Play** tab, pick a mode and press **PLAY**:
     to move to an empty slot and make it an AI player, then set its team. Conquest can also be started alone.
   - All of it online too: in System Link, **Academy** offers Thule Moon and Thule Power, and Conquest has the new
     vehicles.
+- **Game + all mods, balanced Conquest**: the same, with Conquest tuned from thousands of simulated matches:
+  - the side holding fewer outposts respawns faster (twice as fast one outpost behind, up to 7 times); the screen
+    says **BEHIND: REINFORCEMENTS FASTER** when your side falls behind, and shows the speed-up while you wait,
+  - the Republic outpost walkers' mortar does less splash damage (it was overpowered).
 - **Original game**: no mods.
+
+Switch between the normal and the balanced Conquest any time with the mode list; nothing else changes.
 
 The first time you play a mode, the launcher builds its mods (a few seconds).
 
@@ -46,7 +52,9 @@ game, **F11** toggles fullscreen and **F9** changes the resolution.
 
 ## Playing online
 
-Everyone needs the same launcher version. Online games use the **Game + all mods** mode.
+Everyone needs the same launcher version and the same mode. Online games use the mode picked on the **Play** tab
+(**Game + all mods** or **Game + all mods, balanced Conquest**; with **Original game** picked, they use **Game + all
+mods**).
 
 Set **Your name** on the **Online** tab: it is the name other players see in the lobby (it starts as your Windows
 user name). Your save profile keeps its own name.

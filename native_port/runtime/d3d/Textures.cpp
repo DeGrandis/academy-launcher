@@ -1,8 +1,11 @@
 #include "d3d/XboxD3D.h"
 
 #include "Log.h"
+#include "d3d/TexturePack.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -273,6 +276,44 @@ void uploadLevel(const FormatInfo& info, const TextureLayout& layout, UINT level
     }
 }
 
+// CW_REMIX_DUMP=<folder> (RTX Remix work): keep each 2D texture's top level exactly as uploaded (packed rows), which is
+// what RTX Remix hashes (XXH3-64) to identify textures, so draws can report the texture hashes Remix uses.
+std::unordered_map<const IDirect3DBaseTexture9*, std::vector<std::uint8_t>> g_topLevels;
+
+std::unordered_map<const IDirect3DBaseTexture9*, std::uint64_t> g_contentHashes;
+
+void keepTopLevel(const IDirect3DBaseTexture9* texture, const TextureLayout& layout, const D3DLOCKED_RECT& locked) {
+    const UINT rowBytes = layout.compressed ? std::max(1u, (layout.width + 3) / 4) * layout.blockBytes : layout.width * 4;
+    const UINT rows = layout.compressed ? std::max(1u, (layout.height + 3) / 4) : layout.height;
+    // FNV-1a over the top level as uploaded (packed rows): identifies a texture's content across runs (RTX Remix menu
+    // light emitters, see Device.cpp).
+    std::uint64_t hash = 0xCBF29CE484222325ull;
+    for (UINT row = 0; row < rows; ++row) {
+        const auto* bytes = static_cast<const std::uint8_t*>(locked.pBits) + static_cast<std::size_t>(row) * locked.Pitch;
+        for (UINT index = 0; index < rowBytes; ++index) {
+            hash = (hash ^ bytes[index]) * 0x100000001B3ull;
+        }
+    }
+    g_contentHashes[texture] = hash;
+    if (!layout.linear && std::getenv("CW_TEXTURE_DUMP") != nullptr) {
+        std::vector<std::uint8_t> packed(static_cast<std::size_t>(rowBytes) * rows);
+        for (UINT row = 0; row < rows; ++row) {
+            std::memcpy(packed.data() + static_cast<std::size_t>(row) * rowBytes, static_cast<const std::uint8_t*>(locked.pBits) + row * locked.Pitch, rowBytes);
+        }
+        const D3DFORMAT format = !layout.compressed ? D3DFMT_A8R8G8B8 : layout.format == 0x0C ? D3DFMT_DXT1 : layout.format == 0x0E ? D3DFMT_DXT3 : D3DFMT_DXT5;
+        dumpTextureForPack(hash, layout.width, layout.height, format, packed.data(), packed.size());
+    }
+    static const bool enabled = std::getenv("CW_REMIX_DUMP") != nullptr;
+    if (!enabled) {
+        return;
+    }
+    std::vector<std::uint8_t>& bytes = g_topLevels[texture];
+    bytes.resize(static_cast<std::size_t>(rowBytes) * rows);
+    for (UINT row = 0; row < rows; ++row) {
+        std::memcpy(bytes.data() + static_cast<std::size_t>(row) * rowBytes, static_cast<const std::uint8_t*>(locked.pBits) + row * locked.Pitch, rowBytes);
+    }
+}
+
 IDirect3DBaseTexture9* createHostTexture(const XPixelContainer* container, const TextureLayout& layout, const FormatInfo& info) {
     const D3DFORMAT hostFormat = layout.compressed ? compressedHostFormat(info.decode) : D3DFMT_A8R8G8B8;
     const auto* base = reinterpret_cast<const std::uint8_t*>(static_cast<std::uintptr_t>(container->Data));
@@ -302,13 +343,36 @@ IDirect3DBaseTexture9* createHostTexture(const XPixelContainer* container, const
         D3DLOCKED_RECT locked;
         if (SUCCEEDED(texture->LockRect(level, &locked, nullptr, 0))) {
             uploadLevel(info, layout, level, base + levelOffset(layout, level), locked);
+            if (level == 0) {
+                keepTopLevel(texture, layout, locked);
+            }
             texture->UnlockRect(level);
+        }
+    }
+    // The upscaled pack's version, when the player has made one (tools/upscale_textures.py).
+    if (!layout.linear) {
+        const std::uint64_t hash = textureContentHash(texture);
+        if (IDirect3DTexture9* upscaled = loadPackTexture(g_device, hash)) {
+            g_contentHashes.erase(texture);
+            texture->Release();
+            g_contentHashes[upscaled] = hash;
+            return upscaled;
         }
     }
     return texture;
 }
 
 } // namespace
+
+std::uint64_t textureContentHash(const IDirect3DBaseTexture9* texture) {
+    auto found = g_contentHashes.find(texture);
+    return found != g_contentHashes.end() ? found->second : 0;
+}
+
+const std::vector<std::uint8_t>* remixTopLevel(const IDirect3DBaseTexture9* texture) {
+    auto found = g_topLevels.find(texture);
+    return found != g_topLevels.end() ? &found->second : nullptr;
+}
 
 bool isLinearFormat(DWORD xboxFormat) {
     const FormatInfo* info = findFormat(xboxFormat);

@@ -4,7 +4,8 @@
     "main_menu": "2700:start,4250:a",
     "thule_academy": "2700:start,4250:a,7000:right,7500:a,11000:left,11350:left,12000:down,12500:a,13750:a,14750:a,15750:start,16750:start",
     "geonosis_academy": "2700:start,4250:a,7000:right,7500:a,11000:left,12000:down,12500:a,13750:a,14750:a,15750:start,16750:start",
-    "thule_academy_last_vehicle": "2700:start,4250:a,7000:right,7500:a,11000:left,11350:left,12000:down,12500:a,13750:a,14750:a,15400:left,16100:start,17100:start"
+    "thule_academy_last_vehicle": "2700:start,4250:a,7000:right,7500:a,11000:left,11350:left,12000:down,12500:a,13750:a,14750:a,15400:left,16100:start,17100:start",
+    "conquest_two_ai": "2700:start,4250:a,7000:right,7500:a,11000:right,11350:right,11700:right,12050:right,12400:right,12750:right,13100:right,13450:right,14500:down,15000:a,16500:a,18000:black,19000:start,20000:a,21000:a,22000:a,23000:black,24000:start,25000:a,26000:a,27000:a,28000:black,28700:black,29500:a,31000:a,32500:a,34000:start"
   },
   "cases": [
     {
@@ -140,7 +141,8 @@
       "route": "thule_academy",
       "seconds": 34,
       "env": {
-        "CW_AUDIO_STATS": "2000"
+        "CW_AUDIO_STATS": "2000",
+        "CW_TIME_SCALE": "1"
       },
       "watch": {
         "screen": "38f7a8"
@@ -247,6 +249,33 @@
       ],
       "screenshots": [
         1400
+      ]
+    },
+    {
+      "name": "conquest_ai_fight",
+      "route": "conquest_two_ai",
+      "seconds": 300,
+      "env": {
+        "CW_AUDIO": "0"
+      },
+      "mods": [
+        "unlock_all",
+        "mp_solo",
+        "ai_players",
+        "rep_vehicles"
+      ],
+      "log_regex": [
+        "ai_players: multi8\\.wld starts with 2 computer player",
+        "ai_players: player 2 \\(team 2\\) takes control",
+        "ai_players: player 3 \\(team 1\\) takes control",
+        "ai_players: player 2 engages enemy \\d+ \\(team 1?1,",
+        "ai_players: player 3 engages enemy \\d+ \\(team 1?2,",
+        "ai_players: player 2: zone \\d+ claimed and fully built",
+        "ai_players: player 3: zone \\d+ claimed and fully built"
+      ],
+      "log_regex_absent": [
+        "ai_players: player 2 engages enemy \\d+ \\(team 1?2,",
+        "ai_players: player 3 engages enemy \\d+ \\(team 1?1,"
       ]
     },
     {

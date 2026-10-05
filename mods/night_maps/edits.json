@@ -1,0 +1,172 @@
+[
+ {
+  "file": "night_loadscreen.xbt",
+  "from": "thule_loadscreen.xbt"
+ },
+ {
+  "file": "loadingscreen_loadscreen.xbt",
+  "from": "thule_loadscreen.xbt"
+ },
+ {
+  "file": "night5.wld",
+  "from": "multi5.wld"
+ },
+ {
+  "file": "night5.pth",
+  "from": "multi5.pth"
+ },
+ {
+  "file": "night5.aim",
+  "from": "multi5.aim"
+ },
+ {
+  "file": "night5.cin",
+  "from": "multi5.cin"
+ },
+ {
+  "file": "night5.xbt",
+  "from": "multi5.xbt"
+ },
+ {
+  "file": "night5.xxw",
+  "from": "multi5.xxw"
+ },
+ {
+  "file": "multiplayerbuttons.cfg",
+  "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?)MissionFile\\(\"multi5\\.wld\"\\);([^{}]*\\})",
+  "replace": "\\1MissionFile(\"multi5.wld\");\\2\r\n\\1MissionFile(\"night5.wld\");\\2",
+  "count": 1
+ },
+ {
+  "file": "night8.wld",
+  "from": "multi8.wld"
+ },
+ {
+  "file": "night8.pth",
+  "from": "multi8.pth"
+ },
+ {
+  "file": "night8.aim",
+  "from": "multi8.aim"
+ },
+ {
+  "file": "night8.cin",
+  "from": "multi8.cin"
+ },
+ {
+  "file": "night8.xbt",
+  "from": "multi8.xbt"
+ },
+ {
+  "file": "night8.xxw",
+  "from": "multi8.xxw"
+ },
+ {
+  "file": "multiplayerbuttons.cfg",
+  "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?)MissionFile\\(\"multi8\\.wld\"\\);([^{}]*\\})",
+  "replace": "\\1MissionFile(\"multi8.wld\");\\2\r\n\\1MissionFile(\"night8.wld\");\\2",
+  "count": 1
+ },
+ {
+  "file": "night12.wld",
+  "from": "multi12.wld"
+ },
+ {
+  "file": "night12.pth",
+  "from": "multi12.pth"
+ },
+ {
+  "file": "night12.aim",
+  "from": "multi12.aim"
+ },
+ {
+  "file": "night12.cin",
+  "from": "multi12.cin"
+ },
+ {
+  "file": "night12.xbt",
+  "from": "multi12.xbt"
+ },
+ {
+  "file": "night12.xxw",
+  "from": "multi12.xxw"
+ },
+ {
+  "file": "multiplayerbuttons.cfg",
+  "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?)MissionFile\\(\"multi12\\.wld\"\\);([^{}]*\\})",
+  "replace": "\\1MissionFile(\"multi12.wld\");\\2\r\n\\1MissionFile(\"night12.wld\");\\2",
+  "count": 1
+ },
+ {
+  "file": "night10.wld",
+  "from": "multi10.wld"
+ },
+ {
+  "file": "night10.pth",
+  "from": "multi10.pth"
+ },
+ {
+  "file": "night10.aim",
+  "from": "multi10.aim"
+ },
+ {
+  "file": "night10.cin",
+  "from": "multi10.cin"
+ },
+ {
+  "file": "night10.xbt",
+  "from": "multi10.xbt"
+ },
+ {
+  "file": "night10.xxw",
+  "from": "multi10.xxw"
+ },
+ {
+  "file": "multiplayerbuttons.cfg",
+  "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?)MissionFile\\(\"multi10\\.wld\"\\);([^{}]*\\})",
+  "replace": "\\1MissionFile(\"multi10.wld\");\\2\r\n\\1MissionFile(\"night10.wld\");\\2",
+  "count": 1
+ },
+ {
+  "file": "night6.wld",
+  "from": "multi6.wld"
+ },
+ {
+  "file": "night6.pth",
+  "from": "multi6.pth"
+ },
+ {
+  "file": "night6.aim",
+  "from": "multi6.aim"
+ },
+ {
+  "file": "night6.cin",
+  "from": "multi6.cin"
+ },
+ {
+  "file": "night6.xbt",
+  "from": "multi6.xbt"
+ },
+ {
+  "file": "night6.xxw",
+  "from": "multi6.xxw"
+ },
+ {
+  "file": "multiplayerbuttons.cfg",
+  "find": "(\\s*Mission\\(\\)\\s*\\{[^{}]*?)MissionFile\\(\"multi6\\.wld\"\\);([^{}]*\\})",
+  "replace": "\\1MissionFile(\"multi6.wld\");\\2\r\n\\1MissionFile(\"night6.wld\");\\2",
+  "count": 1
+ },
+ {
+  "file": "localize.cfg",
+  "find": "\\ \\ \\ \\ \\ \\ VarBinary\\(\"test_bed\"\\)\\\r\\\n\\ \\ \\ \\ \\ \\ \\{\\\r\\\n\\ \\ \\ \\ \\ \\ \\ \\ Size\\(22\\);\\\r\\\n\\ \\ \\ \\ \\ \\ \\ \\ Value\\(\"10000000A40016003600B60002004500560037004700\"\\);\\\r\\\n\\ \\ \\ \\ \\ \\ \\}",
+  "replace": "      VarBinary(\"night10\")\r\n      {\r\n        Size(26);\r\n        Value(\"20000000450086005700C60056000200E4009600760086004700\");\r\n      }\r\n      VarBinary(\"night12\")\r\n      {\r\n        Size(32);\r\n        Value(\"20000000B400160037008600970097009700B6000200E4009600760086004700\");\r\n      }\r\n      VarBinary(\"Night5\")\r\n      {\r\n        Size(26);\r\n        Value(\"20000000450086005700C60056000200E4009600760086004700\");\r\n      }\r\n      VarBinary(\"night6\")\r\n      {\r\n        Size(32);\r\n        Value(\"30000000250086005600E60002006500160027000200E4009600760086004700\");\r\n      }\r\n      VarBinary(\"Night8\")\r\n      {\r\n        Size(32);\r\n        Value(\"2000000074005600F600E600F6003700960037000200E4009600760086004700\");\r\n      }\r\n\\g<0>",
+  "count": 1
+ },
+ {
+  "file": "localize.cfg",
+  "find": "\\ \\ \\ \\ \\ \\ VarBinary\\(\"test_bed\"\\)\\\r\\\n\\ \\ \\ \\ \\ \\ \\{\\\r\\\n\\ \\ \\ \\ \\ \\ \\ \\ Size\\(8\\);\\\r\\\n\\ \\ \\ \\ \\ \\ \\ \\ Value\\(\"0000000000000000\"\\);\\\r\\\n\\ \\ \\ \\ \\ \\ \\}",
+  "replace": "      VarBinary(\"night10\")\r\n      {\r\n        Size(194);\r\n        Value(\"200000003400F600D600D6001600E600460002001600E600460002003600F600\");\r\n        Value(\"E600170057005600270002009700F6005700270002005600E6005600D6009700\");\r\n        Value(\"0200F600E6000200470086005600020036002700160047005600270037000200\");\r\n        Value(\"F600660002004700860056000200460056003700F600C6001600470056000200\");\r\n        Value(\"D400F600F600E6000200F60066000200450086005700C600560002005700E600\");\r\n        Value(\"46005600270002004700860056000200E600960076008600470002003700B600\");\r\n        Value(\"9700\");\r\n      }\r\n      VarBinary(\"night12\")\r\n      {\r\n        Size(166);\r\n        Value(\"3000000044005600660056001600470002009700F600570027000200F6000700\");\r\n        Value(\"0700F600E6005600E6004700370002009600E600020047008600560002007700\");\r\n        Value(\"F600F6004600C6001600E600460037000200F600660002004700860056000200\");\r\n        Value(\"B400160037008600970097009700B60002006400F60027005600370047000200\");\r\n        Value(\"5700E60046005600270002004700860056000200E60096007600860047000200\");\r\n        Value(\"3700B6009700\");\r\n      }\r\n      VarBinary(\"Night5\")\r\n      {\r\n        Size(224);\r\n        Value(\"40000000450056003700470002009700F6005700270002003700B6009600C600\");\r\n        Value(\"C600370002001600760016009600E60037004700020047008600560002005600\");\r\n        Value(\"E600470096002700560002003400F600E6006600560046005600270016004700\");\r\n        Value(\"5600020016002700D600970002009600E6000200770016006700560037000200\");\r\n        Value(\"F6006600020016004700470016003600B60037000200F600E600020047008600\");\r\n        Value(\"56000200450086005700C60056000200D400F600F600E60002005700E6004600\");\r\n        Value(\"5600270002004700860056000200E600960076008600470002003700B6009700\");\r\n      }\r\n      VarBinary(\"night6\")\r\n      {\r\n        Size(142);\r\n        Value(\"2000000065009600560002006600F600270002004600F600D6009600E6001600\");\r\n        Value(\"E600360056000200F600E600020047008600560002003700E600F60077009700\");\r\n        Value(\"020047005700E6004600270016000200F60066000200250086005600E6000200\");\r\n        Value(\"65001600270002005700E60046005600270002004700860056000200E6009600\");\r\n        Value(\"76008600470002003700B6009700\");\r\n      }\r\n      VarBinary(\"Night8\")\r\n      {\r\n        Size(182);\r\n        Value(\"200000002400160047004700C60056000200F60007000700F60037009600E600\");\r\n        Value(\"760002006600F600270036005600370002009600E60002004700860056000200\");\r\n        Value(\"860056001600270047000200F600660002004700860096003700020046005600\");\r\n        Value(\"3700560027004700020036001600E6009700F600E6000200F600E60002007400\");\r\n        Value(\"5600F600E600F60037009600370002005700E600460056002700020047008600\");\r\n        Value(\"56000200E600960076008600470002003700B6009700\");\r\n      }\r\n\\g<0>",
+  "count": 1
+ }
+]

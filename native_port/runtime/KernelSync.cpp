@@ -150,9 +150,9 @@ DWORD WINAPI dispatcherThread(void*) {
 }
 
 DWORD WINAPI tickThread(void*) {
-    const ULONGLONG start = GetTickCount64();
+    const ULONGLONG start = gameMilliseconds();
     while (true) {
-        g_keTickCount = static_cast<ULONG>(GetTickCount64() - start);
+        g_keTickCount = static_cast<ULONG>(gameMilliseconds() - start);
         Sleep(1);
     }
 }
@@ -321,9 +321,13 @@ void __stdcall xKeStallExecutionProcessor(ULONG microseconds) {
 }
 
 ULONGLONG __stdcall xKeQueryPerformanceCounter() {
-    LARGE_INTEGER counter;
-    QueryPerformanceCounter(&counter);
-    return counter.QuadPart;
+    // Game time (CW_TIME_SCALE) at the host counter's rate.
+    static const double frequency = [] {
+        LARGE_INTEGER value;
+        QueryPerformanceFrequency(&value);
+        return static_cast<double>(value.QuadPart);
+    }();
+    return static_cast<ULONGLONG>(gameSeconds() * frequency);
 }
 
 ULONGLONG __stdcall xKeQueryPerformanceFrequency() {
